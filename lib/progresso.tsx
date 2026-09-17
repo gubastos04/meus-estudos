@@ -1,111 +1,94 @@
 "use client";
 
-// Progresso do usuário. Fase 1: só em memória, some ao recarregar.
-// A Fase 2 troca o miolo deste arquivo por leitura/escrita no banco
-// sem mudar a interface que as telas usam (useProgresso).
+// Progresso do usuário no cliente. O layout carrega o estado inicial do banco;
+// cada ação atualiza a tela na hora e grava no servidor em seguida.
+// Se a gravação falhar, um aviso aparece e a próxima ação tenta de novo.
 
-import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from "react";
-import { hoje, segundosParaMinutos, ultimosDias } from "@/lib/datas";
-import { ESCALA, META_PADRAO, type Energia, type Fonte, type Tema } from "@/lib/constantes";
-import type { Demanda } from "@/lib/conteudo";
+import { createContext, useContext, useEffect, useMemo, useReducer, useState, type ReactNode } from "react";
+import * as servidor from "@/lib/acoes";
+import { hoje, segundosParaMinutos } from "@/lib/datas";
+import { ESCALA, type Energia, type Fonte } from "@/lib/constantes";
+import { novoId, VAZIO, type Erro, type Nota, type Progresso } from "@/lib/modelo";
 
-/* ── Modelo ───────────────────────────────────────────────────── */
-
-export type OrigemSessao = "aula" | "demanda" | "treino" | "prova";
-
-export type Sessao = { dia: string; minutos: number; origem: OrigemSessao; refId: string };
-export type Nota = { id: string; texto: string; dia: string; aulaId?: string; aulaTitulo?: string };
-export type Erro = { id: string; dia: string; mensagem: string; contexto?: string; causa?: string; solucao?: string };
-
-export type Progresso = {
-  feitas: Record<string, string>;                       // aulaId -> dia
-  sessoes: Sessao[];
-  notas: Nota[];
-  erros: Erro[];
-  demandas: Record<string, { dia: string; minutos: number }>;
-  treinos: Record<string, { dia: string; sozinho: boolean }>;
-  projetos: Record<string, { dia: string }>;
-  provas: Record<string, { melhor: number; total: number; tentativas: number; dia: string }>;
-  geradas: Demanda[];
-  meta: number;
-  energia: Energia;
-  tema: Tema;
-  fonte: Fonte;
-};
-
-export const VAZIO: Progresso = {
-  feitas: {}, sessoes: [], notas: [], erros: [],
-  demandas: {}, treinos: {}, projetos: {}, provas: {}, geradas: [],
-  meta: META_PADRAO, energia: "media", tema: "escuro", fonte: 1,
-};
-
-/* ── Derivados ────────────────────────────────────────────────── */
-
-export const minutosTotais = (p: Progresso) => p.sessoes.reduce((s, x) => s + x.minutos, 0);
-
-/** Dias distintos com sessão nos últimos 7 dias. É a métrica da meta semanal. */
-export function diasAtivos(p: Progresso): number {
-  const janela = ultimosDias(7);
-  return new Set(p.sessoes.map((s) => s.dia).filter((d) => janela.has(d))).size;
-}
-
-/** Próxima aula não concluída que já tem conteúdo escrito. Aula só com título é pulada. */
-export function proximaAula<T extends { id: string; temConteudo: boolean }>(aulas: T[], p: Progresso): T | null {
-  return aulas.find((a) => !p.feitas[a.id] && a.temConteudo) ?? null;
-}
+export type { Progresso, Nota, Sessao, Erro } from "@/lib/modelo";
+export { diasAtivos, minutosTotais, proximaAula } from "@/lib/modelo";
 
 /* ── Reducer ──────────────────────────────────────────────────── */
 
 type Acao =
-  | { tipo: "energia"; energia: Energia }
-  | { tipo: "tema"; tema: Tema }
-  | { tipo: "fonte"; fonte: Fonte }
-  | { tipo: "meta"; meta: number }
-  | { tipo: "concluirAula"; aulaId: string; segundos: number }
+  | { tipo: "prefs"; prefs: Partial<Pick<Progresso, "meta" | "energia" | "tema" | "fonte">> }
+  | { tipo: "concluirAula"; aulaId: string; dia: string; minutos: number }
   | { tipo: "desmarcarAula"; aulaId: string }
-  | { tipo: "anotar"; texto: string; aula?: { id: string; titulo: string } }
+  | { tipo: "anotar"; nota: Nota }
   | { tipo: "apagarNota"; id: string }
-  | { tipo: "alternarProjeto"; projetoId: string }
+  | { tipo: "registrarErro"; erro: Erro }
+  | { tipo: "apagarErro"; id: string }
+  | { tipo: "projeto"; projetoId: string; feito: boolean; dia: string }
+  | { tipo: "demanda"; demandaId: string; dia: string; minutos: number }
+  | { tipo: "treino"; treinoId: string; sozinho: boolean; dia: string; minutos: number }
+  | { tipo: "prova"; provaId: string; acertos: number; total: number; dia: string; minutos: number }
+  | { tipo: "adicionarGerada"; demanda: Progresso["geradas"][number] }
   | { tipo: "substituir"; progresso: Progresso };
-
-const novoId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 
 function reduzir(p: Progresso, a: Acao): Progresso {
   switch (a.tipo) {
-    case "energia": return { ...p, energia: a.energia };
-    case "tema": return { ...p, tema: a.tema };
-    case "fonte": return { ...p, fonte: a.fonte };
-    case "meta": return { ...p, meta: a.meta };
+    case "prefs": return { ...p, ...a.prefs };
 
-    case "concluirAula": {
-      const dia = hoje();
+    case "concluirAula":
       return {
         ...p,
-        feitas: { ...p.feitas, [a.aulaId]: dia },
-        sessoes: [...p.sessoes, { dia, minutos: segundosParaMinutos(a.segundos), origem: "aula", refId: a.aulaId }],
+        feitas: { ...p.feitas, [a.aulaId]: a.dia },
+        sessoes: [...p.sessoes, { dia: a.dia, minutos: a.minutos, origem: "aula", refId: a.aulaId }],
       };
-    }
     case "desmarcarAula": {
       const feitas = { ...p.feitas };
       delete feitas[a.aulaId];
       return { ...p, feitas };
     }
 
-    case "anotar": {
-      const nota: Nota = {
-        id: novoId(), texto: a.texto, dia: hoje(),
-        ...(a.aula && { aulaId: a.aula.id, aulaTitulo: a.aula.titulo }),
-      };
-      return { ...p, notas: [nota, ...p.notas] };
-    }
+    case "anotar": return { ...p, notas: [a.nota, ...p.notas] };
     case "apagarNota": return { ...p, notas: p.notas.filter((n) => n.id !== a.id) };
 
-    case "alternarProjeto": {
+    case "registrarErro": return { ...p, erros: [a.erro, ...p.erros] };
+    case "apagarErro": return { ...p, erros: p.erros.filter((e) => e.id !== a.id) };
+
+    case "projeto": {
       const projetos = { ...p.projetos };
-      if (projetos[a.projetoId]) delete projetos[a.projetoId];
-      else projetos[a.projetoId] = { dia: hoje() };
+      if (a.feito) projetos[a.projetoId] = { dia: a.dia };
+      else delete projetos[a.projetoId];
       return { ...p, projetos };
     }
+
+    case "demanda":
+      return {
+        ...p,
+        demandas: { ...p.demandas, [a.demandaId]: { dia: a.dia, minutos: a.minutos } },
+        sessoes: [...p.sessoes, { dia: a.dia, minutos: a.minutos, origem: "demanda", refId: a.demandaId }],
+      };
+    case "treino":
+      return {
+        ...p,
+        treinos: { ...p.treinos, [a.treinoId]: { dia: a.dia, sozinho: a.sozinho } },
+        sessoes: [...p.sessoes, { dia: a.dia, minutos: a.minutos, origem: "treino", refId: a.treinoId }],
+      };
+    case "prova": {
+      const antes = p.provas[a.provaId];
+      return {
+        ...p,
+        provas: {
+          ...p.provas,
+          [a.provaId]: {
+            melhor: Math.max(a.acertos, antes?.melhor ?? 0),
+            total: a.total,
+            tentativas: (antes?.tentativas ?? 0) + 1,
+            dia: a.dia,
+          },
+        },
+        sessoes: [...p.sessoes, { dia: a.dia, minutos: a.minutos, origem: "prova", refId: a.provaId }],
+      };
+    }
+
+    case "adicionarGerada": return { ...p, geradas: [a.demanda, ...p.geradas] };
 
     case "substituir": return a.progresso;
   }
@@ -122,38 +105,101 @@ type Acoes = {
   desmarcarAula: (aulaId: string) => void;
   anotar: (texto: string, aula?: { id: string; titulo: string }) => void;
   apagarNota: (id: string) => void;
+  registrarErro: (campos: { mensagem: string; contexto?: string; causa?: string; solucao?: string }) => void;
+  apagarErro: (id: string) => void;
   alternarProjeto: (projetoId: string) => void;
+  entregarDemanda: (demandaId: string, segundos: number) => void;
+  resolverTreino: (treinoId: string, sozinho: boolean, segundos: number) => void;
+  registrarProva: (provaId: string, acertos: number, total: number, segundos: number) => void;
   apagarTudo: () => void;
+  /** Adiciona uma demanda gerada por IA (já salva no servidor pela rota). */
+  adicionarGerada: (demanda: Progresso["geradas"][number]) => void;
+  /** Troca o estado inteiro (usado pelo importador, que já gravou no servidor). */
+  substituir: (p: Progresso) => void;
 };
 
-const Ctx = createContext<{ progresso: Progresso; acoes: Acoes } | null>(null);
+type Valor = { progresso: Progresso; acoes: Acoes; falha: string | null };
 
-export function ProgressoProvider({ children }: { children: ReactNode }) {
-  const [progresso, despachar] = useReducer(reduzir, VAZIO);
+const Ctx = createContext<Valor | null>(null);
 
-  // Tema e escala de fonte vivem no <html>, para o CSS inteiro reagir.
+export function ProgressoProvider({ inicial, children }: { inicial: Progresso; children: ReactNode }) {
+  const [progresso, despachar] = useReducer(reduzir, inicial);
+  const [falha, setFalha] = useState<string | null>(null);
+
+  // Tema e escala de fonte vivem no <html>. O servidor já manda certo; isto cobre as trocas.
   useEffect(() => {
     const raiz = document.documentElement;
     raiz.dataset.tema = progresso.tema;
     raiz.style.setProperty("--esc", String(ESCALA[progresso.fonte]));
   }, [progresso.tema, progresso.fonte]);
 
-  const d = despachar; // estável entre renders, por contrato do useReducer
-  const acoes = useMemo<Acoes>(() => ({
-    setEnergia: (energia) => d({ tipo: "energia", energia }),
-    alternarTema: () => d({ tipo: "tema", tema: progresso.tema === "claro" ? "escuro" : "claro" }),
-    proximaFonte: () => d({ tipo: "fonte", fonte: ((progresso.fonte + 1) % 3) as Fonte }),
-    setMeta: (meta) => d({ tipo: "meta", meta }),
-    concluirAula: (aulaId, segundos) => d({ tipo: "concluirAula", aulaId, segundos }),
-    desmarcarAula: (aulaId) => d({ tipo: "desmarcarAula", aulaId }),
-    anotar: (texto, aula) => d({ tipo: "anotar", texto, aula }),
-    apagarNota: (id) => d({ tipo: "apagarNota", id }),
-    alternarProjeto: (projetoId) => d({ tipo: "alternarProjeto", projetoId }),
-    // preserva tema e fonte, como a spec pede
-    apagarTudo: () => d({ tipo: "substituir", progresso: { ...VAZIO, tema: progresso.tema, fonte: progresso.fonte } }),
-  }), [d, progresso.tema, progresso.fonte]);
+  const acoes = useMemo<Acoes>(() => {
+    // atualiza a tela primeiro, grava depois; falha vira aviso, não tela travada
+    const executar = (acao: Acao, gravar: () => Promise<unknown>) => {
+      despachar(acao);
+      gravar().then(
+        () => setFalha(null),
+        (e) => {
+          console.error("não salvou:", e);
+          setFalha("A última ação não foi salva. Ela aparece na tela, mas some ao recarregar. Tente de novo.");
+        },
+      );
+    };
+    const prefs = (p: Acao & { tipo: "prefs" }) => executar(p, () => servidor.salvarPreferencias(p.prefs));
 
-  const valor = useMemo(() => ({ progresso, acoes }), [progresso, acoes]);
+    return {
+      setEnergia: (energia) => prefs({ tipo: "prefs", prefs: { energia } }),
+      alternarTema: () => prefs({ tipo: "prefs", prefs: { tema: progresso.tema === "claro" ? "escuro" : "claro" } }),
+      proximaFonte: () => prefs({ tipo: "prefs", prefs: { fonte: ((progresso.fonte + 1) % 3) as Fonte } }),
+      setMeta: (meta) => prefs({ tipo: "prefs", prefs: { meta } }),
+
+      concluirAula: (aulaId, segundos) => {
+        const dia = hoje(), minutos = segundosParaMinutos(segundos);
+        executar({ tipo: "concluirAula", aulaId, dia, minutos }, () => servidor.concluirAula(aulaId, dia, minutos));
+      },
+      desmarcarAula: (aulaId) => executar({ tipo: "desmarcarAula", aulaId }, () => servidor.desmarcarAula(aulaId)),
+
+      anotar: (texto, aula) => {
+        const nota: Nota = { id: novoId(), texto, dia: hoje(), ...(aula && { aulaId: aula.id, aulaTitulo: aula.titulo }) };
+        executar({ tipo: "anotar", nota }, () => servidor.salvarNota(nota));
+      },
+      apagarNota: (id) => executar({ tipo: "apagarNota", id }, () => servidor.apagarNota(id)),
+
+      registrarErro: (campos) => {
+        const erro: Erro = { id: novoId(), dia: hoje(), ...campos };
+        executar({ tipo: "registrarErro", erro }, () => servidor.registrarErro(erro));
+      },
+      apagarErro: (id) => executar({ tipo: "apagarErro", id }, () => servidor.apagarErro(id)),
+
+      alternarProjeto: (projetoId) => {
+        const feito = !progresso.projetos[projetoId], dia = hoje();
+        executar({ tipo: "projeto", projetoId, feito, dia }, () => servidor.marcarProjeto(projetoId, feito, dia));
+      },
+
+      entregarDemanda: (demandaId, segundos) => {
+        const dia = hoje(), minutos = segundosParaMinutos(segundos);
+        executar({ tipo: "demanda", demandaId, dia, minutos }, () => servidor.entregarDemanda(demandaId, dia, minutos));
+      },
+      resolverTreino: (treinoId, sozinho, segundos) => {
+        const dia = hoje(), minutos = segundosParaMinutos(segundos);
+        executar({ tipo: "treino", treinoId, sozinho, dia, minutos }, () => servidor.resolverTreino(treinoId, sozinho, dia, minutos));
+      },
+      registrarProva: (provaId, acertos, total, segundos) => {
+        const dia = hoje(), minutos = segundosParaMinutos(segundos);
+        executar({ tipo: "prova", provaId, acertos, total, dia, minutos }, () => servidor.registrarProva(provaId, acertos, total, dia, minutos));
+      },
+
+      // preserva tema e fonte, como a spec pede
+      apagarTudo: () => executar(
+        { tipo: "substituir", progresso: { ...VAZIO, tema: progresso.tema, fonte: progresso.fonte } },
+        () => servidor.apagarTudo(),
+      ),
+      adicionarGerada: (demanda) => despachar({ tipo: "adicionarGerada", demanda }),
+      substituir: (p) => despachar({ tipo: "substituir", progresso: p }),
+    };
+  }, [progresso.tema, progresso.fonte, progresso.projetos]);
+
+  const valor = useMemo(() => ({ progresso, acoes, falha }), [progresso, acoes, falha]);
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>;
 }
 

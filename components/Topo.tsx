@@ -5,10 +5,11 @@ import { Moon, Sun, Type } from "lucide-react";
 import { useProgresso } from "@/lib/progresso";
 
 export function Topo() {
-  const { progresso, acoes } = useProgresso();
+  const { progresso, acoes, falha } = useProgresso();
   const claro = progresso.tema === "claro";
 
   return (
+    <>
     <header className="topo">
       <Link href="/" className="marca">Meus Estudos<span>.</span></Link>
       <div className="ctrl">
@@ -20,5 +21,7 @@ export function Topo() {
         </button>
       </div>
     </header>
+    {falha && <div className="aviso aviso-falha" role="alert">{falha}</div>}
+    </>
   );
 }

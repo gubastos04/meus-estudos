@@ -1,0 +1,149 @@
+// Progresso do usuário (seção 5.2 da especificação).
+// Dev: SQLite. Produção: troca provider para "postgresql" e a DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id          String   @id @default(cuid())
+  criadoEm    DateTime @default(now())
+  metaSemanal Int      @default(3)
+  energia     String   @default("media")  // baixa | media | alta
+  tema        String   @default("escuro") // escuro | claro
+  fonte       Int      @default(1)        // 0 | 1 | 2
+
+  aulas    AulaFeita[]
+  sessoes  Sessao[]
+  notas    Nota[]
+  erros    Erro[]
+  demandas DemandaFeita[]
+  treinos  TreinoFeito[]
+  projetos ProjetoFeito[]
+  provas   ProvaFeita[]
+  geradas  DemandaGerada[]
+  usoIA    UsoIA[]
+}
+
+model AulaFeita {
+  id        String   @id @default(cuid())
+  usuarioId String
+  aulaId    String
+  dia       String   // "AAAA-MM-DD" no fuso do usuário
+  em        DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, aulaId])
+}
+
+// Toda conclusão grava uma sessão. Alimenta tempo total e dias ativos.
+model Sessao {
+  id        String  @id @default(cuid())
+  usuarioId String
+  dia       String  // "AAAA-MM-DD" no fuso do usuário
+  minutos   Int
+  origem    String  // aula | demanda | treino | prova
+  refId     String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, dia])
+}
+
+model Nota {
+  id         String   @id @default(cuid())
+  usuarioId  String
+  texto      String
+  dia        String
+  aulaId     String?
+  aulaTitulo String?
+  em         DateTime @default(now())
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, aulaId])
+}
+
+model Erro {
+  id        String   @id @default(cuid())
+  usuarioId String
+  mensagem  String
+  contexto  String?
+  causa     String?
+  solucao   String?
+  dia       String
+  em        DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model DemandaFeita {
+  id        String   @id @default(cuid())
+  usuarioId String
+  demandaId String
+  minutos   Int
+  dia       String
+  em        DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, demandaId])
+}
+
+model TreinoFeito {
+  id        String   @id @default(cuid())
+  usuarioId String
+  treinoId  String
+  sozinho   Boolean
+  dia       String
+  em        DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, treinoId])
+}
+
+model ProjetoFeito {
+  id        String   @id @default(cuid())
+  usuarioId String
+  projetoId String
+  dia       String
+  em        DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, projetoId])
+}
+
+model ProvaFeita {
+  id         String   @id @default(cuid())
+  usuarioId  String
+  provaId    String
+  melhor     Int
+  total      Int
+  tentativas Int
+  dia        String
+  em         DateTime @default(now())
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, provaId])
+}
+
+// Demanda gerada por IA, guardada como JSON no formato Demanda de lib/conteudo.ts
+model DemandaGerada {
+  id        String   @id @default(cuid())
+  usuarioId String
+  json      String
+  em        DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+// Conta as chamadas de IA por dia, para o limite diário configurável (seção 7).
+model UsoIA {
+  id        String  @id @default(cuid())
+  usuarioId String
+  dia       String
+  total     Int     @default(0)
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, dia])
+}

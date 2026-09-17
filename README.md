@@ -2,14 +2,17 @@
 
 App pessoal de estudo: trilha de programação com foco em segurança da informação, feita para quem tem pouca atenção, pouca constância e trabalha em escala 12x36.
 
-A regra de tudo está em [docs/especificacao.md](docs/especificacao.md). Leia a seção 2 (princípios) antes de mexer em qualquer tela.
+A regra de tudo está em [docs/especificacao.md](docs/especificacao.md). Leia a seção 2 (princípios) antes de mexer em qualquer tela. O contexto de produto está em [PRODUCT.md](PRODUCT.md) e o sistema visual em [DESIGN.md](DESIGN.md).
 
 ## Rodar
 
 ```bash
 npm install
+npx prisma migrate dev
 npm run dev
 ```
+
+O banco local é SQLite em `prisma/dev.db` (criado pelo `migrate dev`; a URL está em `.env`). Ele não vai para o git: é o seu progresso.
 
 Abre em http://localhost:3000. O celular é o dispositivo principal: teste em tela estreita.
 
@@ -17,11 +20,11 @@ Abre em http://localhost:3000. O celular é o dispositivo principal: teste em te
 
 | Fase | O quê | Estado |
 |---|---|---|
-| 1 | Esqueleto, design system, conteúdo validado, telas Agora, Trilha, Aula, Projeto | **pronta** — progresso só em memória (some ao recarregar) |
-| 2 | Persistência com Prisma, importador do JSON do protótipo | — |
-| 3 | Prática: demandas com reviravolta, treino, provas, revisar | — |
-| 4 | Caderno, diário de erro, glossário, entrevista, certificados | — |
-| 5 | IA: corretor, explicar de outro jeito, pergunta livre, gerar demanda | — |
+| 1 | Esqueleto, design system, conteúdo validado, telas Agora, Trilha, Aula, Projeto | **pronta** |
+| 2 | Persistência com Prisma, importador do JSON do protótipo (`/importar`) | **pronta** — usuário único até a fase 6 |
+| 3 | Prática: demandas com reviravolta, treino, provas, revisar | **pronta** — corretor de IA e gerador de demandas ficam para a fase 5 |
+| 4 | Caderno (notas, erros, glossário) e Você (progresso, entrevista, certificados) | **pronta** |
+| 5 | IA: corretor, explicar de outro jeito, pergunta livre, gerar demanda | **pronta** — desligada até configurar a chave |
 | 6 | Login e deploy | — |
 
 ## Estrutura
@@ -31,10 +34,34 @@ app/            rotas (App Router)
 components/     componentes; components/telas/ são as telas inteiras (client)
 content/        conteúdo em JSON: trilha, aulas por módulo, demandas, treinos...
 lib/conteudo.ts única porta de entrada para /content, valida com Zod no build
-lib/progresso.tsx  estado do usuário e as ações que as telas usam
+lib/modelo.ts   formato do progresso (puro) e derivados: dias ativos, próxima aula
+lib/progresso.tsx  provider cliente: estado do usuário e as ações que as telas usam
+lib/acoes.ts    server actions que gravam no banco
+lib/progresso-servidor.ts  monta o progresso a partir do Prisma (uma vez por requisição)
+lib/prototipo.ts  lê o JSON do protótipo antigo
+lib/sorteio.ts  semente e embaralhamento determinístico (render precisa ser puro)
+lib/ia.ts       cliente da Anthropic e os quatro prompts (server-only)
+lib/ia-rota.ts  helper compartilhado das rotas de IA
+app/api/ia/     route handlers: corrigir, explicar, perguntar, demanda
+components/IA.tsx  botões de IA no cliente (desligados quando não há chave)
+prisma/         schema e migrações
 docs/           especificação e formato do protótipo
 scripts/        extração do conteúdo do protótipo (uso único, mantido por histórico)
 ```
+
+## Ligar a IA (opcional)
+
+Os quatro recursos de IA (corretor de código, explicar de outro jeito, pergunta livre, gerar demanda) ficam **desligados** até existir uma chave da API. Sem chave, os botões mostram um aviso e nada é cobrado; o resto do app funciona igual.
+
+Para ligar, ponha no `.env`:
+
+```bash
+ANTHROPIC_API_KEY="sk-ant-..."   # conta da API (console.anthropic.com), cobrada por token, separada do plano Pro
+IA_MODELO="claude-sonnet-5"       # opcional; padrão claude-sonnet-5
+IA_LIMITE_DIARIO="40"             # opcional; teto de chamadas por dia, controle de custo
+```
+
+A chave fica só no servidor (route handlers em `app/api/ia/`), nunca chega ao navegador. Reinicie o `npm run dev` depois de mudar o `.env`.
 
 ## Adicionar conteúdo
 

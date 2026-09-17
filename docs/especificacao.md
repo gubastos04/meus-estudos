@@ -411,6 +411,9 @@ Qualquer erro mostra bloco com borda de alerta e texto útil, nunca stack trace.
 
 ## 8. Design system
 
+> Nota (17/09/2026): a **execução visual** desta seção foi reformada para o sistema "Caderno" (papel/tinta morna, Fraunces + Karla + JetBrains Mono, hierarquia sem tarja lateral). O sistema atual está em `DESIGN.md`. Os princípios da seção 2 e a **semântica de cor** abaixo (âmbar = ativo, verde = feito, vermelho = alerta real) continuam valendo; o que mudou foi a paleta neutra, a tipografia e o modo de separar blocos. O texto original fica abaixo como registro da intenção.
+
+
 ### Cores
 
 ```css
@@ -503,23 +506,23 @@ Projeto, design system, navegação, carregamento e validação de `/content`, t
 
 *Pronto quando:* dá para abrir uma aula do Módulo 1, ler tudo e responder o teste.
 
-### Fase 2 — Persistência
-Prisma, schema, gravação de progresso, sessões, meta semanal, energia, tema e fonte. Importador do JSON do protótipo.
+### Fase 2 — Persistência — *pronta*
+Prisma, schema, gravação de progresso, sessões, meta semanal, energia, tema e fonte. Importador do JSON do protótipo em `/importar` (substitui, não soma). Usuário único fixo até a fase 6.
 
 *Pronto quando:* fechar o navegador e reabrir mantém tudo, e o progresso antigo foi importado sem perda.
 
-### Fase 3 — Prática e portfólio
-Demandas com reviravolta, treino com registro honesto, as duas categorias de prova, revisar.
+### Fase 3 — Prática e portfólio — *pronta*
+Demandas com reviravolta, treino com registro honesto, as duas categorias de prova, revisar. Os blocos de corretor de IA (aula, demanda, prova prática) e o gerador de demandas entram na fase 5.
 
 *Pronto quando:* dá para entregar uma demanda, ver o escopo mudar e fechar depois.
 
-### Fase 4 — Referência
+### Fase 4 — Referência — *pronta*
 Caderno, diário de erro, glossário, entrevista, certificados, tela Você.
 
 *Pronto quando:* dá para registrar um erro e encontrá-lo pela busca três dias depois.
 
-### Fase 5 — IA
-Os quatro recursos da seção 7, com limite diário e tratamento de falha.
+### Fase 5 — IA — *pronta*
+Os quatro recursos da seção 7, com limite diário e tratamento de falha. Desligada por padrão: liga com ANTHROPIC_API_KEY no servidor. Modelo padrão claude-sonnet-5 (decisão de 17/09/2026, foco em confiabilidade do corretor de código a custo baixo).
 
 *Pronto quando:* colar um código errado no corretor devolve critério por critério, e um código certo é aprovado.
 

@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
-import { EmBreve } from "@/components/EmBreve";
+import { glossario } from "@/lib/conteudo";
+import { Caderno, type Aba } from "@/components/telas/Caderno";
 
 export const metadata: Metadata = { title: "Caderno" };
 
-export default function PaginaCaderno() {
-  return <EmBreve titulo="Caderno" fase={4} itens={["Notas", "Diário de erro", "Glossário"]} />;
+const ABAS: Aba[] = ["notas", "erros", "glossario"];
+
+export default async function PaginaCaderno({ searchParams }: PageProps<"/caderno">) {
+  const { aba } = await searchParams;
+  const inicial = ABAS.includes(aba as Aba) ? (aba as Aba) : "notas";
+  return <Caderno abaInicial={inicial} termos={glossario()} />;
 }

@@ -49,11 +49,11 @@ export function ProjetoView({ projeto: p }: { projeto: Projeto }) {
       <section className="secao">
         <div className="secao-t">Escopo</div>
         <div className="col2">
-          <div className="cx">
+          <div className="cx faz">
             <div className="cx-t sim">O projeto faz</div>
             <ul>{p.escopo.faz.map((x, i) => <li key={i}>{x}</li>)}</ul>
           </div>
-          <div className="cx">
+          <div className="cx nao">
             <div className="cx-t nao">O projeto não faz</div>
             <ul>{p.escopo.naoFaz.map((x, i) => <li key={i}>{x}</li>)}</ul>
           </div>

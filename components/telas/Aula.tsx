@@ -11,6 +11,7 @@ import { Cronometro } from "@/components/Cronometro";
 import { useCronometro } from "@/components/useCronometro";
 import { QuestaoImediata } from "@/components/Quiz";
 import { Codigo } from "@/components/Codigo";
+import { Corretor, NaoEntendeu } from "@/components/IA";
 
 export function AulaView({ aula }: { aula: AulaComModulo }) {
   const { progresso, acoes } = useProgresso();
@@ -116,8 +117,15 @@ export function AulaView({ aula }: { aula: AulaComModulo }) {
           {verSolucao
             ? <Codigo>{aula.desafio.solucao}</Codigo>
             : <button type="button" className="bt-2" onClick={() => setVerSolucao(true)}>Ver uma solução</button>}
+          <Corretor titulo={aula.titulo} enunciado={aula.desafio.pergunta} solucao={aula.desafio.solucao}
+            criterios={["Resolve o que o enunciado pede", "O código roda sem erro", "Trata o caso vazio ou limite, se houver"]} />
         </section>
       )}
+
+      <section className="secao">
+        <NaoEntendeu titulo={aula.titulo} modulo={aula.moduloNome} resumo={aula.resumo}
+          ideia={aula.ideia} exemplo={aula.exemplo?.codigo} />
+      </section>
 
       <section className="secao">
         <div className="secao-t">Suas anotações desta aula</div>

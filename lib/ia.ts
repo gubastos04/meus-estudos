@@ -1,0 +1,194 @@
+import "server-only";
+import Anthropic from "@anthropic-ai/sdk";
+import { Demanda, type Demanda as TDemanda } from "@/lib/conteudo";
+import { db } from "@/lib/db";
+import { garantirUsuario, USUARIO_ID } from "@/lib/progresso-servidor";
+import { hoje } from "@/lib/datas";
+
+// A chave nunca vai para o navegador. Modelo e limite são configuráveis por env.
+const MODELO = process.env.IA_MODELO || "claude-sonnet-5";
+const LIMITE_DIARIO = Number(process.env.IA_LIMITE_DIARIO || "40");
+
+/** IA só liga quando existe chave. Sem chave, os botões nem aparecem (seção 7). */
+export const temChaveIA = () => Boolean(process.env.ANTHROPIC_API_KEY);
+
+// Voz compartilhada (seção 7). Texto puro, direto, sem elogio vazio.
+const VOZ = `Você é professor particular de um aluno brasileiro que está começando programação do zero, com foco em segurança da informação.
+
+Regras de estilo, sem exceção:
+- Português do Brasil, direto, sem enrolação.
+- Frases curtas. Nada de introdução ou despedida.
+- Exemplo concreto sempre que possível.
+- Texto puro. Nada de markdown, asterisco, cerquilha ou emoji.
+- Código, quando houver, em linhas soltas, sem cercas de crase.
+- Máximo 250 palavras.
+- Nunca elogie por elogiar. Se estiver errado, diga que está errado.`;
+
+const VOZ_JSON = `Você gera demandas de trabalho realistas para um aluno brasileiro que está aprendendo Python com foco em segurança.
+
+Responda APENAS com um objeto JSON válido. Sem markdown, sem cercas de crase, sem texto antes ou depois.`;
+
+/** Erro com mensagem já pronta para o usuário (sem stack trace). */
+export class ErroIA extends Error {}
+
+let cliente: Anthropic | null = null;
+function anthropic(): Anthropic {
+  if (!temChaveIA()) throw new ErroIA("A IA está desligada. Falta configurar a chave da API no servidor.");
+  cliente ??= new Anthropic();
+  return cliente;
+}
+
+/** Barra se o uso do dia já chegou ao limite. Só leitura — não consome. */
+async function checarCota() {
+  await garantirUsuario();
+  const uso = await db.usoIA.findUnique({ where: { usuarioId_dia: { usuarioId: USUARIO_ID, dia: hoje() } } });
+  if ((uso?.total ?? 0) >= LIMITE_DIARIO) {
+    throw new ErroIA(`Você chegou ao limite de ${LIMITE_DIARIO} usos de IA hoje. Isso existe para o custo não fugir do controle. Volta amanhã, ou aumenta o limite em IA_LIMITE_DIARIO.`);
+  }
+}
+
+/** Conta um uso do dia. Chamado só depois de a chamada dar certo (aí sim custou). */
+async function registrarUso() {
+  const dia = hoje();
+  await db.usoIA.upsert({
+    where: { usuarioId_dia: { usuarioId: USUARIO_ID, dia } },
+    update: { total: { increment: 1 } },
+    create: { usuarioId: USUARIO_ID, dia, total: 1 },
+  });
+}
+
+async function conversar(prompt: string, sistema: string, maxTokens = 1024): Promise<string> {
+  await checarCota();
+  let resposta;
+  try {
+    resposta = await anthropic().messages.create({
+      model: MODELO,
+      max_tokens: maxTokens,
+      system: sistema,
+      messages: [{ role: "user", content: prompt }],
+    });
+  } catch (e) {
+    if (e instanceof Anthropic.AuthenticationError) throw new ErroIA("A chave da API foi recusada. Confira a ANTHROPIC_API_KEY no servidor.");
+    if (e instanceof Anthropic.RateLimitError) throw new ErroIA("A API está ocupada agora (limite de taxa). Tenta de novo em alguns segundos.");
+    console.error("IA falhou:", e);
+    throw new ErroIA("Não consegui responder agora. Tenta de novo daqui a pouco.");
+  }
+  const texto = resposta.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
+  if (!texto) throw new ErroIA("Veio uma resposta vazia. Tenta de novo.");
+  await registrarUso();
+  return texto;
+}
+
+/* ── 7.1 Corretor de código ───────────────────────────────────── */
+
+export function corrigir(entrada: { titulo: string; enunciado: string; criterios: string[]; solucao?: string; codigo: string }) {
+  const prompt = `Tarefa dada ao aluno: ${entrada.titulo}
+Enunciado: ${entrada.enunciado}
+
+Critérios de aceite:
+${entrada.criterios.map((c, i) => `${i + 1}. ${c}`).join("\n")}
+${entrada.solucao ? `\nUma solução de referência:\n${entrada.solucao}` : ""}
+
+Código que o aluno escreveu:
+${entrada.codigo}
+
+Faça, nesta ordem:
+1. Diga critério por critério se ele foi atendido. Use o formato: ATENDIDO ou FALTA, seguido do critério e de uma frase curta.
+2. Aponte no máximo dois problemas além dos critérios, se existirem, priorizando bug real sobre estilo.
+3. Termine com uma frase dizendo se está pronto pra entregar ou não.
+
+Não reescreva o código inteiro. Se precisar mostrar correção, mostre só a linha ou o trecho.`;
+  return conversar(prompt, VOZ, 1024);
+}
+
+/* ── 7.2 Explica de outro jeito ───────────────────────────────── */
+
+export function explicar(entrada: { titulo: string; modulo: string; resumo?: string; ideia: string[] }) {
+  const prompt = `O aluno está na aula "${entrada.titulo}", do módulo "${entrada.modulo}".
+
+Resumo que ele leu: ${entrada.resumo ?? ""}
+Explicação que ele leu:
+${entrada.ideia.join("\n")}
+
+Essa explicação não entrou na cabeça dele. Explique o MESMO conceito de outro jeito:
+- Use uma analogia diferente da que está acima.
+- Comece pelo exemplo concreto, não pela definição.
+- Termine com uma pergunta curta que ele possa responder pra si mesmo e saber se entendeu.`;
+  return conversar(prompt, VOZ, 700);
+}
+
+/* ── 7.3 Pergunta livre ───────────────────────────────────────── */
+
+export function perguntar(entrada: { titulo: string; modulo: string; resumo?: string; ideia: string[]; exemplo?: string; pergunta: string }) {
+  const prompt = `O aluno está na aula "${entrada.titulo}", do módulo "${entrada.modulo}".
+
+Conteúdo que ele acabou de ler:
+${entrada.resumo ?? ""}
+${entrada.ideia.join("\n")}
+${entrada.exemplo ? `\nExemplo mostrado:\n${entrada.exemplo}` : ""}
+
+Pergunta dele:
+${entrada.pergunta}
+
+Responda a pergunta dele. Se a pergunta for sobre assunto de um módulo posterior, responda o essencial em duas frases e diga onde é aprofundado. Nunca responda apenas "depende".`;
+  return conversar(prompt, VOZ, 900);
+}
+
+/* ── 7.4 Demanda gerada ───────────────────────────────────────── */
+
+const IDS_PROIBIDOS = new Set(["validador de senha", "análise de log de login", "log de login"]);
+
+/** Gera uma demanda nova, valida com Zod, tenta mais uma vez se falhar. */
+export async function gerarDemanda(aulasFeitas: string[]): Promise<TDemanda> {
+  const sabe = aulasFeitas.length ? aulasFeitas.join(", ") : "lógica básica, variáveis, condicionais, laços";
+  const prompt = `O aluno já domina: ${sabe}.
+
+Gere UMA demanda de trabalho nova, em português do Brasil, sobre um tema de segurança ou back-end aplicado (tratamento de log, validação de entrada, proteção de dado pessoal, controle de acesso, automação interna). Não repita validador de senha nem análise de log de login, que ele já fez.
+
+O JSON deve ter exatamente estas chaves:
+{
+ "id": "g seguido de um número qualquer",
+ "titulo": "curto, 3 a 6 palavras",
+ "nivel": 2,
+ "de": "Nome, cargo",
+ "canal": "Slack, E-mail ou Ticket",
+ "prazo": "informal, como gente fala",
+ "depois": "qual assunto ele precisa saber antes",
+ "mensagem": "a mensagem do remetente, 3 a 6 linhas, do jeito que aquela pessoa escreveria naquele canal. Informal no Slack, formal no e-mail, seca no ticket. Levemente vaga, como pedido real. Use \\n entre as linhas.",
+ "criterios": ["4 critérios objetivos e verificáveis"],
+ "reviravolta": {
+   "texto": "segunda mensagem com algo que a pessoa esqueceu de falar, mudando o escopo",
+   "criterios": ["1 ou 2 critérios novos"]
+ },
+ "solucao": "código Python comentado que atende tudo, usando \\n entre as linhas",
+ "aprendizado": "uma frase sobre o conceito que essa demanda ensina"
+}
+
+O campo canal deve ser exatamente Slack, E-mail ou Ticket, sem número junto.`;
+
+  const tentar = async (): Promise<TDemanda> => {
+    const txt = await conversar(prompt, VOZ_JSON, 2000);
+    const limpo = txt.replace(/```json/gi, "").replace(/```/g, "").trim();
+    let bruto: unknown;
+    try {
+      bruto = JSON.parse(limpo);
+    } catch {
+      throw new ErroIA("json inválido");
+    }
+    const r = Demanda.safeParse(bruto);
+    if (!r.success) throw new ErroIA("formato inválido");
+    if (IDS_PROIBIDOS.has(r.data.titulo.toLowerCase())) throw new ErroIA("tema repetido");
+    return r.data;
+  };
+
+  try {
+    return await tentar();
+  } catch (primeira) {
+    if (primeira instanceof ErroIA && primeira.message.startsWith("Você chegou ao limite")) throw primeira;
+    try {
+      return await tentar();
+    } catch {
+      throw new ErroIA("A demanda gerada veio fora do formato duas vezes seguidas. Tenta de novo daqui a pouco.");
+    }
+  }
+}
