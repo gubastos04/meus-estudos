@@ -1,0 +1,30 @@
+{
+  "modulo": "m11",
+  "aulas": [
+    {
+      "id": "m11a1",
+      "titulo": "requests: falando HTTP por código",
+      "minutos": 16
+    },
+    {
+      "id": "m11a2",
+      "titulo": "Ler e filtrar logs em massa",
+      "minutos": 16
+    },
+    {
+      "id": "m11a3",
+      "titulo": "Scanner de portas do zero",
+      "minutos": 20
+    },
+    {
+      "id": "m11a4",
+      "titulo": "Automatizar uma varredura completa",
+      "minutos": 22
+    },
+    {
+      "id": "m11a5",
+      "titulo": "Projeto: ferramenta própria de recon",
+      "minutos": 30
+    }
+  ]
+}

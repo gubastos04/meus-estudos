@@ -1,0 +1,287 @@
+[
+  {
+    "id": "p1",
+    "titulo": "Auditor de senhas",
+    "nivel": 1,
+    "tempo": "3 a 5 horas",
+    "modulo": "Depois do Módulo 2",
+    "pitch": "Ferramenta de linha de comando que lê um arquivo de senhas e devolve um relatório de força.",
+    "porque": "É o primeiro repositório que prova três coisas de uma vez: você estrutura código em funções, sabe receber argumento de terminal e entende critério de senha. Quem abrir entende em dez segundos e consegue rodar.",
+    "escopo": {
+      "faz": [
+        "Recebe o caminho de um .txt com uma senha por linha",
+        "Classifica cada senha em proibida, fraca, ok ou forte",
+        "Imprime um resumo com a contagem de cada categoria",
+        "Aceita --minimo para mudar o tamanho mínimo exigido"
+      ],
+      "naoFaz": [
+        "Interface gráfica",
+        "Banco de dados",
+        "Consulta na internet, isso é o projeto 3",
+        "Qualquer formato além de .txt"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Reaproveite a função",
+        "descricao": "Pegue o auditar() da aula 2.8 e coloque num arquivo auditor.py. Não comece do zero."
+      },
+      {
+        "titulo": "Leia de arquivo",
+        "descricao": "Troque a lista fixa por open(caminho). Use with open(...) as f, não open() solto."
+      },
+      {
+        "titulo": "Receba argumento",
+        "descricao": "Use argparse pra aceitar o caminho e o --minimo. Duas telas de documentação, dez linhas de código."
+      },
+      {
+        "titulo": "Monte o resumo",
+        "descricao": "Conte quantas caíram em cada categoria com um dicionário e imprima no fim."
+      },
+      {
+        "titulo": "Trate o erro",
+        "descricao": "Arquivo que não existe tem que dar mensagem clara, não stack trace."
+      },
+      {
+        "titulo": "Escreva o README",
+        "descricao": "Use o modelo abaixo. O README é o que o recrutador lê, o código é o que ele confere depois."
+      }
+    ],
+    "pronto": [
+      "Roda com: python auditor.py senhas.txt",
+      "Não quebra com arquivo inexistente, vazio ou com linha em branco",
+      "O README tem um exemplo de saída real, copiado do terminal",
+      "Tem um arquivo exemplo.txt no repositório pra pessoa testar"
+    ],
+    "readme": "# Auditor de senhas\n\nFerramenta de linha de comando que analisa um arquivo de senhas e classifica cada uma por força.\n\n## Por que fiz\n\n[Escreva 2 frases. Ex: estudando validação de entrada, percebi que tamanho de senha é o critério mais usado e o menos suficiente. Quis medir isso num volume grande.]\n\n## Como usar\n\n```bash\npython auditor.py exemplo.txt\npython auditor.py exemplo.txt --minimo 12\n```\n\n## Saída\n\n```\n[cole aqui a saída real do seu terminal]\n```\n\n## Critérios usados\n\n| Categoria | Regra |\n|-----------|-------|\n| proibida  | está na lista de senhas mais vazadas |\n| fraca     | menos de 8 caracteres |\n| ok        | 8+ caracteres e 2 dos 3 tipos |\n| forte     | 12+ caracteres e maiúscula, número e símbolo |\n\n## O que aprendi\n\n[2 ou 3 tópicos. Seja específico: \"a ordem das validações importa, porque a checagem de lista proibida precisa vir antes da de tamanho\".]\n\n## Limitações conhecidas\n\n[Liste de verdade. Ex: a lista de senhas proibidas tem só 20 itens. Não checa vazamento real.]",
+    "linkedin": "Terminei meu primeiro projeto em Python: um auditor de senhas por linha de comando.\n\nEle lê um arquivo, classifica cada senha e devolve um resumo.\n\nA parte que mais me ensinou não foi o código. Foi descobrir que a ordem das validações muda o resultado: se você checa o tamanho antes de checar a lista de senhas vazadas, uma senha longa e já conhecida passa como forte.\n\nTamanho não protege contra uma senha que já está no dicionário do atacante.\n\nCódigo aberto aqui: [link]\n\nPróximo passo: analisar log de acesso pra detectar tentativa de força bruta."
+  },
+  {
+    "id": "p2",
+    "titulo": "Analisador de log de acesso",
+    "nivel": 2,
+    "tempo": "5 a 8 horas",
+    "modulo": "Depois do Módulo 2",
+    "pitch": "Script que lê um log de autenticação e aponta quem está tentando entrar à força.",
+    "porque": "É o projeto que mais parece trabalho real de segurança. Todo analista começa lendo log. Mostra que você processa texto em volume e tira conclusão de dado bruto.",
+    "escopo": {
+      "faz": [
+        "Lê um arquivo de log linha por linha",
+        "Extrai data, hora, IP e resultado de cada tentativa",
+        "Marca IPs com mais falhas que o limite configurado",
+        "Mostra primeira e última tentativa de cada IP suspeito"
+      ],
+      "naoFaz": [
+        "Bloquear IP de verdade no firewall",
+        "Interface web",
+        "Ler log ao vivo enquanto ele cresce",
+        "Suporte a todo formato de log do mundo, escolha um só"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Arrume um log",
+        "descricao": "Se estiver no Linux, /var/log/auth.log. Senão, gere um arquivo falso com 200 linhas, é igualmente válido, só diga isso no README."
+      },
+      {
+        "titulo": "Uma função pra uma linha",
+        "descricao": "Escreva parse_linha(linha) que devolve um dicionário ou None. Teste ela sozinha antes de ler o arquivo."
+      },
+      {
+        "titulo": "Agrupe por IP",
+        "descricao": "Percorra o arquivo acumulando num dicionário: contagem, primeira hora, última hora."
+      },
+      {
+        "titulo": "Aplique o limite",
+        "descricao": "Filtre quem passou do limite. Deixe o limite configurável com --limite."
+      },
+      {
+        "titulo": "Formate a saída",
+        "descricao": "Tabela alinhada com f-string. Ex: f'{ip:<16}{falhas:>4}'."
+      },
+      {
+        "titulo": "Documente o formato",
+        "descricao": "O README precisa mostrar exatamente como é a linha de log que o script espera."
+      }
+    ],
+    "pronto": [
+      "Processa 1000 linhas sem travar",
+      "Ignora linha malformada em vez de quebrar",
+      "A saída cabe na tela e é legível sem rolar pro lado",
+      "Tem um log de exemplo no repositório"
+    ],
+    "readme": "# Analisador de log de acesso\n\nLê um log de autenticação e identifica IPs com tentativas repetidas de login que falharam.\n\n## Por que fiz\n\n[Ex: queria entender como se detecta força bruta na prática, sem ferramenta pronta.]\n\n## Formato de log esperado\n\n```\n2026-09-11 03:14:02 FALHA 200.1.2.3 usuario=admin\n2026-09-11 03:14:09 OK    10.0.0.5   usuario=ana\n```\n\n## Como usar\n\n```bash\npython analisar.py auth.log\npython analisar.py auth.log --limite 10\n```\n\n## Saída\n\n```\n[cole a saída real]\n```\n\n## Como interpretar\n\n[Explique o que significa um IP aparecer aqui, e o que NÃO significa. Muita falha pode ser ataque ou pode ser um script mal configurado.]\n\n## O que aprendi\n\n[Específico. Ex: dicionario.get(chave, 0) + 1 pra contar; por que ignorar linha inválida é melhor que deixar quebrar.]\n\n## Limitações\n\n[Ex: só um formato de log. Não distingue ataque de usuário esquecido.]",
+    "linkedin": "Segundo projeto: um analisador de log que detecta tentativa de força bruta.\n\nEle lê o log de autenticação, agrupa as falhas por IP e mostra quem passou do limite, com o horário da primeira e da última tentativa.\n\nO detalhe que eu não esperava: o horário importa mais que a contagem.\n\nVinte falhas espalhadas em três dias é usuário esquecendo a senha. Vinte falhas em quarenta segundos é script.\n\nO mesmo número, duas conclusões opostas.\n\nCódigo: [link]"
+  },
+  {
+    "id": "p3",
+    "titulo": "Verificador de senha vazada",
+    "nivel": 2,
+    "tempo": "4 a 6 horas",
+    "modulo": "Depois do Módulo 2",
+    "pitch": "Checa se uma senha já apareceu em vazamento, sem nunca enviar a senha pra ninguém.",
+    "porque": "Este é o projeto que separa você da maioria. Ele usa k-anonymity: você manda 5 caracteres de um hash e recebe centenas de respostas, e a comparação final acontece na sua máquina. É um conceito de segurança real e quase nenhum iniciante sabe explicar.",
+    "escopo": {
+      "faz": [
+        "Gera o hash SHA-1 da senha localmente",
+        "Envia só os 5 primeiros caracteres do hash à API",
+        "Compara o resto do hash offline, na sua máquina",
+        "Diz quantas vezes aquela senha apareceu em vazamentos"
+      ],
+      "naoFaz": [
+        "Enviar a senha, nunca, em nenhuma hipótese",
+        "Guardar senha em arquivo ou log",
+        "Sugerir senha nova, isso é o projeto 4",
+        "Interface gráfica"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Entenda o truque antes de codar",
+        "descricao": "Leia sobre k-anonymity na API do Have I Been Pwned. Se você não consegue explicar em duas frases, não comece ainda."
+      },
+      {
+        "titulo": "Gere o hash",
+        "descricao": "hashlib.sha1(senha.encode()).hexdigest().upper(). Cinco primeiros caracteres são o prefixo."
+      },
+      {
+        "titulo": "Consulte a API",
+        "descricao": "requests.get com o prefixo na URL. A resposta é uma lista enorme de sufixos e contagens."
+      },
+      {
+        "titulo": "Compare offline",
+        "descricao": "Percorra a resposta procurando o seu sufixo. Essa comparação é local, e é aí que mora a privacidade."
+      },
+      {
+        "titulo": "Esconda a digitação",
+        "descricao": "Use getpass.getpass() em vez de input(), pra senha não ficar visível nem no histórico do terminal."
+      },
+      {
+        "titulo": "Trate a rede caindo",
+        "descricao": "Sem internet, o script deve avisar, não explodir."
+      }
+    ],
+    "pronto": [
+      "Testando com a senha 123456, ele acha milhões de ocorrências",
+      "A senha nunca aparece na tela, em arquivo, nem em log",
+      "O README explica o k-anonymity com suas palavras",
+      "Funciona sem internet no sentido de falhar com mensagem clara"
+    ],
+    "readme": "# Verificador de senha vazada\n\nCheca se uma senha já apareceu em vazamentos públicos, sem enviar a senha para lugar nenhum.\n\n## Como isso é possível\n\n[Explique o k-anonymity com SUAS palavras, em 4 ou 5 linhas. Este trecho é o mais importante do repositório. Mais ou menos: o hash SHA-1 da senha é gerado localmente; só os 5 primeiros caracteres são enviados; a API devolve todos os hashes que começam assim; a comparação final acontece na sua máquina.]\n\n## Como usar\n\n```bash\npython verificar.py\n# a senha é digitada sem aparecer na tela\n```\n\n## Saída\n\n```\n[cole a saída real, usando uma senha de teste como 123456]\n```\n\n## Garantias de privacidade\n\n- A senha nunca sai da máquina\n- Só 5 caracteres do hash trafegam\n- Nada é gravado em disco\n\n## O que aprendi\n\n[Ex: a diferença entre hash e criptografia; por que getpass existe.]\n\n## Limitações\n\n[Ex: SHA-1 é usado aqui por exigência da API, não porque seja seguro para armazenar senha.]",
+    "linkedin": "Fiz um verificador de senha vazada que nunca recebe a sua senha.\n\nParece contradição. Não é.\n\nO programa gera o hash SHA-1 da senha na sua máquina e envia só os 5 primeiros caracteres. A API devolve todos os hashes que começam com aqueles 5 caracteres, centenas deles. A comparação final acontece localmente.\n\nQuem está do outro lado sabe que alguém perguntou por um prefixo. Não sabe qual senha, e nem se ela estava na lista.\n\nIsso se chama k-anonymity, e foi a coisa mais elegante que eu vi desde que comecei a estudar segurança.\n\nCódigo: [link]"
+  },
+  {
+    "id": "p4",
+    "titulo": "Cofre de senhas local",
+    "nivel": 3,
+    "tempo": "8 a 12 horas",
+    "modulo": "Depois do Módulo 2",
+    "pitch": "Guarda senhas criptografadas em arquivo, destravadas por uma senha mestra.",
+    "porque": "Aqui você encosta em criptografia de verdade: derivação de chave, salt, IV. É o projeto que gera as melhores perguntas de entrevista, porque todo detalhe tem um porquê que você vai precisar defender.",
+    "escopo": {
+      "faz": [
+        "Deriva uma chave da senha mestra com PBKDF2 e salt",
+        "Criptografa o arquivo do cofre com Fernet",
+        "Adiciona, lista e busca entradas",
+        "Copia a senha pra área de transferência sem imprimir na tela"
+      ],
+      "naoFaz": [
+        "Sincronizar com nuvem",
+        "Extensão de navegador",
+        "Recuperação de senha mestra esquecida, isso é uma característica, não uma falta",
+        "Compartilhamento entre usuários"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Aprenda o porquê antes",
+        "descricao": "Por que não se usa a senha mestra direto como chave? Resposta curta: tamanho errado e sem custo computacional. Entenda isso antes de escrever qualquer linha."
+      },
+      {
+        "titulo": "Derive a chave",
+        "descricao": "PBKDF2HMAC da biblioteca cryptography, com salt aleatório de 16 bytes e muitas iterações. O salt fica salvo em claro, e tudo bem."
+      },
+      {
+        "titulo": "Criptografe o cofre",
+        "descricao": "Fernet recebe a chave derivada. O cofre em memória é um dicionário; em disco é um blob ilegível."
+      },
+      {
+        "titulo": "Monte o menu",
+        "descricao": "Adicionar, listar, buscar, sair. Menu de terminal simples, sem firula."
+      },
+      {
+        "titulo": "Nunca imprima a senha",
+        "descricao": "Use pyperclip pra copiar. Se não der, mostre e limpe a tela depois."
+      },
+      {
+        "titulo": "Documente as decisões",
+        "descricao": "Cada escolha criptográfica vira uma linha no README com a justificativa."
+      }
+    ],
+    "pronto": [
+      "Abrir o arquivo do cofre num editor mostra lixo ilegível",
+      "Senha mestra errada dá mensagem clara, não exceção crua",
+      "O README justifica salt, PBKDF2 e número de iterações",
+      "Nenhuma senha aparece no terminal em nenhum momento"
+    ],
+    "readme": "# Cofre de senhas local\n\nGerenciador de senhas de linha de comando. Tudo criptografado, tudo local, sem nuvem.\n\n## Aviso\n\nProjeto de estudo. Não use como seu gerenciador de senhas real. Use Bitwarden ou KeePassXC.\n\n## Decisões de segurança\n\n| Decisão | Por quê |\n|---------|---------|\n| PBKDF2 com salt | [sua justificativa] |\n| N iterações | [sua justificativa] |\n| Fernet | [sua justificativa] |\n| Senha nunca impressa | [sua justificativa] |\n\n## Como usar\n\n```bash\npython cofre.py\n```\n\n## O que aprendi\n\n[Ex: a diferença entre hash e criptografia reversível; pra que serve o salt; por que lentidão pode ser desejável.]\n\n## Limitações\n\n[Ex: não protege contra malware que leia a memória do processo.]",
+    "linkedin": "Fiz um cofre de senhas local e a parte mais difícil não foi criptografar nada.\n\nFoi entender por que não se usa a senha mestra direto como chave de criptografia.\n\nDois motivos: ela quase nunca tem o tamanho exato que o algoritmo exige, e ela é rápida demais de testar. Derivar a chave com PBKDF2 resolve os dois, porque adiciona salt e torna cada tentativa cara de propósito.\n\nLentidão como característica de segurança foi a ideia que mais mexeu com a minha cabeça até agora.\n\nCódigo, com as decisões justificadas no README: [link]"
+  },
+  {
+    "id": "p5",
+    "titulo": "Scanner de portas",
+    "nivel": 3,
+    "tempo": "5 a 8 horas",
+    "modulo": "Depois do Módulo 2",
+    "pitch": "Descobre quais portas estão abertas num host, com várias conexões em paralelo.",
+    "porque": "É o projeto que te faz entender o que o nmap faz por baixo. Mostra sockets, concorrência e, de quebra, te obriga a escrever uma seção de uso ético no README, que é um sinal de maturidade raro em portfólio de iniciante.",
+    "escopo": {
+      "faz": [
+        "Testa um intervalo de portas num host",
+        "Usa threads pra não levar horas",
+        "Mostra porta aberta e o serviço provável",
+        "Aceita --portas e --timeout"
+      ],
+      "naoFaz": [
+        "Detectar versão exata do serviço",
+        "Qualquer técnica de evasão ou furtividade",
+        "Escanear faixa de rede inteira",
+        "Substituir o nmap, e o README deve dizer isso"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Leia a regra antes do código",
+        "descricao": "Escanear máquina que não é sua, sem autorização escrita, é crime. Escaneie 127.0.0.1 ou scanme.nmap.org, que autoriza explicitamente."
+      },
+      {
+        "titulo": "Uma porta por vez",
+        "descricao": "socket.socket, settimeout, connect_ex. Retorno 0 significa aberta. Faça funcionar pra uma porta antes de pensar em velocidade."
+      },
+      {
+        "titulo": "Meça a lentidão",
+        "descricao": "Rode em 100 portas em sequência e cronometre. Você precisa sentir o problema antes de resolver."
+      },
+      {
+        "titulo": "Paralelize",
+        "descricao": "ThreadPoolExecutor com 50 workers. Compare o tempo com a medição anterior e anote os dois números."
+      },
+      {
+        "titulo": "Nomeie os serviços",
+        "descricao": "socket.getservbyport, ou um dicionário fixo com as portas comuns."
+      },
+      {
+        "titulo": "Escreva o aviso legal",
+        "descricao": "Seção de uso ético no topo do README. Isso pesa mais do que você imagina."
+      }
+    ],
+    "pronto": [
+      "Escaneia as 1000 primeiras portas de 127.0.0.1 em menos de 30 segundos",
+      "Host inexistente dá mensagem clara, não trava",
+      "O README tem a seção de uso ético antes da seção de instalação",
+      "O README mostra o tempo antes e depois das threads"
+    ],
+    "readme": "# Scanner de portas\n\nScanner TCP simples e concorrente, escrito pra entender como a descoberta de portas funciona por baixo.\n\n## Uso ético\n\nEscanear sistemas sem autorização é ilegal na maioria dos países, incluindo o Brasil. Use apenas em máquinas suas ou em alvos que autorizam explicitamente, como scanme.nmap.org.\n\n## Como usar\n\n```bash\npython scanner.py 127.0.0.1\npython scanner.py 127.0.0.1 --portas 1-1000 --timeout 0.5\n```\n\n## Desempenho\n\n| Modo | 1000 portas |\n|------|-------------|\n| Sequencial | [seu número] |\n| 50 threads | [seu número] |\n\n## O que aprendi\n\n[Ex: o que connect_ex devolve e por que é melhor que connect com try/except; o que timeout curto demais causa em falso negativo.]\n\n## Limitações\n\n[Ex: só TCP connect scan. Não faz SYN scan, não detecta versão, é facilmente detectado por qualquer IDS.]",
+    "linkedin": "Escrevi um scanner de portas do zero pra entender o que o nmap faz por baixo.\n\nA primeira versão levou 4 minutos pra varrer 1000 portas. Com um pool de 50 threads, caiu pra 9 segundos.\n\nO aprendizado não foi \"threads são rápidas\". Foi entender por que: a máquina não estava ocupada calculando nada, estava parada esperando resposta da rede. Tempo de espera é o que dá pra sobrepor.\n\nColoquei a seção de uso ético antes da seção de instalação, de propósito. Escanear máquina dos outros sem autorização é crime.\n\nCódigo: [link]"
+  }
+]

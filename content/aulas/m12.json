@@ -1,0 +1,30 @@
+{
+  "modulo": "m12",
+  "aulas": [
+    {
+      "id": "m12a1",
+      "titulo": "O que é nuvem, na prática",
+      "minutos": 14
+    },
+    {
+      "id": "m12a2",
+      "titulo": "Docker: por que todo lab usa",
+      "minutos": 18
+    },
+    {
+      "id": "m12a3",
+      "titulo": "Git e versionamento sem medo",
+      "minutos": 18
+    },
+    {
+      "id": "m12a4",
+      "titulo": "Segredo no código: o vazamento mais bobo",
+      "minutos": 14
+    },
+    {
+      "id": "m12a5",
+      "titulo": "Esteira com verificação automática",
+      "minutos": 20
+    }
+  ]
+}

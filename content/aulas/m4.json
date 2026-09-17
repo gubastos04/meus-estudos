@@ -1,0 +1,35 @@
+{
+  "modulo": "m4",
+  "aulas": [
+    {
+      "id": "m4a1",
+      "titulo": "IP, porta e o que é um serviço",
+      "minutos": 12
+    },
+    {
+      "id": "m4a2",
+      "titulo": "DNS: do nome até o número",
+      "minutos": 12
+    },
+    {
+      "id": "m4a3",
+      "titulo": "HTTP por dentro: requisição e resposta",
+      "minutos": 14
+    },
+    {
+      "id": "m4a4",
+      "titulo": "HTTPS e TLS sem matemática",
+      "minutos": 12
+    },
+    {
+      "id": "m4a5",
+      "titulo": "Ver o tráfego: Wireshark básico",
+      "minutos": 20
+    },
+    {
+      "id": "m4a6",
+      "titulo": "Projeto: mapear a sua própria rede",
+      "minutos": 25
+    }
+  ]
+}

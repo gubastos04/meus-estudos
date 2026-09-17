@@ -1,0 +1,35 @@
+{
+  "modulo": "m5",
+  "aulas": [
+    {
+      "id": "m5a1",
+      "titulo": "HTML: a estrutura da página",
+      "minutos": 14
+    },
+    {
+      "id": "m5a2",
+      "titulo": "CSS: o suficiente pra não ficar feio",
+      "minutos": 14
+    },
+    {
+      "id": "m5a3",
+      "titulo": "JavaScript no navegador",
+      "minutos": 16
+    },
+    {
+      "id": "m5a4",
+      "titulo": "Formulário e o que ele manda pro servidor",
+      "minutos": 14
+    },
+    {
+      "id": "m5a5",
+      "titulo": "PHP: o back-end mais atacado do mundo",
+      "minutos": 16
+    },
+    {
+      "id": "m5a6",
+      "titulo": "Projeto: um login funcional e inseguro",
+      "minutos": 30
+    }
+  ]
+}

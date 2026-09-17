@@ -1,0 +1,35 @@
+{
+  "modulo": "m3",
+  "aulas": [
+    {
+      "id": "m3a1",
+      "titulo": "Por que o terminal manda",
+      "minutos": 10
+    },
+    {
+      "id": "m3a2",
+      "titulo": "Andar pelo sistema: pwd, ls, cd",
+      "minutos": 12
+    },
+    {
+      "id": "m3a3",
+      "titulo": "Ler e procurar: cat, grep, find",
+      "minutos": 14
+    },
+    {
+      "id": "m3a4",
+      "titulo": "Permissões: quem pode o quê",
+      "minutos": 14
+    },
+    {
+      "id": "m3a5",
+      "titulo": "Usuários, sudo e privilégio",
+      "minutos": 12
+    },
+    {
+      "id": "m3a6",
+      "titulo": "Projeto: investigar um log de acesso",
+      "minutos": 25
+    }
+  ]
+}

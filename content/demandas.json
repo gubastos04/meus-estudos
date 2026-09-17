@@ -1,0 +1,149 @@
+[
+  {
+    "id": "d1",
+    "nivel": 1,
+    "titulo": "Validador de senha pro cadastro",
+    "de": "Marcos, seu gestor",
+    "canal": "Slack",
+    "prazo": "hoje, se der",
+    "depois": "Funções (aula 2.7)",
+    "mensagem": "oi, boa noite\n\npreciso de um negócio rápido pro cadastro novo. a galera tá conseguindo criar conta com senha \"123\", isso não pode.\n\nfaz uma função que olha a senha e me diz se pode ou não. não precisa ser bonito, só me devolve o resultado.\n\nqualquer coisa me chama",
+    "criterios": [
+      "É uma função, não código solto",
+      "Recusa senha com menos de 8 caracteres",
+      "Devolve o resultado com return, não com print",
+      "Não quebra se a senha vier vazia"
+    ],
+    "reviravolta": {
+      "texto": "desculpa, esqueci de falar\n\no jurídico passou uma lista de senhas proibidas: 123456, senha, admin, qwerty, 12345678\n\nessas aí tem que recusar mesmo que sejam longas",
+      "criterios": [
+        "Recusa qualquer senha da lista de proibidas",
+        "Compara sem diferenciar maiúscula de minúscula"
+      ]
+    },
+    "solucao": "PROIBIDAS = [\"123456\", \"senha\", \"admin\", \"qwerty\", \"12345678\"]\n\ndef validar_senha(senha):\n    if not senha:                      # pega vazio e None\n        return False\n    if senha.lower() in PROIBIDAS:     # proibida vem antes do tamanho\n        return False\n    return len(senha) >= 8",
+    "aprendizado": "Ordem das validações importa. A regra mais específica vem primeiro, senão ela nunca é alcançada."
+  },
+  {
+    "id": "d2",
+    "nivel": 1,
+    "titulo": "Lista de usuários inativos",
+    "de": "Ana, produto",
+    "canal": "E-mail",
+    "prazo": "quinta",
+    "depois": "Listas e dicionários (aula 2.6)",
+    "mensagem": "Oi, tudo bem?\n\nPreciso saber quem não entra no sistema há mais de 90 dias, pra gente mandar um e-mail de reativação.\n\nTenho a lista de usuários com o campo dias_sem_acesso. Consegue me devolver só os nomes de quem passou dos 90?\n\nObrigada!",
+    "criterios": [
+      "Percorre a lista de dicionários",
+      "Filtra por dias_sem_acesso maior que 90",
+      "Devolve uma lista só com os nomes",
+      "Funciona se a lista vier vazia"
+    ],
+    "reviravolta": {
+      "texto": "Ah, uma coisa: ordena do mais inativo pro menos inativo?\n\nQuem sumiu faz mais tempo é prioridade.",
+      "criterios": [
+        "Resultado sai ordenado do maior dias_sem_acesso pro menor"
+      ]
+    },
+    "solucao": "usuarios = [\n    {\"nome\": \"ana\",  \"dias_sem_acesso\": 120},\n    {\"nome\": \"bia\",  \"dias_sem_acesso\": 12},\n    {\"nome\": \"caio\", \"dias_sem_acesso\": 200},\n]\n\ndef inativos(lista, limite=90):\n    filtrados = [u for u in lista if u[\"dias_sem_acesso\"] > limite]\n    filtrados.sort(key=lambda u: u[\"dias_sem_acesso\"], reverse=True)\n    return [u[\"nome\"] for u in filtrados]\n\nprint(inativos(usuarios))   # ['caio', 'ana']",
+    "aprendizado": "Filtrar, ordenar e depois extrair. Três passos separados são mais fáceis de depurar do que um só."
+  },
+  {
+    "id": "d3",
+    "nivel": 2,
+    "titulo": "Esconder dado pessoal no log",
+    "de": "Marcos, seu gestor",
+    "canal": "Ticket",
+    "numero": "#4412",
+    "prazo": "sexta",
+    "depois": "Funções (aula 2.7)",
+    "mensagem": "Auditoria achou CPF e e-mail escritos em texto puro nos nossos logs. Isso é problema de LGPD.\n\nPreciso de uma função que receba uma linha de log e devolva ela com esses dados mascarados.\n\nE-mail vira a***@dominio.com. CPF vira ***.***.***-XX, mantendo só os dois últimos.\n\nPrioridade alta.",
+    "criterios": [
+      "Mascara e-mail mantendo a primeira letra e o domínio",
+      "Mascara CPF mantendo só os dois últimos dígitos",
+      "Não altera o resto da linha",
+      "Funciona se a linha não tiver nem e-mail nem CPF"
+    ],
+    "reviravolta": {
+      "texto": "Mais uma: telefone também.\n\n(11) 98888-7777 tem que virar (11) *****-7777.",
+      "criterios": [
+        "Mascara telefone mantendo DDD e os 4 últimos dígitos"
+      ]
+    },
+    "solucao": "import re\n\ndef mascarar(linha):\n    # e-mail: primeira letra + *** + domínio\n    linha = re.sub(r'(\\w)[\\w.+-]*@', r'\\1***@', linha)\n    # CPF: mantém os 2 últimos\n    linha = re.sub(r'\\d{3}\\.\\d{3}\\.\\d{3}-(\\d{2})', r'***.***.***-\\1', linha)\n    # telefone: mantém DDD e os 4 últimos\n    linha = re.sub(r'(\\(\\d{2}\\)\\s?)\\d{4,5}-(\\d{4})', r'\\1*****-\\2', linha)\n    return linha\n\nprint(mascarar(\"login ok: ana@mail.com cpf 123.456.789-10\"))\n# login ok: a***@mail.com cpf ***.***.***-10",
+    "aprendizado": "Mascarar é diferente de apagar. Você mantém o suficiente pra investigar um incidente sem expor a pessoa."
+  },
+  {
+    "id": "d4",
+    "nivel": 2,
+    "titulo": "Quem está tentando invadir?",
+    "de": "Rafa, infraestrutura",
+    "canal": "Slack",
+    "prazo": "pra ontem",
+    "depois": "for e while (aula 2.5)",
+    "mensagem": "fala\n\ntô vendo um monte de falha de login no servidor e não sei se é ataque ou se é gente burra esquecendo a senha\n\nme passa um script que leia essas linhas e me diga quais IPs erraram mais de 5 vezes\n\nformato da linha: 2026-09-11 03:14:02 FALHA 200.1.2.3 usuario=admin",
+    "criterios": [
+      "Lê uma lista de linhas de log",
+      "Considera só as linhas com FALHA",
+      "Conta quantas falhas por IP",
+      "Mostra só os IPs com mais de 5 falhas"
+    ],
+    "reviravolta": {
+      "texto": "boa, funcionou\n\nsó que agora preciso saber o horário da primeira tentativa de cada um desses IPs, pra saber quando começou",
+      "criterios": [
+        "Mostra também o horário da primeira falha de cada IP suspeito"
+      ]
+    },
+    "solucao": "def suspeitos(linhas, limite=5):\n    contagem = {}\n    primeira = {}\n\n    for linha in linhas:\n        partes = linha.split()\n        if len(partes) < 4 or partes[2] != \"FALHA\":\n            continue\n        hora, ip = f\"{partes[0]} {partes[1]}\", partes[3]\n\n        contagem[ip] = contagem.get(ip, 0) + 1\n        if ip not in primeira:\n            primeira[ip] = hora\n\n    return {ip: (n, primeira[ip]) for ip, n in contagem.items() if n > limite}",
+    "aprendizado": "dicionario.get(chave, 0) + 1 é o jeito padrão de contar coisas. Você vai usar isso a vida inteira."
+  },
+  {
+    "id": "d5",
+    "nivel": 2,
+    "titulo": "Senha temporária pro suporte",
+    "de": "Ana, produto",
+    "canal": "E-mail",
+    "prazo": "semana que vem",
+    "depois": "Funções (aula 2.7)",
+    "mensagem": "Oi!\n\nQuando o suporte reseta a conta de alguém, hoje eles inventam a senha na hora. Já teve caso de suporte usar \"mudar123\" pra todo mundo.\n\nPrecisamos gerar uma senha temporária automática, com 12 caracteres, que sempre tenha maiúscula, minúscula, número e símbolo.",
+    "criterios": [
+      "Gera 12 caracteres",
+      "Garante pelo menos 1 de cada tipo (não deixa no acaso)",
+      "Usa o módulo secrets, não o random",
+      "Embaralha o resultado no fim"
+    ],
+    "reviravolta": {
+      "texto": "O suporte reclamou: tá difícil ditar a senha no telefone.\n\nTira os caracteres ambíguos: l minúsculo, I maiúsculo, 1, O maiúsculo e 0.",
+      "criterios": [
+        "Nenhum caractere ambíguo aparece na senha gerada"
+      ]
+    },
+    "solucao": "import secrets\n\nMINUSCULAS = \"abcdefghijkmnopqrstuvwxyz\"   # sem l\nMAIUSCULAS = \"ABCDEFGHJKLMNPQRSTUVWXYZ\"    # sem I e O\nNUMEROS    = \"23456789\"                    # sem 0 e 1\nSIMBOLOS   = \"!@#$%&*?-_\"\n\ndef senha_temporaria(tamanho=12):\n    grupos = [MINUSCULAS, MAIUSCULAS, NUMEROS, SIMBOLOS]\n    # 1 garantido de cada grupo\n    chars = [secrets.choice(g) for g in grupos]\n    # o resto, de qualquer grupo\n    todos = \"\".join(grupos)\n    chars += [secrets.choice(todos) for _ in range(tamanho - len(grupos))]\n    secrets.SystemRandom().shuffle(chars)\n    return \"\".join(chars)",
+    "aprendizado": "random é previsível e não serve pra segurança. Para senha, token ou chave, sempre secrets."
+  },
+  {
+    "id": "d6",
+    "nivel": 3,
+    "titulo": "E-mail duplicado no cadastro",
+    "de": "Marcos, seu gestor",
+    "canal": "Ticket",
+    "numero": "#4501",
+    "prazo": "quarta",
+    "depois": "Funções (aula 2.7)",
+    "mensagem": "Temos a mesma pessoa cadastrada 4 vezes.\n\nAna@Mail.com, ana@mail.com, \" ana@mail.com \" com espaço, e ana+teste@mail.com.\n\nPro sistema são 4 contas diferentes. Pro mundo real é uma pessoa só.\n\nFaz uma função que normalize o e-mail antes da gente salvar.",
+    "criterios": [
+      "Tira espaços do começo e do fim",
+      "Converte tudo para minúsculo",
+      "Ignora o que vem depois do + na parte antes do @",
+      "Devolve None se não for um e-mail válido"
+    ],
+    "reviravolta": {
+      "texto": "Cuidado: isso do + só vale pra Gmail.\n\nEm outros provedores, ana+teste é uma conta de verdade. Aplica a regra só pro gmail.com.",
+      "criterios": [
+        "A regra do + só é aplicada quando o domínio é gmail.com"
+      ]
+    },
+    "solucao": "def normalizar_email(email):\n    if not email or \"@\" not in email:\n        return None\n\n    email = email.strip().lower()\n    usuario, _, dominio = email.partition(\"@\")\n\n    if not usuario or \".\" not in dominio:\n        return None\n\n    if dominio == \"gmail.com\":\n        usuario = usuario.split(\"+\")[0]\n\n    return f\"{usuario}@{dominio}\"",
+    "aprendizado": "Normalizar entrada antes de comparar evita duplicata, e é a mesma técnica que evita bypass de filtro em segurança."
+  }
+]

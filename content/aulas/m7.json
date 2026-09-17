@@ -1,0 +1,35 @@
+{
+  "modulo": "m7",
+  "aulas": [
+    {
+      "id": "m7a1",
+      "titulo": "Montar o laboratório (Juice Shop)",
+      "minutos": 20
+    },
+    {
+      "id": "m7a2",
+      "titulo": "Injeção: quando o dado vira comando",
+      "minutos": 18
+    },
+    {
+      "id": "m7a3",
+      "titulo": "XSS: rodando script na página dos outros",
+      "minutos": 18
+    },
+    {
+      "id": "m7a4",
+      "titulo": "Autenticação quebrada",
+      "minutos": 16
+    },
+    {
+      "id": "m7a5",
+      "titulo": "IDOR: trocando o id na URL",
+      "minutos": 14
+    },
+    {
+      "id": "m7a6",
+      "titulo": "Burp Suite: interceptar e alterar",
+      "minutos": 22
+    }
+  ]
+}

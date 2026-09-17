@@ -1,0 +1,109 @@
+{
+  "modulos": [
+    {
+      "id": "m1",
+      "ordem": 1,
+      "nome": "Lógica de verdade",
+      "faculdade": "Pensamento Computacional",
+      "etiqueta": "base",
+      "descricao": "Pensar como programador antes de escrever qualquer código."
+    },
+    {
+      "id": "m2",
+      "ordem": 2,
+      "nome": "Python: primeiros comandos",
+      "faculdade": "Paradigmas de Linguagens de Programação em Python",
+      "etiqueta": "base",
+      "descricao": "Sair do papel. Escrever código que roda de verdade."
+    },
+    {
+      "id": "m3",
+      "ordem": 3,
+      "nome": "Linux e linha de comando",
+      "faculdade": "Sistemas Operacionais",
+      "etiqueta": "base",
+      "descricao": "Onde segurança acontece de verdade. Sem terminal, não dá."
+    },
+    {
+      "id": "m4",
+      "ordem": 4,
+      "nome": "Redes: como as máquinas conversam",
+      "faculdade": "Comunicação Entre Aplicações",
+      "etiqueta": "base",
+      "descricao": "Todo ataque atravessa a rede. Entender o caminho é meio caminho."
+    },
+    {
+      "id": "m5",
+      "ordem": 5,
+      "nome": "Web na prática",
+      "faculdade": "Desenv. Web em HTML5, CSS, JavaScript e PHP",
+      "etiqueta": "fullstack",
+      "descricao": "Construir o alvo antes de aprender a atacá-lo."
+    },
+    {
+      "id": "m6",
+      "ordem": 6,
+      "nome": "Fundamentos de segurança",
+      "faculdade": "Introdução à Segurança da Informação",
+      "etiqueta": "seguranca",
+      "descricao": "O vocabulário e os princípios, agora com contexto pra fazer sentido."
+    },
+    {
+      "id": "m7",
+      "ordem": 7,
+      "nome": "Quebrando aplicações web",
+      "faculdade": "Desenvolvimento de Software Seguro",
+      "etiqueta": "seguranca",
+      "descricao": "OWASP Top 10 em laboratório próprio. Atacar pra aprender a defender."
+    },
+    {
+      "id": "m8",
+      "ordem": 8,
+      "nome": "Banco de dados e SQL Injection",
+      "faculdade": "Banco de Dados",
+      "etiqueta": "fullstack",
+      "descricao": "Onde o dado mora. E como ele vaza."
+    },
+    {
+      "id": "m9",
+      "ordem": 9,
+      "nome": "Como a máquina funciona por dentro",
+      "faculdade": "Arquitetura de Computadores",
+      "etiqueta": "base",
+      "descricao": "Memória, processo e por que buffer overflow existe."
+    },
+    {
+      "id": "m10",
+      "ordem": 10,
+      "nome": "Estrutura de dados e algoritmos",
+      "faculdade": "Estrutura de Dados / Algoritmos e Complexidade",
+      "etiqueta": "base",
+      "descricao": "O que separa quem programa de quem copia código."
+    },
+    {
+      "id": "m11",
+      "ordem": 11,
+      "nome": "Python para segurança",
+      "faculdade": "Desenvolvimento Rápido de Aplicações em Python",
+      "etiqueta": "seguranca",
+      "descricao": "Escrever as suas próprias ferramentas."
+    },
+    {
+      "id": "m12",
+      "ordem": 12,
+      "nome": "Nuvem, deploy e DevSecOps",
+      "faculdade": "Computação em Nuvem / Engenharia de Software",
+      "etiqueta": "fullstack",
+      "descricao": "Onde o sistema roda hoje e como blindar a esteira."
+    }
+  ],
+  "micro": [
+    "Abra uma aula que você já fez e escreva 2 linhas no Caderno sobre o que lembrou.",
+    "Responda 3 perguntas em Revisar. Só isso. Pode fechar depois.",
+    "Leia só o resumo e a ideia da próxima aula. Não precisa fazer o resto.",
+    "Escreva no Caderno: qual foi a coisa mais confusa até agora?",
+    "Abra o terminal e rode 3 comandos que você já conhece.",
+    "Refaça o desafio da última aula sem olhar a solução.",
+    "Escolha 1 palavra que você viu e não entendeu. Procure o significado."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "modulo": "m10",
+  "aulas": [
+    {
+      "id": "m10a1",
+      "titulo": "Complexidade sem sofrimento (Big O)",
+      "minutos": 16
+    },
+    {
+      "id": "m10a2",
+      "titulo": "Busca linear e busca binária",
+      "minutos": 16
+    },
+    {
+      "id": "m10a3",
+      "titulo": "Pilha, fila e quando usar cada uma",
+      "minutos": 16
+    },
+    {
+      "id": "m10a4",
+      "titulo": "Tabela hash: o truque dos dicionários",
+      "minutos": 18
+    },
+    {
+      "id": "m10a5",
+      "titulo": "Árvores e grafos, o básico útil",
+      "minutos": 20
+    }
+  ]
+}

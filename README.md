@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Meus Estudos
 
-## Getting Started
+App pessoal de estudo: trilha de programação com foco em segurança da informação, feita para quem tem pouca atenção, pouca constância e trabalha em escala 12x36.
 
-First, run the development server:
+A regra de tudo está em [docs/especificacao.md](docs/especificacao.md). Leia a seção 2 (princípios) antes de mexer em qualquer tela.
+
+## Rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre em http://localhost:3000. O celular é o dispositivo principal: teste em tela estreita.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estado da construção
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Fase | O quê | Estado |
+|---|---|---|
+| 1 | Esqueleto, design system, conteúdo validado, telas Agora, Trilha, Aula, Projeto | **pronta** — progresso só em memória (some ao recarregar) |
+| 2 | Persistência com Prisma, importador do JSON do protótipo | — |
+| 3 | Prática: demandas com reviravolta, treino, provas, revisar | — |
+| 4 | Caderno, diário de erro, glossário, entrevista, certificados | — |
+| 5 | IA: corretor, explicar de outro jeito, pergunta livre, gerar demanda | — |
+| 6 | Login e deploy | — |
 
-## Learn More
+## Estrutura
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/            rotas (App Router)
+components/     componentes; components/telas/ são as telas inteiras (client)
+content/        conteúdo em JSON: trilha, aulas por módulo, demandas, treinos...
+lib/conteudo.ts única porta de entrada para /content, valida com Zod no build
+lib/progresso.tsx  estado do usuário e as ações que as telas usam
+docs/           especificação e formato do protótipo
+scripts/        extração do conteúdo do protótipo (uso único, mantido por histórico)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Adicionar conteúdo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Um módulo novo = editar `content/aulas/mN.json` seguindo o formato dos módulos 1 e 2. Aula sem `ideia` aparece com cadeado na trilha e é pulada pela tela Agora. Se o JSON estiver errado, `npm run build` quebra e aponta o campo.

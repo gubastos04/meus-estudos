@@ -1,0 +1,25 @@
+{
+  "modulo": "m9",
+  "aulas": [
+    {
+      "id": "m9a1",
+      "titulo": "CPU, memória e o ciclo de execução",
+      "minutos": 14
+    },
+    {
+      "id": "m9a2",
+      "titulo": "Binário, hexadecimal e bytes",
+      "minutos": 14
+    },
+    {
+      "id": "m9a3",
+      "titulo": "Processo, thread e memória",
+      "minutos": 16
+    },
+    {
+      "id": "m9a4",
+      "titulo": "Stack e heap: a origem do overflow",
+      "minutos": 18
+    }
+  ]
+}

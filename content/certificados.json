@@ -1,0 +1,115 @@
+{
+  "certificados": [
+    {
+      "nome": "Fundamentos de redes (Cisco NetAcad)",
+      "orgao": "Cisco",
+      "custo": "Gratuito",
+      "ordem": 1,
+      "quando": "Agora, em paralelo ao Módulo 4",
+      "porque": "Rede é o buraco mais comum de quem vem de programação. O curso é gratuito, tem laboratório simulado e emite certificado de conclusão."
+    },
+    {
+      "nome": "Web Security Academy",
+      "orgao": "PortSwigger",
+      "custo": "Gratuito",
+      "ordem": 2,
+      "quando": "Junto com o Módulo 7",
+      "porque": "O melhor material de segurança web que existe, e é de graça. Não é certificação formal, mas concluir as trilhas vale mais em entrevista do que muita prova paga."
+    },
+    {
+      "nome": "Certificado de curso do Google em Cibersegurança",
+      "orgao": "Google / Coursera",
+      "custo": "Assinatura mensal",
+      "ordem": 3,
+      "quando": "Quando quiser um selo reconhecível no LinkedIn",
+      "porque": "Amplo e didático, bom pra preencher lacuna de vocabulário. Peso baixo em processo técnico, peso razoável em triagem de RH."
+    },
+    {
+      "nome": "Certified in Cybersecurity (CC)",
+      "orgao": "ISC2",
+      "custo": "US$ 199",
+      "ordem": 4,
+      "quando": "Depois dos módulos 4 e 6",
+      "porque": "Entrada formal, sem exigir experiência. Atenção: o programa que dava o exame gratuito encerrou novas inscrições em maio de 2026, então hoje é pago."
+    },
+    {
+      "nome": "Security+",
+      "orgao": "CompTIA",
+      "custo": "US$ 439",
+      "ordem": 5,
+      "quando": "Quando já tiver projeto no GitHub e for buscar vaga",
+      "porque": "É o certificado de entrada mais pedido em vaga. Caro em real. Só compense depois que o portfólio existir, porque cartão sem obra não abre porta."
+    },
+    {
+      "nome": "eJPT",
+      "orgao": "INE",
+      "custo": "Pago, faixa média",
+      "ordem": 6,
+      "quando": "Depois do Módulo 7",
+      "porque": "Prova prática: você invade um ambiente de verdade em vez de responder alternativa. Vale mais que múltipla escolha pra vaga ofensiva."
+    },
+    {
+      "nome": "PNPT",
+      "orgao": "TCM Security",
+      "custo": "Pago, faixa média",
+      "ordem": 7,
+      "quando": "Quando já souber usar Burp e ler código com olho crítico",
+      "porque": "Prático e com relatório escrito, que é o que pentester entrega de verdade. Boa relação entre custo e reconhecimento."
+    },
+    {
+      "nome": "OSCP",
+      "orgao": "OffSec",
+      "custo": "Caro",
+      "ordem": 8,
+      "quando": "Meta de médio prazo, não agora",
+      "porque": "O nome mais pesado da área ofensiva. Exame de 24 horas. Só faz sentido depois de meses de laboratório constante."
+    }
+  ],
+  "labs": [
+    {
+      "nome": "PortSwigger Web Security Academy",
+      "tema": "Web",
+      "descricao": "Laboratórios guiados de OWASP Top 10, do básico ao avançado. Gratuito e sem limite."
+    },
+    {
+      "nome": "OverTheWire: Bandit",
+      "tema": "Linux",
+      "descricao": "Aprender linha de comando Linux resolvendo desafios em sequência. Ideal pro Módulo 3."
+    },
+    {
+      "nome": "TryHackMe",
+      "tema": "Geral",
+      "descricao": "Trilhas guiadas com máquina pronta no navegador. Tem bastante conteúdo gratuito."
+    },
+    {
+      "nome": "OWASP Juice Shop",
+      "tema": "Web",
+      "descricao": "Aplicação propositalmente vulnerável que você roda no seu computador. Alvo do Módulo 7."
+    },
+    {
+      "nome": "DVWA",
+      "tema": "Web",
+      "descricao": "Aplicação vulnerável mais antiga e mais simples que a Juice Shop. Boa pra primeira SQL Injection."
+    },
+    {
+      "nome": "picoCTF",
+      "tema": "Geral",
+      "descricao": "Competição de captura de bandeira voltada a iniciante, com desafios que ficam no ar o ano todo."
+    },
+    {
+      "nome": "Hack The Box",
+      "tema": "Ofensivo",
+      "descricao": "Máquinas pra invadir. Mais difícil e menos guiado. Vá depois do TryHackMe."
+    },
+    {
+      "nome": "Exercism",
+      "tema": "Python",
+      "descricao": "Exercícios de Python com revisão de código por mentor voluntário. Gratuito."
+    },
+    {
+      "nome": "scanme.nmap.org",
+      "tema": "Rede",
+      "descricao": "Host que autoriza explicitamente varredura, pra treinar scanner sem cometer crime."
+    }
+  ]
+}

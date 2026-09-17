@@ -1,0 +1,35 @@
+{
+  "modulo": "m6",
+  "aulas": [
+    {
+      "id": "m6a1",
+      "titulo": "Confidencialidade, integridade, disponibilidade",
+      "minutos": 12
+    },
+    {
+      "id": "m6a2",
+      "titulo": "Ameaça, vulnerabilidade e risco",
+      "minutos": 12
+    },
+    {
+      "id": "m6a3",
+      "titulo": "Autenticação, autorização e sessão",
+      "minutos": 14
+    },
+    {
+      "id": "m6a4",
+      "titulo": "Hash: por que senha não se guarda",
+      "minutos": 14
+    },
+    {
+      "id": "m6a5",
+      "titulo": "Criptografia simétrica e assimétrica",
+      "minutos": 16
+    },
+    {
+      "id": "m6a6",
+      "titulo": "Engenharia social: o elo humano",
+      "minutos": 12
+    }
+  ]
+}

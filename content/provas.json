@@ -1,0 +1,286 @@
+[
+  {
+    "id": "pa1",
+    "tipo": "alternativas",
+    "titulo": "Lógica de programação",
+    "escopo": "Módulo 1",
+    "tempo": 12,
+    "questoes": [
+      {
+        "pergunta": "Um algoritmo diz: 1) somar 10, 2) dividir por 2. Começando com 4, qual o resultado?",
+        "opcoes": [
+          "7",
+          "9",
+          "12"
+        ],
+        "correta": 0,
+        "porque": "4 + 10 = 14, e 14 / 2 = 7."
+      },
+      {
+        "pergunta": "Agora inverta os dois passos: primeiro divide por 2, depois soma 10. Começando com 4?",
+        "opcoes": [
+          "7",
+          "12",
+          "9"
+        ],
+        "correta": 1,
+        "porque": "4 / 2 = 2, e 2 + 10 = 12. Os mesmos passos, em outra ordem, dão outro resultado."
+      },
+      {
+        "pergunta": "Qual é o melhor nome pra uma variável que guarda quantas vezes o login falhou?",
+        "opcoes": [
+          "x",
+          "falhas_de_login",
+          "dados"
+        ],
+        "correta": 1,
+        "porque": "Nome bom dispensa comentário. 'dados' não diz nada e 'x' diz menos ainda."
+      },
+      {
+        "pergunta": "x começa em 1. ENQUANTO x > 0, faça x = x + 1. O que acontece?",
+        "opcoes": [
+          "Roda uma vez",
+          "Roda pra sempre",
+          "Para quando x chega em 10"
+        ],
+        "correta": 1,
+        "porque": "A condição nunca fica falsa, porque x só cresce. Laço infinito."
+      },
+      {
+        "pergunta": "Quando você para de quebrar um problema em partes menores?",
+        "opcoes": [
+          "Quando chega em 4 partes",
+          "Quando a parte já é óbvia de resolver",
+          "Quando acaba a paciência"
+        ],
+        "correta": 1,
+        "porque": "Não existe número certo de partes. O critério é você conseguir resolver a parte sem pensar muito."
+      },
+      {
+        "pergunta": "SE a >= 10 faça A. SENÃO SE a >= 5 faça B. Com a valendo 10, o que roda?",
+        "opcoes": [
+          "Só A",
+          "Só B",
+          "A e depois B"
+        ],
+        "correta": 0,
+        "porque": "A estrutura para na primeira condição verdadeira. O segundo teste nem é avaliado."
+      },
+      {
+        "pergunta": "total = 0. PARA n DE 1 ATÉ 4, faça total = total + n. Quanto vale total no fim?",
+        "opcoes": [
+          "4",
+          "10",
+          "24"
+        ],
+        "correta": 1,
+        "porque": "1 + 2 + 3 + 4 = 10. Se você chutou 24, confundiu soma com multiplicação."
+      },
+      {
+        "pergunta": "Qual destas NÃO vira uma decisão de sim ou não?",
+        "opcoes": [
+          "A senha tem 8 caracteres?",
+          "Qual é a melhor senha?",
+          "O usuário é administrador?"
+        ],
+        "correta": 1,
+        "porque": "Programa decide entre caminhos, não escolhe o melhor de infinitas opções. 'Qual é a melhor' precisa virar um critério antes."
+      }
+    ]
+  },
+  {
+    "id": "pa2",
+    "tipo": "alternativas",
+    "titulo": "Python básico",
+    "escopo": "Módulo 2",
+    "tempo": 15,
+    "questoes": [
+      {
+        "pergunta": "O usuário digita 25 num input(). Qual o tipo do valor guardado?",
+        "opcoes": [
+          "int",
+          "str",
+          "depende do que ele digitar"
+        ],
+        "correta": 1,
+        "porque": "input() devolve texto sempre, sem exceção."
+      },
+      {
+        "pergunta": "Quanto vale \"2\" * 3 ?",
+        "opcoes": [
+          "6",
+          "\"222\"",
+          "erro"
+        ],
+        "correta": 1,
+        "porque": "Multiplicar texto por número repete o texto."
+      },
+      {
+        "pergunta": "range(5) gera quais números?",
+        "opcoes": [
+          "1, 2, 3, 4, 5",
+          "0, 1, 2, 3, 4",
+          "0, 1, 2, 3, 4, 5"
+        ],
+        "correta": 1,
+        "porque": "Começa no zero e para antes do número informado. Cinco números no total."
+      },
+      {
+        "pergunta": "Quanto vale len(\"\") ?",
+        "opcoes": [
+          "0",
+          "1",
+          "erro"
+        ],
+        "correta": 0,
+        "porque": "Texto vazio tem tamanho zero. Não é erro, e por isso é fácil deixar passar numa validação."
+      },
+      {
+        "pergunta": "lista = [1, 2, 3]. O que acontece com lista[3] ?",
+        "opcoes": [
+          "Devolve 3",
+          "Devolve None",
+          "Dá erro"
+        ],
+        "correta": 2,
+        "porque": "As posições válidas são 0, 1 e 2. A posição 3 não existe: IndexError."
+      },
+      {
+        "pergunta": "d = {\"a\": 1}. Quanto vale d.get(\"b\", 0) ?",
+        "opcoes": [
+          "0",
+          "None",
+          "erro"
+        ],
+        "correta": 0,
+        "porque": "get() com segundo argumento devolve esse valor quando a chave não existe. É o que evita ter que checar antes."
+      },
+      {
+        "pergunta": "Uma função que não tem return devolve o quê?",
+        "opcoes": [
+          "0",
+          "None",
+          "Nada, dá erro"
+        ],
+        "correta": 1,
+        "porque": "Toda função devolve algo. Sem return, devolve None. Isso explica muito 'NoneType' misterioso."
+      },
+      {
+        "pergunta": "def f(): return 1. Qual a diferença entre print(f) e print(f()) ?",
+        "opcoes": [
+          "Nenhuma",
+          "O primeiro mostra a função, o segundo chama ela",
+          "O primeiro dá erro"
+        ],
+        "correta": 1,
+        "porque": "Sem os parênteses você está falando da função. Com parênteses, você está mandando ela rodar."
+      },
+      {
+        "pergunta": "senha in proibidas, onde proibidas é uma lista. O que o 'in' faz?",
+        "opcoes": [
+          "Verifica se a senha está na lista",
+          "Adiciona a senha na lista",
+          "Conta quantas vezes aparece"
+        ],
+        "correta": 0,
+        "porque": "'in' testa presença. Devolve True ou False."
+      },
+      {
+        "pergunta": "Você indenta uma linha a mais dentro de um if, sem motivo. O que acontece?",
+        "opcoes": [
+          "Nada, espaço não importa",
+          "IndentationError",
+          "O código roda mais devagar"
+        ],
+        "correta": 1,
+        "porque": "Em Python a indentação é sintaxe. Ela define blocos, do mesmo jeito que chaves em outras linguagens."
+      }
+    ]
+  },
+  {
+    "id": "pp1",
+    "tipo": "pratica",
+    "titulo": "Funções, listas e texto",
+    "escopo": "Módulos 1 e 2",
+    "tempo": 45,
+    "aviso": "Resolva no seu editor, rodando o código. Depois volte e marque só os critérios que o SEU código realmente cumpre. Marcar o que não cumpre não engana ninguém além de você.",
+    "tarefas": [
+      {
+        "titulo": "Média de uma lista",
+        "enunciado": "Escreva media(numeros) que devolve a média dos valores. Se a lista estiver vazia, devolve 0.",
+        "criterios": [
+          "É uma função com return",
+          "Devolve 0 pra lista vazia, sem dar erro",
+          "Funciona com números decimais",
+          "Não usa nenhuma biblioteca externa"
+        ],
+        "solucao": "def media(numeros):\n    if not numeros:\n        return 0\n    return sum(numeros) / len(numeros)"
+      },
+      {
+        "titulo": "Contar falhas no log",
+        "enunciado": "Escreva contar_falhas(linhas) que recebe uma lista de strings e devolve quantas contêm a palavra FALHA.",
+        "criterios": [
+          "Percorre a lista uma vez só",
+          "Devolve um número inteiro",
+          "Devolve 0 se nenhuma linha tiver FALHA",
+          "Não conta duas vezes a linha que tem FALHA repetido"
+        ],
+        "solucao": "def contar_falhas(linhas):\n    total = 0\n    for linha in linhas:\n        if \"FALHA\" in linha:\n            total += 1\n    return total"
+      },
+      {
+        "titulo": "Mascarar cartão",
+        "enunciado": "Escreva mascarar_cartao(numero) que recebe o número como texto e devolve asteriscos seguidos dos 4 últimos dígitos.",
+        "criterios": [
+          "Mantém exatamente os 4 últimos dígitos",
+          "A quantidade de asteriscos bate com o tamanho original",
+          "Devolve o texto inteiro mascarado se tiver 4 dígitos ou menos",
+          "Não quebra com texto vazio"
+        ],
+        "solucao": "def mascarar_cartao(numero):\n    if len(numero) <= 4:\n        return \"*\" * len(numero)\n    return \"*\" * (len(numero) - 4) + numero[-4:]"
+      }
+    ]
+  },
+  {
+    "id": "pp2",
+    "tipo": "pratica",
+    "titulo": "Validação e análise de dados",
+    "escopo": "Módulo 2",
+    "tempo": 60,
+    "aviso": "Nível acima da anterior. Se travar em uma tarefa, pule e volte. Entregar 2 de 3 vale mais que abandonar as 3.",
+    "tarefas": [
+      {
+        "titulo": "Formato de CPF",
+        "enunciado": "Escreva formato_cpf(texto) que devolve True se o texto estiver no formato 000.000.000-00. Não precisa validar o dígito verificador.",
+        "criterios": [
+          "Aceita 123.456.789-10",
+          "Recusa 12345678910 (sem pontuação)",
+          "Recusa texto com letra no meio",
+          "Recusa texto maior ou menor que o formato"
+        ],
+        "solucao": "import re\n\ndef formato_cpf(texto):\n    if not texto:\n        return False\n    return bool(re.fullmatch(r\"\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}\", texto))"
+      },
+      {
+        "titulo": "IPs mais frequentes",
+        "enunciado": "Escreva top_ips(linhas, n) que recebe linhas de log no formato 'DATA HORA RESULTADO IP' e devolve os n IPs que mais aparecem, do mais para o menos frequente.",
+        "criterios": [
+          "Devolve no máximo n itens",
+          "Sai ordenado do mais frequente pro menos",
+          "Ignora linha que não tem o formato esperado",
+          "Devolve lista vazia se não houver linha válida"
+        ],
+        "solucao": "def top_ips(linhas, n):\n    contagem = {}\n    for linha in linhas:\n        partes = linha.split()\n        if len(partes) < 4:\n            continue\n        ip = partes[3]\n        contagem[ip] = contagem.get(ip, 0) + 1\n\n    ordenado = sorted(contagem.items(), key=lambda par: par[1], reverse=True)\n    return [ip for ip, _ in ordenado[:n]]"
+      },
+      {
+        "titulo": "Sequência óbvia na senha",
+        "enunciado": "Escreva tem_sequencia(senha) que devolve True se houver 3 caracteres consecutivos, como abc, 123 ou xyz.",
+        "criterios": [
+          "Detecta abc e 123",
+          "Detecta sequência no meio da senha, não só no começo",
+          "Não acusa falso positivo em acb ou 132",
+          "Devolve False pra senha com menos de 3 caracteres"
+        ],
+        "solucao": "def tem_sequencia(senha):\n    if len(senha) < 3:\n        return False\n    for i in range(len(senha) - 2):\n        a, b, c = senha[i], senha[i+1], senha[i+2]\n        if ord(b) - ord(a) == 1 and ord(c) - ord(b) == 1:\n            return True\n    return False"
+      }
+    ]
+  }
+]

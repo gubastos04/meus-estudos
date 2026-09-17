@@ -1,0 +1,265 @@
+{
+  "modulo": "m2",
+  "aulas": [
+    {
+      "id": "m2a1",
+      "titulo": "Preparar o ambiente",
+      "minutos": 12,
+      "resumo": "Duas coisas: Python instalado e um editor.",
+      "ideia": [
+        "Python em python.org/downloads. No Windows, marque 'Add Python to PATH'. É a caixinha que todo mundo esquece.",
+        "Editor: VS Code, com a extensão 'Python' instalada dentro dele."
+      ],
+      "exemplo": {
+        "nota": "Pra conferir, abra o terminal:",
+        "codigo": "python --version\n# deve aparecer algo como: Python 3.12.4\n\n# se não aparecer, tente:\npython3 --version"
+      },
+      "mais": {
+        "titulo": "O que é o PATH",
+        "linhas": [
+          "PATH é a lista de pastas onde o sistema procura programas quando você digita um nome.",
+          "Sem PATH, o Python está instalado mas invisível pro terminal."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Vem 'comando não encontrado'. Causa mais provável?",
+          "opcoes": [
+            "O Python não existe",
+            "Não foi adicionado ao PATH",
+            "O terminal quebrou"
+          ],
+          "correta": 1,
+          "porque": "É quase sempre isso. Reinstale marcando a caixinha."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie a pasta 'estudos', um arquivo teste.py com print('funcionou') e rode com: python teste.py",
+        "solucao": "# teste.py\nprint(\"funcionou\")\n\n# no terminal, dentro da pasta:\npython teste.py\n# saída: funcionou"
+      }
+    },
+    {
+      "id": "m2a2",
+      "titulo": "print e input",
+      "minutos": 10,
+      "resumo": "print() mostra. input() pergunta e guarda a resposta.",
+      "ideia": [
+        "input() sempre devolve texto. Mesmo que a pessoa digite 25.",
+        "Converta com int() antes de fazer conta, ou dá erro."
+      ],
+      "exemplo": {
+        "nota": "O bug clássico e a correção:",
+        "codigo": "idade = input(\"sua idade: \")\nprint(idade + 1)     # ERRO\n\nidade = int(input(\"sua idade: \"))\nprint(idade + 1)     # certo"
+      },
+      "quiz": [
+        {
+          "pergunta": "O usuário digita 25. O que input() devolve?",
+          "opcoes": [
+            "o número 25",
+            "o texto \"25\""
+          ],
+          "correta": 1,
+          "porque": "Sempre texto. int() converte pra inteiro, float() pra decimal."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Peça nome e ano de nascimento e mostre: Oi Fulano, você tem 30 anos.",
+        "solucao": "nome = input(\"nome: \")\nnascimento = int(input(\"ano de nascimento: \"))\nidade = 2026 - nascimento\nprint(f\"Oi {nome}, você tem {idade} anos\")"
+      }
+    },
+    {
+      "id": "m2a3",
+      "titulo": "Tipos: texto, número, booleano",
+      "minutos": 12,
+      "resumo": "str é texto, int é inteiro, float tem vírgula, bool é True ou False.",
+      "ideia": [
+        "Cada tipo aceita operações diferentes. Texto + texto gruda. Número + número soma.",
+        "len() conta caracteres. É a base de qualquer validação de senha."
+      ],
+      "exemplo": {
+        "nota": "O mesmo símbolo, resultados diferentes:",
+        "codigo": "\"2\" + \"2\"      # \"22\"\n2 + 2          # 4\n\"2\" * 3        # \"222\"\n2 * 3          # 6\n\nlen(\"senha123\")   # 8"
+      },
+      "quiz": [
+        {
+          "pergunta": "Quanto dá len(\"senha123\")?",
+          "opcoes": [
+            "7",
+            "8",
+            "erro"
+          ],
+          "correta": 1,
+          "porque": "s-e-n-h-a-1-2-3. Oito caracteres."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Leia uma senha e mostre True se ela tiver 8 caracteres ou mais.",
+        "solucao": "senha = input(\"senha: \")\nforte = len(senha) >= 8\nprint(forte)"
+      }
+    },
+    {
+      "id": "m2a4",
+      "titulo": "if, elif, else",
+      "minutos": 12,
+      "resumo": "A decisão da aula 1.4, agora em código que roda.",
+      "ideia": [
+        "Os espaços no começo da linha (indentação) dizem o que está dentro do if. Não são enfeite.",
+        "Python testa de cima pra baixo e para na primeira condição verdadeira."
+      ],
+      "exemplo": {
+        "nota": "Validador de senha, versão 1:",
+        "codigo": "senha = input(\"senha: \")\n\nif len(senha) >= 12:\n    print(\"senha forte\")\nelif len(senha) >= 8:\n    print(\"senha ok\")\nelse:\n    print(\"senha fraca\")"
+      },
+      "quiz": [
+        {
+          "pergunta": "Senha com 12 caracteres cai em qual linha?",
+          "opcoes": [
+            "senha forte",
+            "senha ok",
+            "nas duas"
+          ],
+          "correta": 0,
+          "porque": "O primeiro teste já pegou. O elif nem chega a ser olhado."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Recuse a senha se ela for 123456, senha ou admin, não importa o tamanho.",
+        "solucao": "senha = input(\"senha: \")\nproibidas = [\"123456\", \"senha\", \"admin\"]\n\nif senha in proibidas:\n    print(\"senha proibida\")\nelif len(senha) >= 12:\n    print(\"senha forte\")\nelif len(senha) >= 8:\n    print(\"senha ok\")\nelse:\n    print(\"senha fraca\")"
+      }
+    },
+    {
+      "id": "m2a5",
+      "titulo": "for e while",
+      "minutos": 12,
+      "resumo": "for quando você sabe quantas vezes. while quando repete até algo mudar.",
+      "ideia": [
+        "range(3) gera 0, 1, 2. Começa no zero, sempre.",
+        "break abandona o laço na hora."
+      ],
+      "exemplo": {
+        "nota": "Tela de login com 3 tentativas:",
+        "codigo": "correta = \"gato123\"\ntentativas = 0\n\nwhile tentativas < 3:\n    senha = input(\"senha: \")\n    if senha == correta:\n        print(\"entrou\")\n        break\n    tentativas = tentativas + 1\n    print(f\"errou. restam {3 - tentativas}\")"
+      },
+      "mais": {
+        "titulo": "Quando usar cada um",
+        "linhas": [
+          "for: percorrer uma lista, repetir N vezes. Você sabe o fim antes de começar.",
+          "while: esperar uma condição mudar. Você não sabe quantas voltas vai dar."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que break faz ali?",
+          "opcoes": [
+            "Pula pra próxima volta",
+            "Sai do laço na hora",
+            "Dá erro"
+          ],
+          "correta": 1,
+          "porque": "Sem ele, o programa continuaria pedindo senha depois de acertar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Percorra a lista ['admin','root','user'] e mostre cada nome em maiúsculo.",
+        "solucao": "usuarios = [\"admin\", \"root\", \"user\"]\n\nfor u in usuarios:\n    print(u.upper())"
+      }
+    },
+    {
+      "id": "m2a6",
+      "titulo": "Listas e dicionários",
+      "minutos": 14,
+      "resumo": "Lista guarda por posição. Dicionário guarda por nome.",
+      "ideia": [
+        "lista[0] é o primeiro item. dicionario[\"email\"] é o campo email.",
+        "Regra prática: lista quando a ordem importa, dicionário quando o nome importa."
+      ],
+      "exemplo": {
+        "nota": "O mesmo dado, dos dois jeitos:",
+        "codigo": "# lista\nusuario = [\"ana\", \"ana@mail.com\", True]\nusuario[1]          # ana@mail.com\n\n# dicionário\nusuario = {\n    \"nome\": \"ana\",\n    \"email\": \"ana@mail.com\",\n    \"ativo\": True\n}\nusuario[\"email\"]    # ana@mail.com"
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que o dicionário costuma ser melhor aqui?",
+          "opcoes": [
+            "É mais rápido",
+            "Você não precisa lembrar que email é a posição 1",
+            "Ocupa menos memória"
+          ],
+          "correta": 1,
+          "porque": "Código se lê muito mais vezes do que se escreve."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte uma lista de 3 dicionários (nome e nivel) e mostre só os de nivel admin.",
+        "solucao": "usuarios = [\n    {\"nome\": \"ana\",  \"nivel\": \"admin\"},\n    {\"nome\": \"bia\",  \"nivel\": \"user\"},\n    {\"nome\": \"caio\", \"nivel\": \"admin\"},\n]\n\nfor u in usuarios:\n    if u[\"nivel\"] == \"admin\":\n        print(u[\"nome\"])"
+      }
+    },
+    {
+      "id": "m2a7",
+      "titulo": "Funções",
+      "minutos": 14,
+      "resumo": "Função é um pedaço de código com nome, que você chama quando quiser.",
+      "ideia": [
+        "Ela recebe entradas e devolve uma saída com return.",
+        "Copiou e colou o mesmo código duas vezes? Ali cabia uma função."
+      ],
+      "exemplo": {
+        "nota": "O validador virando função:",
+        "codigo": "def forca_da_senha(senha):\n    if senha in [\"123456\", \"senha\", \"admin\"]:\n        return \"proibida\"\n    if len(senha) >= 12:\n        return \"forte\"\n    if len(senha) >= 8:\n        return \"ok\"\n    return \"fraca\"\n\nprint(forca_da_senha(\"gato\"))   # fraca"
+      },
+      "mais": {
+        "titulo": "print ou return?",
+        "linhas": [
+          "Função com print só serve pra você ver na tela.",
+          "Função com return entrega o valor pra quem chamou, e aí você pode usar em outro lugar."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Diferença entre print e return?",
+          "opcoes": [
+            "Nenhuma",
+            "print mostra, return entrega o valor",
+            "return é mais novo"
+          ],
+          "correta": 1,
+          "porque": "Um é pra olhar, o outro é pra usar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva eh_email(texto): True se tiver @ e um ponto depois do @.",
+        "solucao": "def eh_email(texto):\n    if \"@\" not in texto:\n        return False\n    depois = texto.split(\"@\")[1]\n    return \".\" in depois\n\neh_email(\"ana@mail.com\")  # True\neh_email(\"ana@mail\")      # False"
+      }
+    },
+    {
+      "id": "m2a8",
+      "titulo": "Projeto: auditor de senhas",
+      "minutos": 25,
+      "resumo": "Primeiro projeto de verdade. Junta input, if, for, lista e função.",
+      "ideia": [
+        "Ele lê uma lista de senhas e dá um diagnóstico de cada uma.",
+        "Faça sua versão antes de olhar a solução. Errar aqui é o exercício."
+      ],
+      "exemplo": {
+        "nota": "O que o programa deve produzir:",
+        "codigo": "123456        -> proibida\nGato#2026x    -> forte\nadmin         -> proibida\nsenhalonga123 -> ok"
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que checar a lista de proibidas antes do tamanho?",
+          "opcoes": [
+            "É mais rápido",
+            "Senha vazada continua vazada mesmo sendo longa",
+            "Não faz diferença"
+          ],
+          "correta": 1,
+          "porque": "Ataque real usa listas de senhas vazadas. Tamanho não protege contra isso."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Implemente. Dica: any(c.isupper() for c in senha) diz se tem alguma maiúscula.",
+        "solucao": "PROIBIDAS = [\"123456\", \"admin\", \"senha\", \"qwerty\"]\nSIMBOLOS = \"!@#$%&*?-_\"\n\ndef auditar(senha):\n    if senha.lower() in PROIBIDAS:\n        return \"proibida\"\n\n    maiuscula = any(c.isupper() for c in senha)\n    numero    = any(c.isdigit() for c in senha)\n    simbolo   = any(c in SIMBOLOS for c in senha)\n    pontos = sum([maiuscula, numero, simbolo])\n\n    if len(senha) >= 12 and pontos == 3:\n        return \"forte\"\n    if len(senha) >= 8 and pontos >= 2:\n        return \"ok\"\n    return \"fraca\"\n\nfor s in [\"123456\", \"Gato#2026x\", \"admin\", \"senhalonga123\"]:\n    print(f\"{s:15} -> {auditar(s)}\")"
+      }
+    }
+  ]
+}

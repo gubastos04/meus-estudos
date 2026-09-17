@@ -1,0 +1,198 @@
+{
+  "modulo": "m1",
+  "aulas": [
+    {
+      "id": "m1a1",
+      "titulo": "O que é um algoritmo",
+      "minutos": 10,
+      "resumo": "Algoritmo é uma receita: passos em ordem que sempre dão o mesmo resultado.",
+      "ideia": [
+        "O computador não adivinha. Ele faz exatamente o que está escrito, na ordem escrita.",
+        "Programar é escrever a receita com detalhe suficiente pra alguém muito rápido e muito burro seguir."
+      ],
+      "exemplo": {
+        "nota": "Trocar uma lâmpada, em passos:",
+        "codigo": "1. desligar o disjuntor\n2. pegar a escada\n3. subir\n4. girar a lâmpada velha até soltar\n5. encaixar a lâmpada nova\n6. descer\n7. ligar o disjuntor"
+      },
+      "mais": {
+        "titulo": "Por que a ordem importa tanto",
+        "linhas": [
+          "Trocar dois passos de lugar pode mudar o resultado inteiro, ou te eletrocutar.",
+          "Em segurança isso é rotina: validar a entrada depois de já ter usado ela é uma falha clássica."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que o passo 1 vem antes do 4?",
+          "opcoes": [
+            "Por estética",
+            "Porque a ordem muda o resultado",
+            "Tanto faz"
+          ],
+          "correta": 1,
+          "porque": "Ordem é tudo. Dois passos trocados quebram a receita inteira."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva o algoritmo de fazer um café. Mínimo 6 passos, e nenhum passo pode depender de bom senso.",
+        "solucao": "1. encher a chaleira com 300ml de água\n2. ligar a chaleira\n3. colocar o filtro no suporte\n4. colocar 2 colheres de pó no filtro\n5. esperar a água ferver\n6. despejar a água aos poucos sobre o pó\n7. esperar escorrer tudo\n8. servir na xícara"
+      }
+    },
+    {
+      "id": "m1a2",
+      "titulo": "Quebrar o problema em pedaços",
+      "minutos": 10,
+      "resumo": "Problema grande trava a cabeça. Problema pequeno não.",
+      "ideia": [
+        "A pergunta é sempre a mesma: quais são as 3 ou 4 partes disso?",
+        "Repita em cada parte. Pare quando a parte já for óbvia de resolver."
+      ],
+      "exemplo": {
+        "nota": "Problema: fazer um sistema de login.",
+        "codigo": "sistema de login\n├── cadastrar\n│   ├── receber email e senha\n│   ├── checar se o email já existe\n│   └── guardar a senha embaralhada\n├── entrar\n│   ├── comparar com o que está guardado\n│   └── liberar ou negar\n└── sair\n    └── apagar a sessão"
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual parte ainda está grande demais?",
+          "opcoes": [
+            "apagar a sessão",
+            "recuperar senha por email",
+            "receber email e senha"
+          ],
+          "correta": 1,
+          "porque": "Ela esconde vários passos: gerar token, enviar email, validar prazo, trocar a senha."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Quebre em partes: organizar meus estudos. Vá até o nível em que cada parte cabe em 10 minutos.",
+        "solucao": "organizar estudos\n├── decidir o que estudar\n│   ├── listar temas\n│   └── colocar em ordem\n├── decidir quando\n│   ├── marcar os dias de folga\n│   └── escolher 1 horário fixo\n└── acompanhar\n    ├── marcar aula feita\n    └── olhar o progresso 1x por semana"
+      }
+    },
+    {
+      "id": "m1a3",
+      "titulo": "Variáveis: caixas com nome",
+      "minutos": 10,
+      "resumo": "Variável é uma caixa com etiqueta onde você guarda um valor pra usar depois.",
+      "ideia": [
+        "O nome da caixa importa mais do que parece.",
+        "Nome ruim é o começo de todo bug difícil de achar."
+      ],
+      "exemplo": {
+        "nota": "Mesma conta, dois nomes:",
+        "codigo": "# ruim\nx = 3\ny = x * 12\n\n# bom\ndias_trabalhados = 3\nhoras_no_mes = dias_trabalhados * 12"
+      },
+      "mais": {
+        "titulo": "Uma armadilha",
+        "linhas": [
+          "A caixa guarda o resultado, não a fórmula.",
+          "Se você mudar dias_trabalhados depois, horas_no_mes continua com o valor velho até você recalcular."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você muda dias_trabalhados para 5 depois de calcular. E horas_no_mes?",
+          "opcoes": [
+            "Muda sozinho",
+            "Continua com o valor antigo"
+          ],
+          "correta": 1,
+          "porque": "A conta já foi feita. A caixa guardou só o número."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie 3 variáveis com bons nomes pra calcular quanto você ganha por hora.",
+        "solucao": "salario_mensal = 2400\nhoras_no_mes = 180\nvalor_por_hora = salario_mensal / horas_no_mes"
+      }
+    },
+    {
+      "id": "m1a4",
+      "titulo": "Decisão: se isso, então aquilo",
+      "minutos": 12,
+      "resumo": "Toda decisão vira uma pergunta de sim ou não.",
+      "ideia": [
+        "A senha tem 8 caracteres? Sim faz uma coisa, não faz outra.",
+        "É a base de segurança: decidir quem entra e quem não entra."
+      ],
+      "exemplo": {
+        "nota": "Em português estruturado:",
+        "codigo": "SE tamanho >= 8 ENTÃO\n    aceitar\nSENÃO SE tamanho >= 4 ENTÃO\n    avisar \"senha fraca\"\nSENÃO\n    recusar"
+      },
+      "quiz": [
+        {
+          "pergunta": "Senha com 6 caracteres. O que acontece?",
+          "opcoes": [
+            "aceitar",
+            "avisar senha fraca",
+            "recusar"
+          ],
+          "correta": 1,
+          "porque": "Testa de cima pra baixo e para na primeira condição verdadeira."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Caixa eletrônico: só libera se o valor for múltiplo de 10, menor que o saldo e menor que 1000.",
+        "solucao": "SE valor % 10 != 0 ENTÃO\n    recusar \"só múltiplos de 10\"\nSENÃO SE valor > saldo ENTÃO\n    recusar \"saldo insuficiente\"\nSENÃO SE valor > 1000 ENTÃO\n    recusar \"limite por saque\"\nSENÃO\n    liberar"
+      }
+    },
+    {
+      "id": "m1a5",
+      "titulo": "Repetição: fazer de novo até",
+      "minutos": 12,
+      "resumo": "Repetição é o que faz o computador valer a pena. Ele não cansa.",
+      "ideia": [
+        "Dois tipos: repetir um número certo de vezes, ou repetir enquanto algo for verdade.",
+        "Ataque de força bruta é exatamente isso: repetir tentativa de senha até acertar."
+      ],
+      "exemplo": {
+        "nota": "Os dois tipos:",
+        "codigo": "# número certo de vezes\nPARA tentativa DE 1 ATÉ 3\n    pedir senha\n\n# enquanto for verdade\nENQUANTO senha errada E tentativas < 3\n    pedir senha\n    tentativas = tentativas + 1"
+      },
+      "quiz": [
+        {
+          "pergunta": "Você esquece de somar 1 em tentativas. O que acontece?",
+          "opcoes": [
+            "Roda 3 vezes mesmo assim",
+            "Roda pra sempre",
+            "Dá erro na hora"
+          ],
+          "correta": 1,
+          "porque": "Se a condição nunca muda, o laço nunca termina. Erro número 1 de iniciante."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um laço que soma todos os números de 1 a 100.",
+        "solucao": "soma = 0\nPARA n DE 1 ATÉ 100\n    soma = soma + n\nmostrar soma   # 5050"
+      }
+    },
+    {
+      "id": "m1a6",
+      "titulo": "Testar o próprio raciocínio",
+      "minutos": 10,
+      "resumo": "Teste de mesa: simular o código na mão, linha por linha, antes de rodar.",
+      "ideia": [
+        "Você anota o valor de cada variável a cada volta, como num caderno.",
+        "Parece lento. É o que mais economiza tempo no começo."
+      ],
+      "exemplo": {
+        "nota": "Teste de mesa de um contador:",
+        "codigo": "total = 0\nPARA n DE 1 ATÉ 3\n    total = total + n\n\nvolta | n | total\n  1   | 1 |   1\n  2   | 2 |   3\n  3   | 3 |   6"
+      },
+      "quiz": [
+        {
+          "pergunta": "Pra que serve o teste de mesa?",
+          "opcoes": [
+            "Deixar o código rápido",
+            "Achar erro de lógica antes de rodar",
+            "Substituir o computador"
+          ],
+          "correta": 1,
+          "porque": "Pega erro de raciocínio. Erro de digitação o computador acusa sozinho."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Teste de mesa de: x = 10; ENQUANTO x > 0: x = x - 3. Quantas voltas e qual o x final?",
+        "solucao": "volta | x antes | x depois\n  1   |   10    |    7\n  2   |    7    |    4\n  3   |    4    |    1\n  4   |    1    |   -2  → para\n\n4 voltas, x final = -2"
+      }
+    }
+  ]
+}
