@@ -2,20 +2,27 @@ import "server-only";
 import { db } from "@/lib/db";
 import { Demanda } from "@/lib/conteudo";
 import type { Energia, Fonte, Tema } from "@/lib/constantes";
-import type { OrigemSessao, Progresso } from "@/lib/modelo";
+import type { OrigemSessao, Preferencias, Progresso } from "@/lib/modelo";
+import { META_PADRAO } from "@/lib/constantes";
 
-// App de uma pessoa só: um usuário fixo até a fase 6 (login).
-export const USUARIO_ID = "eu";
-
-export async function garantirUsuario() {
-  return db.usuario.upsert({ where: { id: USUARIO_ID }, update: {}, create: { id: USUARIO_ID } });
+/** Só as preferências, para o <html> (tema e fonte) sem carregar o progresso todo. */
+export async function preferencias(usuarioId: string): Promise<Preferencias> {
+  const u = await db.usuario.findUnique({
+    where: { id: usuarioId },
+    select: { metaSemanal: true, energia: true, tema: true, fonte: true },
+  });
+  return {
+    meta: u?.metaSemanal ?? META_PADRAO,
+    energia: (u?.energia as Energia) ?? "media",
+    tema: (u?.tema as Tema) ?? "escuro",
+    fonte: (u?.fonte as Fonte) ?? 1,
+  };
 }
 
-/** Monta o Progresso inteiro a partir do banco. Chamado uma vez por requisição, no layout. */
-export async function carregarProgresso(): Promise<Progresso> {
-  await garantirUsuario();
+/** Monta o Progresso inteiro de um usuário. Chamado uma vez por requisição, no layout. */
+export async function carregarProgresso(usuarioId: string): Promise<Progresso> {
   const u = await db.usuario.findUniqueOrThrow({
-    where: { id: USUARIO_ID },
+    where: { id: usuarioId },
     include: {
       aulas: true, sessoes: true, notas: { orderBy: { em: "desc" } }, erros: { orderBy: { em: "desc" } },
       demandas: true, treinos: true, projetos: true, provas: true, geradas: { orderBy: { em: "desc" } },
@@ -50,8 +57,8 @@ export async function carregarProgresso(): Promise<Progresso> {
 }
 
 /** Demanda gerada por IA, pelo id que está dentro do JSON (não o id da linha). */
-export async function demandaGerada(id: string) {
-  const linhas = await db.demandaGerada.findMany({ where: { usuarioId: USUARIO_ID } });
+export async function demandaGerada(usuarioId: string, id: string) {
+  const linhas = await db.demandaGerada.findMany({ where: { usuarioId } });
   for (const l of linhas) {
     const r = Demanda.safeParse(JSON.parse(l.json));
     if (r.success && r.data.id === id) return r.data;
@@ -60,7 +67,6 @@ export async function demandaGerada(id: string) {
 }
 
 /** Salva uma demanda gerada por IA (JSON no formato Demanda). */
-export async function salvarDemandaGerada(demanda: unknown) {
-  await garantirUsuario();
-  await db.demandaGerada.create({ data: { usuarioId: USUARIO_ID, json: JSON.stringify(demanda) } });
+export async function salvarDemandaGerada(usuarioId: string, demanda: unknown) {
+  await db.demandaGerada.create({ data: { usuarioId, json: JSON.stringify(demanda) } });
 }

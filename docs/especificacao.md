@@ -535,7 +535,7 @@ Login simples por e-mail, Postgres, deploy.
 
 Escrito aqui com o mesmo peso da seção anterior, pelo mesmo motivo que todo projeto do app declara o que não faz.
 
-- **Múltiplos usuários, papéis, planos ou painel administrativo.** É um app de uma pessoa.
+- ~~**Múltiplos usuários...** É um app de uma pessoa.~~ **Revisto em 17/09/2026:** o usuário pediu que outras pessoas possam usar. Agora é multiusuário (contas self-service, cada uma com progresso e chave de IA próprios). Continua SEM papéis, planos ou painel administrativo — só contas iguais.
 - **Editor de conteúdo dentro do app.** Conteúdo é arquivo versionado no repositório.
 - **Gamificação com pontos, níveis, medalhas, confete ou ranking.** Contraria o princípio 2.2 e vira ruído.
 - **Notificações push e lembretes por e-mail.** O usuário trabalha em turno variável; lembrete em horário errado vira motivo de abandono.

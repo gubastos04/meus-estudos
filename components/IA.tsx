@@ -13,7 +13,7 @@ export function IAProvider({ ligada, children }: { ligada: boolean; children: Re
 export const useIA = () => useContext(CtxIA);
 
 /** Aviso curto quando a IA está desligada. IA é botão, nunca automático (seção 7). */
-export function IADesligada({ children = "Este recurso usa IA, que está desligada. Ligue configurando a chave da API no servidor (veja o README)." }: { children?: ReactNode }) {
+export function IADesligada({ children = "Este recurso usa IA. Adicione sua chave da API em Você para ligar (cada um usa a própria e paga o próprio uso)." }: { children?: ReactNode }) {
   return <p className="nota" style={{ marginTop: 12 }}>{children}</p>;
 }
 

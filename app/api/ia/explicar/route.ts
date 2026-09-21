@@ -10,5 +10,5 @@ const Entrada = z.object({
 });
 
 export function POST(req: Request) {
-  return responderIA(req, Entrada, explicar);
+  return responderIA(req, Entrada, (uid, dados) => explicar(uid, dados));
 }

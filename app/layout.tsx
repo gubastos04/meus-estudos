@@ -2,13 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { connection } from "next/server";
 import { Fraunces, Karla, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { ProgressoProvider } from "@/lib/progresso";
-import { carregarProgresso } from "@/lib/progresso-servidor";
-import { temChaveIA } from "@/lib/ia";
-import { IAProvider } from "@/components/IA";
+import { usuarioAtual } from "@/lib/auth";
+import { preferencias } from "@/lib/progresso-servidor";
 import { ESCALA } from "@/lib/constantes";
-import { Topo } from "@/components/Topo";
-import { Nav } from "@/components/Nav";
 
 // Fraunces: serif de display, dá a personalidade de caderno. Karla: texto e UI.
 // JetBrains Mono: números e código, a "voz de livro-caixa".
@@ -28,28 +24,19 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // O progresso é lido a cada requisição, nunca congelado no build.
   await connection();
-  const progresso = await carregarProgresso();
+  // Tema e fonte no <html> vêm das preferências de quem está logado (ou o padrão).
+  const u = await usuarioAtual();
+  const prefs = u ? await preferencias(u.id) : { tema: "escuro" as const, fonte: 1 as const };
 
   return (
     <html
       lang="pt-BR"
-      data-tema={progresso.tema}
-      style={{ "--esc": ESCALA[progresso.fonte] } as React.CSSProperties}
+      data-tema={prefs.tema}
+      style={{ "--esc": ESCALA[prefs.fonte] } as React.CSSProperties}
       className={`${fraunces.variable} ${karla.variable} ${jetbrains.variable}`}
     >
-      <body>
-        <ProgressoProvider inicial={progresso}>
-          <IAProvider ligada={temChaveIA()}>
-            <div className="wrap">
-              <Topo />
-              <main>{children}</main>
-            </div>
-            <Nav />
-          </IAProvider>
-        </ProgressoProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

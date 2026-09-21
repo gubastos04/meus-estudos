@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { Abas } from "@/components/Abas";
 import { METAS } from "@/lib/constantes";
 import { diasAtivos, minutosTotais, useProgresso } from "@/lib/progresso";
+import { removerChaveIA, salvarChaveIA } from "@/lib/acoes";
+import { sair } from "@/lib/acoes-auth";
 import type { Certificado, Lab, PerguntaEntrevista } from "@/lib/conteudo";
 
 export type Aba = "progresso" | "entrevista" | "certificados";
@@ -16,15 +19,16 @@ const ABAS = [
 
 type ModuloIds = { id: string; aulas: string[] };
 
-export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificados, labs }: {
+export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificados, labs, email, temChave }: {
   abaInicial: Aba; modulos: ModuloIds[]; totalTreinos: number;
   perguntas: PerguntaEntrevista[]; certificados: Certificado[]; labs: Lab[];
+  email: string; temChave: boolean;
 }) {
   const [aba, setAba] = useState<Aba>(abaInicial);
   return (
     <>
       <Abas itens={ABAS} ativa={aba} aoMudar={setAba} />
-      {aba === "progresso" && <Progresso modulos={modulos} totalTreinos={totalTreinos} />}
+      {aba === "progresso" && <Progresso modulos={modulos} totalTreinos={totalTreinos} email={email} temChave={temChave} />}
       {aba === "entrevista" && <Entrevista perguntas={perguntas} />}
       {aba === "certificados" && <Certificados certificados={certificados} labs={labs} />}
     </>
@@ -33,7 +37,7 @@ export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificado
 
 /* ── Progresso ────────────────────────────────────────────────── */
 
-function Progresso({ modulos, totalTreinos }: { modulos: ModuloIds[]; totalTreinos: number }) {
+function Progresso({ modulos, totalTreinos, email, temChave }: { modulos: ModuloIds[]; totalTreinos: number; email: string; temChave: boolean }) {
   const { progresso: p, acoes } = useProgresso();
   const [confirmando, setConfirmando] = useState(false);
 
@@ -77,9 +81,16 @@ function Progresso({ modulos, totalTreinos }: { modulos: ModuloIds[]; totalTrein
         ))}
       </div>
 
+      <h3 className="h3" style={{ marginTop: 32 }}>Chave da IA</h3>
+      <ChaveIA temChave={temChave} />
+
       <h3 className="h3" style={{ marginTop: 32 }}>Trazer o progresso do protótipo</h3>
       <p className="nota">Se você usou a versão anterior no claude.ai, dá para importar o que fez lá.</p>
       <Link href="/importar" className="bt-2">Importar do protótipo</Link>
+
+      <h3 className="h3" style={{ marginTop: 32 }}>Conta</h3>
+      <div className="conta"><span className="conta-email">{email}</span></div>
+      <Sair />
 
       <h3 className="h3" style={{ marginTop: 32 }}>Recomeçar do zero</h3>
       <p className="nota">Apaga progresso, tempo e notas. Tema e tamanho de fonte ficam. Não dá pra desfazer.</p>
@@ -94,6 +105,66 @@ function Progresso({ modulos, totalTreinos }: { modulos: ModuloIds[]; totalTrein
         <button type="button" className="bt-2" onClick={() => setConfirmando(true)}><Trash2 size={16} /> Apagar meus dados</button>
       )}
     </>
+  );
+}
+
+/* ── Chave de IA (cada um a sua) ──────────────────────────────── */
+
+function ChaveIA({ temChave }: { temChave: boolean }) {
+  const roteador = useRouter();
+  const [editando, setEditando] = useState(false);
+  const campo = useRef<HTMLInputElement>(null);
+  const [erro, setErro] = useState<string | null>(null);
+  const [pendente, iniciar] = useTransition();
+
+  const salvar = () =>
+    iniciar(async () => {
+      setErro(null);
+      const r = await salvarChaveIA(campo.current?.value ?? "");
+      if (r.ok) { if (campo.current) campo.current.value = ""; setEditando(false); roteador.refresh(); }
+      else setErro(r.erro);
+    });
+
+  const remover = () =>
+    iniciar(async () => { await removerChaveIA(); roteador.refresh(); });
+
+  if (temChave && !editando) {
+    return (
+      <>
+        <p className="nota">Sua chave está guardada (criptografada). A IA está ligada e o uso é cobrado na sua conta da Anthropic.</p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <button type="button" className="bt-2" onClick={() => setEditando(true)}>Trocar a chave</button>
+          <button type="button" className="bt-2" onClick={remover} disabled={pendente}>Remover</button>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <p className="nota">
+        Cole a sua chave da API da Anthropic para ligar a IA (corretor, explicações, gerar demanda). Cada um usa a própria e paga o próprio uso; ela fica só no servidor, criptografada. Pegue em console.anthropic.com.
+      </p>
+      <input ref={campo} className="busca" type="password" autoComplete="off" placeholder="sk-ant-..." style={{ marginBottom: 10 }} />
+      {erro && <div className="aviso aviso-falha" style={{ marginBottom: 10 }}>{erro}</div>}
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <button type="button" className="bt" onClick={salvar} disabled={pendente}>
+          {pendente ? "Guardando..." : "Guardar chave"}
+        </button>
+        {temChave && <button type="button" className="bt-2" onClick={() => { setEditando(false); setErro(null); }}>Cancelar</button>}
+      </div>
+    </>
+  );
+}
+
+function Sair() {
+  const roteador = useRouter();
+  const [pendente, iniciar] = useTransition();
+  return (
+    <button type="button" className="bt-2" disabled={pendente}
+      onClick={() => iniciar(async () => { await sair(); roteador.replace("/entrar"); roteador.refresh(); })}>
+      {pendente ? "Saindo..." : "Sair desta conta"}
+    </button>
   );
 }
 

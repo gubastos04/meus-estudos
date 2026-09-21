@@ -6,18 +6,22 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Usuario {
   id          String   @id @default(cuid())
+  email       String   @unique
+  senhaHash   String
+  iaChave     String?  // ANTHROPIC_API_KEY do próprio usuário, criptografada; cada um paga o seu
   criadoEm    DateTime @default(now())
   metaSemanal Int      @default(3)
   energia     String   @default("media")  // baixa | media | alta
   tema        String   @default("escuro") // escuro | claro
   fonte       Int      @default(1)        // 0 | 1 | 2
 
+  logins   SessaoLogin[]
   aulas    AulaFeita[]
   sessoes  Sessao[]
   notas    Nota[]
@@ -28,6 +32,18 @@ model Usuario {
   provas   ProvaFeita[]
   geradas  DemandaGerada[]
   usoIA    UsoIA[]
+}
+
+// Sessão de login (cookie). Nome distinto de Sessao, que é sessão de estudo.
+model SessaoLogin {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  usuarioId String
+  expiraEm  DateTime
+  criadoEm  DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
 }
 
 model AulaFeita {

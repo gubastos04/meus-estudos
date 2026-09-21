@@ -2,15 +2,29 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { Demanda, type Demanda as TDemanda } from "@/lib/conteudo";
 import { db } from "@/lib/db";
-import { garantirUsuario, USUARIO_ID } from "@/lib/progresso-servidor";
+import { decifrar } from "@/lib/cripto";
 import { hoje } from "@/lib/datas";
 
-// A chave nunca vai para o navegador. Modelo e limite são configuráveis por env.
+// Cada usuário usa a própria chave (paga o próprio uso). A chave nunca vai para
+// o navegador: fica criptografada no banco e é decifrada só aqui, no servidor.
+// Modelo e limite diário são configuráveis por env.
 const MODELO = process.env.IA_MODELO || "claude-sonnet-5";
 const LIMITE_DIARIO = Number(process.env.IA_LIMITE_DIARIO || "40");
 
-/** IA só liga quando existe chave. Sem chave, os botões nem aparecem (seção 7). */
-export const temChaveIA = () => Boolean(process.env.ANTHROPIC_API_KEY);
+/** IA só liga para quem cadastrou a própria chave. Sem chave, os botões nem aparecem. */
+export async function temChaveIA(usuarioId: string): Promise<boolean> {
+  const u = await db.usuario.findUnique({ where: { id: usuarioId }, select: { iaChave: true } });
+  return Boolean(u?.iaChave);
+}
+
+/** Decifra a chave do usuário; lança ErroIA amigável se não houver ou falhar. */
+async function chaveDoUsuario(usuarioId: string): Promise<string> {
+  const u = await db.usuario.findUnique({ where: { id: usuarioId }, select: { iaChave: true } });
+  if (!u?.iaChave) throw new ErroIA("Você ainda não cadastrou sua chave da API. Vá em Você e adicione uma para usar a IA.");
+  const chave = decifrar(u.iaChave);
+  if (!chave) throw new ErroIA("Não consegui ler sua chave (o segredo do servidor pode ter mudado). Recadastre a chave em Você.");
+  return chave;
+}
 
 // Voz compartilhada (seção 7). Texto puro, direto, sem elogio vazio.
 const VOZ = `Você é professor particular de um aluno brasileiro que está começando programação do zero, com foco em segurança da informação.
@@ -31,57 +45,50 @@ Responda APENAS com um objeto JSON válido. Sem markdown, sem cercas de crase, s
 /** Erro com mensagem já pronta para o usuário (sem stack trace). */
 export class ErroIA extends Error {}
 
-let cliente: Anthropic | null = null;
-function anthropic(): Anthropic {
-  if (!temChaveIA()) throw new ErroIA("A IA está desligada. Falta configurar a chave da API no servidor.");
-  cliente ??= new Anthropic();
-  return cliente;
-}
-
-/** Barra se o uso do dia já chegou ao limite. Só leitura — não consome. */
-async function checarCota() {
-  await garantirUsuario();
-  const uso = await db.usoIA.findUnique({ where: { usuarioId_dia: { usuarioId: USUARIO_ID, dia: hoje() } } });
+/** Barra se o uso do dia do usuário já chegou ao limite. Só leitura — não consome. */
+async function checarCota(usuarioId: string) {
+  const uso = await db.usoIA.findUnique({ where: { usuarioId_dia: { usuarioId, dia: hoje() } } });
   if ((uso?.total ?? 0) >= LIMITE_DIARIO) {
     throw new ErroIA(`Você chegou ao limite de ${LIMITE_DIARIO} usos de IA hoje. Isso existe para o custo não fugir do controle. Volta amanhã, ou aumenta o limite em IA_LIMITE_DIARIO.`);
   }
 }
 
 /** Conta um uso do dia. Chamado só depois de a chamada dar certo (aí sim custou). */
-async function registrarUso() {
+async function registrarUso(usuarioId: string) {
   const dia = hoje();
   await db.usoIA.upsert({
-    where: { usuarioId_dia: { usuarioId: USUARIO_ID, dia } },
+    where: { usuarioId_dia: { usuarioId, dia } },
     update: { total: { increment: 1 } },
-    create: { usuarioId: USUARIO_ID, dia, total: 1 },
+    create: { usuarioId, dia, total: 1 },
   });
 }
 
-async function conversar(prompt: string, sistema: string, maxTokens = 1024): Promise<string> {
-  await checarCota();
+async function conversar(usuarioId: string, prompt: string, sistema: string, maxTokens = 1024): Promise<string> {
+  await checarCota(usuarioId);
+  const cliente = new Anthropic({ apiKey: await chaveDoUsuario(usuarioId) });
   let resposta;
   try {
-    resposta = await anthropic().messages.create({
+    resposta = await cliente.messages.create({
       model: MODELO,
       max_tokens: maxTokens,
       system: sistema,
       messages: [{ role: "user", content: prompt }],
     });
   } catch (e) {
-    if (e instanceof Anthropic.AuthenticationError) throw new ErroIA("A chave da API foi recusada. Confira a ANTHROPIC_API_KEY no servidor.");
+    if (e instanceof Anthropic.AuthenticationError) throw new ErroIA("Sua chave da API foi recusada. Confira a chave em Você.");
     if (e instanceof Anthropic.RateLimitError) throw new ErroIA("A API está ocupada agora (limite de taxa). Tenta de novo em alguns segundos.");
     console.error("IA falhou:", e);
     throw new ErroIA("Não consegui responder agora. Tenta de novo daqui a pouco.");
   }
   const texto = resposta.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
   if (!texto) throw new ErroIA("Veio uma resposta vazia. Tenta de novo.");
-  await registrarUso();
+  await registrarUso(usuarioId);
   return texto;
 }
 
 /* ── 7.1 Corretor de código ───────────────────────────────────── */
 
-export function corrigir(entrada: { titulo: string; enunciado: string; criterios: string[]; solucao?: string; codigo: string }) {
+export function corrigir(usuarioId: string, entrada: { titulo: string; enunciado: string; criterios: string[]; solucao?: string; codigo: string }) {
   const prompt = `Tarefa dada ao aluno: ${entrada.titulo}
 Enunciado: ${entrada.enunciado}
 
@@ -98,12 +105,12 @@ Faça, nesta ordem:
 3. Termine com uma frase dizendo se está pronto pra entregar ou não.
 
 Não reescreva o código inteiro. Se precisar mostrar correção, mostre só a linha ou o trecho.`;
-  return conversar(prompt, VOZ, 1024);
+  return conversar(usuarioId, prompt, VOZ, 1024);
 }
 
 /* ── 7.2 Explica de outro jeito ───────────────────────────────── */
 
-export function explicar(entrada: { titulo: string; modulo: string; resumo?: string; ideia: string[] }) {
+export function explicar(usuarioId: string, entrada: { titulo: string; modulo: string; resumo?: string; ideia: string[] }) {
   const prompt = `O aluno está na aula "${entrada.titulo}", do módulo "${entrada.modulo}".
 
 Resumo que ele leu: ${entrada.resumo ?? ""}
@@ -114,12 +121,12 @@ Essa explicação não entrou na cabeça dele. Explique o MESMO conceito de outr
 - Use uma analogia diferente da que está acima.
 - Comece pelo exemplo concreto, não pela definição.
 - Termine com uma pergunta curta que ele possa responder pra si mesmo e saber se entendeu.`;
-  return conversar(prompt, VOZ, 700);
+  return conversar(usuarioId, prompt, VOZ, 700);
 }
 
 /* ── 7.3 Pergunta livre ───────────────────────────────────────── */
 
-export function perguntar(entrada: { titulo: string; modulo: string; resumo?: string; ideia: string[]; exemplo?: string; pergunta: string }) {
+export function perguntar(usuarioId: string, entrada: { titulo: string; modulo: string; resumo?: string; ideia: string[]; exemplo?: string; pergunta: string }) {
   const prompt = `O aluno está na aula "${entrada.titulo}", do módulo "${entrada.modulo}".
 
 Conteúdo que ele acabou de ler:
@@ -131,7 +138,7 @@ Pergunta dele:
 ${entrada.pergunta}
 
 Responda a pergunta dele. Se a pergunta for sobre assunto de um módulo posterior, responda o essencial em duas frases e diga onde é aprofundado. Nunca responda apenas "depende".`;
-  return conversar(prompt, VOZ, 900);
+  return conversar(usuarioId, prompt, VOZ, 900);
 }
 
 /* ── 7.4 Demanda gerada ───────────────────────────────────────── */
@@ -139,7 +146,7 @@ Responda a pergunta dele. Se a pergunta for sobre assunto de um módulo posterio
 const IDS_PROIBIDOS = new Set(["validador de senha", "análise de log de login", "log de login"]);
 
 /** Gera uma demanda nova, valida com Zod, tenta mais uma vez se falhar. */
-export async function gerarDemanda(aulasFeitas: string[]): Promise<TDemanda> {
+export async function gerarDemanda(usuarioId: string, aulasFeitas: string[]): Promise<TDemanda> {
   const sabe = aulasFeitas.length ? aulasFeitas.join(", ") : "lógica básica, variáveis, condicionais, laços";
   const prompt = `O aluno já domina: ${sabe}.
 
@@ -167,7 +174,7 @@ O JSON deve ter exatamente estas chaves:
 O campo canal deve ser exatamente Slack, E-mail ou Ticket, sem número junto.`;
 
   const tentar = async (): Promise<TDemanda> => {
-    const txt = await conversar(prompt, VOZ_JSON, 2000);
+    const txt = await conversar(usuarioId, prompt, VOZ_JSON, 2000);
     const limpo = txt.replace(/```json/gi, "").replace(/```/g, "").trim();
     let bruto: unknown;
     try {

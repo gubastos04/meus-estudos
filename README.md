@@ -8,11 +8,12 @@ A regra de tudo está em [docs/especificacao.md](docs/especificacao.md). Leia a 
 
 ```bash
 npm install
+cp .env.example .env   # e edite: gere um APP_SECRET forte
 npx prisma migrate dev
 npm run dev
 ```
 
-O banco local é SQLite em `prisma/dev.db` (criado pelo `migrate dev`; a URL está em `.env`). Ele não vai para o git: é o seu progresso.
+Precisa de `DATABASE_URL` (SQLite local já vem no exemplo) e `APP_SECRET` no `.env`. O banco local é SQLite em `prisma/dev.db`; não vai para o git. Para publicar (Postgres + Vercel), veja [DEPLOY.md](DEPLOY.md).
 
 Abre em http://localhost:3000. O celular é o dispositivo principal: teste em tela estreita.
 
@@ -25,7 +26,7 @@ Abre em http://localhost:3000. O celular é o dispositivo principal: teste em te
 | 3 | Prática: demandas com reviravolta, treino, provas, revisar | **pronta** — corretor de IA e gerador de demandas ficam para a fase 5 |
 | 4 | Caderno (notas, erros, glossário) e Você (progresso, entrevista, certificados) | **pronta** |
 | 5 | IA: corretor, explicar de outro jeito, pergunta livre, gerar demanda | **pronta** — desligada até configurar a chave |
-| 6 | Login e deploy | — |
+| 6 | Multiusuário (login e-mail+senha), chave de IA por usuário, pronto pra deploy | **pronta** — veja DEPLOY.md |
 
 ## Estrutura
 
@@ -43,7 +44,11 @@ lib/sorteio.ts  semente e embaralhamento determinístico (render precisa ser pur
 lib/ia.ts       cliente da Anthropic e os quatro prompts (server-only)
 lib/ia-rota.ts  helper compartilhado das rotas de IA
 app/api/ia/     route handlers: corrigir, explicar, perguntar, demanda
-components/IA.tsx  botões de IA no cliente (desligados quando não há chave)
+app/(app)/      telas que exigem login; app/(auth)/ entrar e criar-conta
+lib/auth.ts     contas, sessão por cookie (bcrypt), usuarioAtual/requisitarUsuario
+lib/cripto.ts   AES-GCM para a chave de IA de cada usuário
+proxy.ts        redireciona quem não tem sessão para /entrar
+components/IA.tsx  botões de IA no cliente (desligados quando o usuário não tem chave)
 prisma/         schema e migrações
 docs/           especificação e formato do protótipo
 scripts/        extração do conteúdo do protótipo (uso único, mantido por histórico)

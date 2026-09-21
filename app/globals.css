@@ -416,3 +416,13 @@ button:disabled { cursor: not-allowed; }
   .nav-bt:hover { color: var(--text); }
   .nav-bt.on { color: var(--amber); border-top-color: var(--amber); }
 }
+
+/* ── Autenticação ─────────────────────────────────────────────── */
+@layer components {
+  .auth { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 24px 20px; }
+  .auth-cartao { width: 100%; max-width: 400px; }
+  .link { color: var(--amber); text-decoration: none; font-weight: 600; }
+  .link:hover { text-decoration: underline; }
+  .conta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+  .conta-email { font-family: var(--font-mono); font-size: var(--f-min); color: var(--dim); }
+}

@@ -2,13 +2,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { demanda as buscarDemanda } from "@/lib/conteudo";
 import { demandaGerada } from "@/lib/progresso-servidor";
+import { requisitarUsuario } from "@/lib/auth";
 import { DemandaView } from "@/components/telas/Demanda";
 
 type Props = PageProps<"/pratica/demandas/[id]">;
 
-// Demandas vêm do conteúdo ou, se geradas por IA, do banco.
+// Demandas vêm do conteúdo ou, se geradas por IA, do banco do próprio usuário.
 async function buscar(id: string) {
-  return buscarDemanda(id) ?? (await demandaGerada(id));
+  const doConteudo = buscarDemanda(id);
+  if (doConteudo) return doConteudo;
+  const u = await requisitarUsuario();
+  return demandaGerada(u.id, id);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
