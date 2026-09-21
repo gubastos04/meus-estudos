@@ -1,5 +1,7 @@
 # Meus Estudos — especificação de construção
 
+> **Reforma de 21/09/2026 (posicionamento).** O produto deixou de ser "programação com foco fixo em segurança" e passou a ser "programação com **foco selecionável**": uma base comum (lógica, Python) + um foco escolhido pelo usuário entre segurança, web, dados e back-end (base comum + foco; um por vez, trocável). Segurança é o foco com conteúdo pronto; os outros começam como outline. Também foi **removida** toda referência a "trabalha em escala 12x36 / plantão" — o princípio da meta semanal (não sequência diária) permanece, agora justificado por "ninguém estuda todo dia", não por trabalho em turno. O contexto atual do produto está em `PRODUCT.md`. As seções abaixo são o registro original.
+
 Documento de entrada para a construção. Contém tudo que foi decidido no protótipo: princípios, arquitetura, modelo de dados, telas, prompts de IA, design system e ordem de construção.
 
 O protótipo funcional existia como arquivo React único (`centro.jsx`, ~171 KB). Seu conteúdo já foi extraído para `/content` (ver `scripts/extrair-prototipo.mjs`); o formato do progresso que ele salvava está em `docs/formato-prototipo.md`. Este documento descreve para onde ele vai.

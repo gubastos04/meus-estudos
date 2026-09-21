@@ -1,0 +1,25 @@
+{
+  "modulo": "backend4",
+  "aulas": [
+    {
+      "id": "backend4a1",
+      "titulo": "Login e senha com hash",
+      "minutos": 12
+    },
+    {
+      "id": "backend4a2",
+      "titulo": "Sessão e cookie",
+      "minutos": 12
+    },
+    {
+      "id": "backend4a3",
+      "titulo": "Autorização",
+      "minutos": 12
+    },
+    {
+      "id": "backend4a4",
+      "titulo": "Segredos",
+      "minutos": 12
+    }
+  ]
+}

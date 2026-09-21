@@ -86,7 +86,8 @@
         "correta": 1,
         "porque": "Programa decide entre caminhos, não escolhe o melhor de infinitas opções. 'Qual é a melhor' precisa virar um critério antes."
       }
-    ]
+    ],
+    "foco": "base"
   },
   {
     "id": "pa2",
@@ -195,7 +196,8 @@
         "correta": 1,
         "porque": "Em Python a indentação é sintaxe. Ela define blocos, do mesmo jeito que chaves em outras linguagens."
       }
-    ]
+    ],
+    "foco": "base"
   },
   {
     "id": "pp1",
@@ -238,7 +240,8 @@
         ],
         "solucao": "def mascarar_cartao(numero):\n    if len(numero) <= 4:\n        return \"*\" * len(numero)\n    return \"*\" * (len(numero) - 4) + numero[-4:]"
       }
-    ]
+    ],
+    "foco": "base"
   },
   {
     "id": "pp2",
@@ -281,6 +284,7 @@
         ],
         "solucao": "def tem_sequencia(senha):\n    if len(senha) < 3:\n        return False\n    for i in range(len(senha) - 2):\n        a, b, c = senha[i], senha[i+1], senha[i+2]\n        if ord(b) - ord(a) == 1 and ord(c) - ord(b) == 1:\n            return True\n    return False"
       }
-    ]
+    ],
+    "foco": "base"
   }
 ]

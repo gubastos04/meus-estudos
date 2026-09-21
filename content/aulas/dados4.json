@@ -1,0 +1,25 @@
+{
+  "modulo": "dados4",
+  "aulas": [
+    {
+      "id": "dados4a1",
+      "titulo": "Média, mediana, desvio",
+      "minutos": 12
+    },
+    {
+      "id": "dados4a2",
+      "titulo": "Amostra vs população",
+      "minutos": 12
+    },
+    {
+      "id": "dados4a3",
+      "titulo": "Correlação não é causa",
+      "minutos": 12
+    },
+    {
+      "id": "dados4a4",
+      "titulo": "Probabilidade básica",
+      "minutos": 12
+    }
+  ]
+}

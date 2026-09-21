@@ -1,0 +1,25 @@
+{
+  "modulo": "dados1",
+  "aulas": [
+    {
+      "id": "dados1a1",
+      "titulo": "Series e DataFrame",
+      "minutos": 12
+    },
+    {
+      "id": "dados1a2",
+      "titulo": "Ler CSV",
+      "minutos": 12
+    },
+    {
+      "id": "dados1a3",
+      "titulo": "Selecionar e filtrar",
+      "minutos": 12
+    },
+    {
+      "id": "dados1a4",
+      "titulo": "Agrupar",
+      "minutos": 12
+    }
+  ]
+}

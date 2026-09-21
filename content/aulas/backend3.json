@@ -1,0 +1,25 @@
+{
+  "modulo": "backend3",
+  "aulas": [
+    {
+      "id": "backend3a1",
+      "titulo": "Tabelas e chaves",
+      "minutos": 12
+    },
+    {
+      "id": "backend3a2",
+      "titulo": "SELECT e WHERE",
+      "minutos": 12
+    },
+    {
+      "id": "backend3a3",
+      "titulo": "JOIN",
+      "minutos": 12
+    },
+    {
+      "id": "backend3a4",
+      "titulo": "Consulta parametrizada",
+      "minutos": 12
+    }
+  ]
+}

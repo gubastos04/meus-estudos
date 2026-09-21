@@ -60,8 +60,18 @@ A Vercel faz cache do `node_modules`, o que pode servir um Prisma Client velho. 
 
 `APP_SECRET` criptografa as chaves de IA dos usuários. Se você trocá-lo depois, as chaves guardadas param de decifrar e cada um terá que recadastrar a sua (o app avisa isso, não quebra). Então gere uma vez e não troque à toa.
 
+## Ao atualizar o schema (ex.: coluna `foco`)
+
+Sempre que o `prisma/schema.prisma` mudar, rode de novo, com a string do Neon, para o banco de produção acompanhar:
+
+```bash
+DATABASE_URL="postgresql://...neon..." npx prisma db push
+```
+
+Colunas novas são adicionadas sem apagar dados. Depois, um Redeploy na Vercel.
+
 ## Depois no ar
 
-- Primeiro acesso: `/criar-conta`. Se puser `CODIGO_CONVITE`, só quem tem o código entra.
+- Primeiro acesso: `/criar-conta`. Logo depois, o app pede para **escolher um foco** (segurança, web, dados ou back-end). Se puser `CODIGO_CONVITE`, só quem tem o código cria conta.
 - Mesmo login no celular e no PC = mesmo progresso.
 - PWA/ícone na tela inicial: fora de escopo por enquanto (a spec deixou como "se quiser depois").

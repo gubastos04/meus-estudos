@@ -25,12 +25,13 @@ export type Progresso = {
   energia: Energia;
   tema: Tema;
   fonte: Fonte;
+  foco: string | null;
 };
 
 export const VAZIO: Progresso = {
   feitas: {}, sessoes: [], notas: [], erros: [],
   demandas: {}, treinos: {}, projetos: {}, provas: {}, geradas: [],
-  meta: META_PADRAO, energia: "media", tema: "escuro", fonte: 1,
+  meta: META_PADRAO, energia: "media", tema: "escuro", fonte: 1, foco: null,
 };
 
 export type Preferencias = Pick<Progresso, "meta" | "energia" | "tema" | "fonte">;

@@ -1,0 +1,25 @@
+{
+  "modulo": "web2",
+  "aulas": [
+    {
+      "id": "web2a1",
+      "titulo": "Seletores e box model",
+      "minutos": 12
+    },
+    {
+      "id": "web2a2",
+      "titulo": "Flexbox",
+      "minutos": 12
+    },
+    {
+      "id": "web2a3",
+      "titulo": "Grid",
+      "minutos": 12
+    },
+    {
+      "id": "web2a4",
+      "titulo": "Responsivo",
+      "minutos": 12
+    }
+  ]
+}

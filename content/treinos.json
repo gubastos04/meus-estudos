@@ -17,7 +17,8 @@
     ],
     "dica": "Python tem fatiamento com passo: texto[::-1].",
     "solucao": "def inverter(texto):\n    return texto[::-1]",
-    "custo": "O(n) tempo, O(n) memória"
+    "custo": "O(n) tempo, O(n) memória",
+    "foco": "base"
   },
   {
     "id": "t2",
@@ -37,7 +38,8 @@
     ],
     "dica": "Primeiro limpe o texto, depois compare com a versão invertida.",
     "solucao": "def palindromo(texto):\n    limpo = \"\".join(c.lower() for c in texto if c.isalnum())\n    return limpo == limpo[::-1]",
-    "custo": "O(n) tempo, O(n) memória"
+    "custo": "O(n) tempo, O(n) memória",
+    "foco": "base"
   },
   {
     "id": "t3",
@@ -57,7 +59,8 @@
     ],
     "dica": "Teste os dois juntos primeiro. Se testar 3 antes, o 15 nunca chega no caso duplo.",
     "solucao": "for n in range(1, 101):\n    if n % 15 == 0:\n        print(\"FizzBuzz\")\n    elif n % 3 == 0:\n        print(\"Fizz\")\n    elif n % 5 == 0:\n        print(\"Buzz\")\n    else:\n        print(n)",
-    "custo": "O(n) tempo, O(1) memória"
+    "custo": "O(n) tempo, O(1) memória",
+    "foco": "base"
   },
   {
     "id": "t4",
@@ -73,7 +76,8 @@
     ],
     "dica": "dicionario.get(chave, 0) devolve 0 quando a chave ainda não existe.",
     "solucao": "def contar(texto):\n    contagem = {}\n    for c in texto:\n        contagem[c] = contagem.get(c, 0) + 1\n    return contagem",
-    "custo": "O(n) tempo, O(k) memória, k = caracteres distintos"
+    "custo": "O(n) tempo, O(k) memória, k = caracteres distintos",
+    "foco": "base"
   },
   {
     "id": "t5",
@@ -89,7 +93,8 @@
     ],
     "dica": "A soma de 1 até n é n*(n+1)/2. Compare com a soma real.",
     "solucao": "def falta(lista):\n    n = len(lista) + 1\n    esperado = n * (n + 1) // 2\n    return esperado - sum(lista)",
-    "custo": "O(n) tempo, O(1) memória"
+    "custo": "O(n) tempo, O(1) memória",
+    "foco": "base"
   },
   {
     "id": "t6",
@@ -105,7 +110,8 @@
     ],
     "dica": "set() é rápido pra checar 'já vi isso?', mas não guarda ordem. Use os dois juntos.",
     "solucao": "def sem_repetidos(lista):\n    vistos = set()\n    saida = []\n    for item in lista:\n        if item not in vistos:\n            vistos.add(item)\n            saida.append(item)\n    return saida",
-    "custo": "O(n) tempo, O(n) memória"
+    "custo": "O(n) tempo, O(n) memória",
+    "foco": "base"
   },
   {
     "id": "t7",
@@ -121,7 +127,8 @@
     ],
     "dica": "Pra cada número, o que falta é alvo menos ele. Guarde num dicionário o que você já viu.",
     "solucao": "def dois_somam(lista, alvo):\n    vistos = {}                      # valor -> posição\n    for i, n in enumerate(lista):\n        falta = alvo - n\n        if falta in vistos:\n            return [vistos[falta], i]\n        vistos[n] = i\n    return []",
-    "custo": "O(n) tempo, O(n) memória. A versão com dois laços é O(n²)."
+    "custo": "O(n) tempo, O(n) memória. A versão com dois laços é O(n²).",
+    "foco": "base"
   },
   {
     "id": "t8",
@@ -141,6 +148,7 @@
     ],
     "dica": "Duas passadas: uma pra contar, outra pra achar o primeiro com contagem 1.",
     "solucao": "def primeiro_unico(texto):\n    contagem = {}\n    for c in texto:\n        contagem[c] = contagem.get(c, 0) + 1\n\n    for c in texto:                  # 2ª passada preserva a ordem\n        if contagem[c] == 1:\n            return c\n    return None",
-    "custo": "O(n) tempo, O(k) memória"
+    "custo": "O(n) tempo, O(k) memória",
+    "foco": "base"
   }
 ]

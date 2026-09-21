@@ -1,0 +1,25 @@
+{
+  "modulo": "dados5",
+  "aulas": [
+    {
+      "id": "dados5a1",
+      "titulo": "O que é um modelo",
+      "minutos": 12
+    },
+    {
+      "id": "dados5a2",
+      "titulo": "Treino e teste",
+      "minutos": 12
+    },
+    {
+      "id": "dados5a3",
+      "titulo": "Classificação simples",
+      "minutos": 12
+    },
+    {
+      "id": "dados5a4",
+      "titulo": "Avaliar o resultado",
+      "minutos": 12
+    }
+  ]
+}

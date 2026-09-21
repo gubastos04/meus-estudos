@@ -22,7 +22,8 @@
       ]
     },
     "solucao": "PROIBIDAS = [\"123456\", \"senha\", \"admin\", \"qwerty\", \"12345678\"]\n\ndef validar_senha(senha):\n    if not senha:                      # pega vazio e None\n        return False\n    if senha.lower() in PROIBIDAS:     # proibida vem antes do tamanho\n        return False\n    return len(senha) >= 8",
-    "aprendizado": "Ordem das validações importa. A regra mais específica vem primeiro, senão ela nunca é alcançada."
+    "aprendizado": "Ordem das validações importa. A regra mais específica vem primeiro, senão ela nunca é alcançada.",
+    "foco": "seguranca"
   },
   {
     "id": "d2",
@@ -46,7 +47,8 @@
       ]
     },
     "solucao": "usuarios = [\n    {\"nome\": \"ana\",  \"dias_sem_acesso\": 120},\n    {\"nome\": \"bia\",  \"dias_sem_acesso\": 12},\n    {\"nome\": \"caio\", \"dias_sem_acesso\": 200},\n]\n\ndef inativos(lista, limite=90):\n    filtrados = [u for u in lista if u[\"dias_sem_acesso\"] > limite]\n    filtrados.sort(key=lambda u: u[\"dias_sem_acesso\"], reverse=True)\n    return [u[\"nome\"] for u in filtrados]\n\nprint(inativos(usuarios))   # ['caio', 'ana']",
-    "aprendizado": "Filtrar, ordenar e depois extrair. Três passos separados são mais fáceis de depurar do que um só."
+    "aprendizado": "Filtrar, ordenar e depois extrair. Três passos separados são mais fáceis de depurar do que um só.",
+    "foco": "seguranca"
   },
   {
     "id": "d3",
@@ -71,7 +73,8 @@
       ]
     },
     "solucao": "import re\n\ndef mascarar(linha):\n    # e-mail: primeira letra + *** + domínio\n    linha = re.sub(r'(\\w)[\\w.+-]*@', r'\\1***@', linha)\n    # CPF: mantém os 2 últimos\n    linha = re.sub(r'\\d{3}\\.\\d{3}\\.\\d{3}-(\\d{2})', r'***.***.***-\\1', linha)\n    # telefone: mantém DDD e os 4 últimos\n    linha = re.sub(r'(\\(\\d{2}\\)\\s?)\\d{4,5}-(\\d{4})', r'\\1*****-\\2', linha)\n    return linha\n\nprint(mascarar(\"login ok: ana@mail.com cpf 123.456.789-10\"))\n# login ok: a***@mail.com cpf ***.***.***-10",
-    "aprendizado": "Mascarar é diferente de apagar. Você mantém o suficiente pra investigar um incidente sem expor a pessoa."
+    "aprendizado": "Mascarar é diferente de apagar. Você mantém o suficiente pra investigar um incidente sem expor a pessoa.",
+    "foco": "seguranca"
   },
   {
     "id": "d4",
@@ -95,7 +98,8 @@
       ]
     },
     "solucao": "def suspeitos(linhas, limite=5):\n    contagem = {}\n    primeira = {}\n\n    for linha in linhas:\n        partes = linha.split()\n        if len(partes) < 4 or partes[2] != \"FALHA\":\n            continue\n        hora, ip = f\"{partes[0]} {partes[1]}\", partes[3]\n\n        contagem[ip] = contagem.get(ip, 0) + 1\n        if ip not in primeira:\n            primeira[ip] = hora\n\n    return {ip: (n, primeira[ip]) for ip, n in contagem.items() if n > limite}",
-    "aprendizado": "dicionario.get(chave, 0) + 1 é o jeito padrão de contar coisas. Você vai usar isso a vida inteira."
+    "aprendizado": "dicionario.get(chave, 0) + 1 é o jeito padrão de contar coisas. Você vai usar isso a vida inteira.",
+    "foco": "seguranca"
   },
   {
     "id": "d5",
@@ -119,7 +123,8 @@
       ]
     },
     "solucao": "import secrets\n\nMINUSCULAS = \"abcdefghijkmnopqrstuvwxyz\"   # sem l\nMAIUSCULAS = \"ABCDEFGHJKLMNPQRSTUVWXYZ\"    # sem I e O\nNUMEROS    = \"23456789\"                    # sem 0 e 1\nSIMBOLOS   = \"!@#$%&*?-_\"\n\ndef senha_temporaria(tamanho=12):\n    grupos = [MINUSCULAS, MAIUSCULAS, NUMEROS, SIMBOLOS]\n    # 1 garantido de cada grupo\n    chars = [secrets.choice(g) for g in grupos]\n    # o resto, de qualquer grupo\n    todos = \"\".join(grupos)\n    chars += [secrets.choice(todos) for _ in range(tamanho - len(grupos))]\n    secrets.SystemRandom().shuffle(chars)\n    return \"\".join(chars)",
-    "aprendizado": "random é previsível e não serve pra segurança. Para senha, token ou chave, sempre secrets."
+    "aprendizado": "random é previsível e não serve pra segurança. Para senha, token ou chave, sempre secrets.",
+    "foco": "seguranca"
   },
   {
     "id": "d6",
@@ -144,6 +149,7 @@
       ]
     },
     "solucao": "def normalizar_email(email):\n    if not email or \"@\" not in email:\n        return None\n\n    email = email.strip().lower()\n    usuario, _, dominio = email.partition(\"@\")\n\n    if not usuario or \".\" not in dominio:\n        return None\n\n    if dominio == \"gmail.com\":\n        usuario = usuario.split(\"+\")[0]\n\n    return f\"{usuario}@{dominio}\"",
-    "aprendizado": "Normalizar entrada antes de comparar evita duplicata, e é a mesma técnica que evita bypass de filtro em segurança."
+    "aprendizado": "Normalizar entrada antes de comparar evita duplicata, e é a mesma técnica que evita bypass de filtro em segurança.",
+    "foco": "seguranca"
   }
 ]

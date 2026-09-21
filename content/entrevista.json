@@ -4,111 +4,127 @@
     "pergunta": "O que acontece quando você digita um endereço no navegador e aperta Enter?",
     "querem": "Ver até onde vai sua noção de sistema. Ninguém espera a resposta completa de um iniciante, esperam que você não trave.",
     "esqueleto": "DNS traduz o nome em IP. O navegador abre conexão TCP com aquele IP na porta 443. TLS negocia a criptografia. O navegador manda uma requisição HTTP GET. O servidor responde com HTML. O navegador monta a página e busca os arquivos que faltam.",
-    "cuidado": "Não invente etapa. Melhor dizer 'a partir daqui eu sei menos' do que falar errado com confiança."
+    "cuidado": "Não invente etapa. Melhor dizer 'a partir daqui eu sei menos' do que falar errado com confiança.",
+    "foco": "seguranca"
   },
   {
     "tema": "Base",
     "pergunta": "Qual a diferença entre autenticação e autorização?",
     "querem": "Saber se você usa os termos com precisão, porque muita gente troca os dois.",
     "esqueleto": "Autenticação é provar quem você é. Autorização é o que você pode fazer depois disso. Você pode estar autenticado e mesmo assim não ter permissão.",
-    "cuidado": "Dê um exemplo concreto. Logar no sistema é autenticação; poder deletar um usuário é autorização."
+    "cuidado": "Dê um exemplo concreto. Logar no sistema é autenticação; poder deletar um usuário é autorização.",
+    "foco": "seguranca"
   },
   {
     "tema": "Base",
     "pergunta": "Por que senha não se guarda no banco?",
     "querem": "Ver se você entende hash de verdade ou só decorou a palavra.",
     "esqueleto": "Guarda-se o hash, não a senha. Hash é de mão única: não dá pra reverter. Com salt, duas senhas iguais viram hashes diferentes, o que impede tabela pré-calculada. Usa-se algoritmo lento de propósito, como bcrypt ou Argon2.",
-    "cuidado": "Não diga 'criptografa a senha'. Criptografia tem volta, hash não. O entrevistador nota."
+    "cuidado": "Não diga 'criptografa a senha'. Criptografia tem volta, hash não. O entrevistador nota.",
+    "foco": "seguranca"
   },
   {
     "tema": "Base",
     "pergunta": "O que é o princípio do menor privilégio?",
     "querem": "Saber se você pensa em segurança como projeto, não como remendo.",
     "esqueleto": "Cada usuário, serviço ou processo recebe só o acesso necessário pra fazer sua função. Se algo for comprometido, o estrago fica limitado ao que aquela conta podia fazer.",
-    "cuidado": "Bom momento pra citar um exemplo real: aplicação que conecta no banco com usuário admin quando só precisa ler uma tabela."
+    "cuidado": "Bom momento pra citar um exemplo real: aplicação que conecta no banco com usuário admin quando só precisa ler uma tabela.",
+    "foco": "seguranca"
   },
   {
     "tema": "Python",
     "pergunta": "Qual a diferença entre lista e dicionário?",
     "querem": "Fundamento. Se errar aqui, a entrevista técnica acaba.",
     "esqueleto": "Lista guarda em ordem e acessa por posição. Dicionário acessa por chave. Busca em lista é O(n), em dicionário é O(1) em média.",
-    "cuidado": "Mencionar a complexidade separa quem estudou de quem só usou."
+    "cuidado": "Mencionar a complexidade separa quem estudou de quem só usou.",
+    "foco": "base"
   },
   {
     "tema": "Python",
     "pergunta": "O que uma função sem return devolve?",
     "querem": "Confirmar que você entende que toda função devolve algo.",
     "esqueleto": "Devolve None. Isso explica boa parte dos erros de 'NoneType object has no attribute'.",
-    "cuidado": "Não diga 'nada'. None é um valor."
+    "cuidado": "Não diga 'nada'. None é um valor.",
+    "foco": "base"
   },
   {
     "tema": "Python",
     "pergunta": "Por que usar secrets em vez de random pra gerar senha?",
     "querem": "Ver se você sabe que nem todo aleatório serve pra segurança.",
     "esqueleto": "random é um gerador pseudoaleatório voltado a simulação. Dada a semente, a sequência é reproduzível. secrets usa a fonte de entropia do sistema operacional e foi feito pra uso criptográfico.",
-    "cuidado": "Essa pergunta separa quem estudou segurança de quem só programa."
+    "cuidado": "Essa pergunta separa quem estudou segurança de quem só programa.",
+    "foco": "base"
   },
   {
     "tema": "Python",
     "pergunta": "O que é uma consulta parametrizada e por que ela importa?",
     "querem": "Ver se você sabe a defesa contra SQL Injection, não só o nome do ataque.",
     "esqueleto": "É mandar a consulta e os valores separados pro banco. O banco já sabe qual parte é comando antes de ver o dado, então o dado nunca vira comando. Concatenar string é o que abre a injeção.",
-    "cuidado": "Não diga que a solução é 'validar a entrada'. Ajuda, mas a defesa correta é a separação."
+    "cuidado": "Não diga que a solução é 'validar a entrada'. Ajuda, mas a defesa correta é a separação.",
+    "foco": "base"
   },
   {
     "tema": "Segurança",
     "pergunta": "Explique SQL Injection pra alguém não técnico.",
     "querem": "Sua capacidade de traduzir. Metade do trabalho em segurança é explicar risco pra quem decide orçamento.",
     "esqueleto": "Compare com um formulário em papel onde você escreve, no campo do nome, uma instrução pro funcionário. Se ele ler tudo como instrução em vez de tratar como nome, executa o que você escreveu.",
-    "cuidado": "Evite jargão. Se usar 'sanitizar' ou 'query', você falhou no exercício."
+    "cuidado": "Evite jargão. Se usar 'sanitizar' ou 'query', você falhou no exercício.",
+    "foco": "seguranca"
   },
   {
     "tema": "Segurança",
     "pergunta": "Qual a diferença entre ameaça, vulnerabilidade e risco?",
     "querem": "Vocabulário correto. É o vocabulário de qualquer relatório de segurança.",
     "esqueleto": "Ameaça é quem ou o que pode causar dano. Vulnerabilidade é a falha que permite. Risco é a probabilidade disso acontecer combinada com o impacto.",
-    "cuidado": "Ilustre com um exemplo: porta destrancada é a vulnerabilidade, ladrão é a ameaça, risco depende do bairro e do que tem dentro."
+    "cuidado": "Ilustre com um exemplo: porta destrancada é a vulnerabilidade, ladrão é a ameaça, risco depende do bairro e do que tem dentro.",
+    "foco": "seguranca"
   },
   {
     "tema": "Segurança",
     "pergunta": "Você encontrou uma vulnerabilidade num site que não é seu. O que faz?",
     "querem": "Testar seu caráter, não sua técnica. Resposta errada aqui elimina candidato.",
     "esqueleto": "Não explorar além do necessário pra confirmar. Não acessar dado de terceiros. Procurar política de divulgação responsável ou canal de segurança. Reportar em particular e dar prazo antes de qualquer divulgação.",
-    "cuidado": "Nunca sugira testar mais a fundo 'só pra confirmar'. Isso é confissão."
+    "cuidado": "Nunca sugira testar mais a fundo 'só pra confirmar'. Isso é confissão.",
+    "foco": "seguranca"
   },
   {
     "tema": "Segurança",
     "pergunta": "O que você faria nas primeiras 24 horas depois de descobrir um vazamento?",
     "querem": "Se você pensa em processo, não em heroísmo.",
     "esqueleto": "Conter antes de investigar. Preservar evidência, sem apagar nada. Avaliar o alcance: que dado, de quantas pessoas. Comunicar quem precisa saber, incluindo o jurídico, porque a LGPD tem prazo. Só depois vem a correção e o relatório.",
-    "cuidado": "Muito iniciante começa por 'corrigir a falha'. Conter e preservar vêm antes."
+    "cuidado": "Muito iniciante começa por 'corrigir a falha'. Conter e preservar vêm antes.",
+    "foco": "seguranca"
   },
   {
     "tema": "Você",
     "pergunta": "Por que segurança, vindo de outra área?",
     "querem": "Uma história coerente. Mudança de carreira levanta a pergunta de se você vai desistir.",
-    "esqueleto": "Seja concreto sobre o que te puxou, mostre o que já construiu por conta própria e ligue à sua rotina atual. Trabalho em escala 12x36 e estudo consistente é argumento de disciplina, não de desculpa.",
-    "cuidado": "Não fale mal do emprego atual. Fale do que te atraiu, não do que te afastou."
+    "esqueleto": "Seja concreto sobre o que te puxou, mostre o que já construiu por conta própria e ligue à sua rotina atual. Conciliar trabalho e estudo de forma consistente é argumento de disciplina, não de desculpa.",
+    "cuidado": "Não fale mal do emprego atual. Fale do que te atraiu, não do que te afastou.",
+    "foco": "seguranca"
   },
   {
     "tema": "Você",
     "pergunta": "Me fala de um problema técnico que te travou.",
     "querem": "Como você se comporta quando não sabe. Isso prevê seu dia a dia melhor do que qualquer teste.",
     "esqueleto": "Escolha um caso real do seu diário de erro. Diga o que você tentou, em que ordem, o que descartou e como descobriu a causa. O final importa menos que o método.",
-    "cuidado": "Não escolha um problema que você resolveu em cinco minutos. Escolha um que doeu."
+    "cuidado": "Não escolha um problema que você resolveu em cinco minutos. Escolha um que doeu.",
+    "foco": "seguranca"
   },
   {
     "tema": "Você",
     "pergunta": "O que você está estudando agora?",
     "querem": "Ver se você aprende sozinho, que é o requisito real da área.",
     "esqueleto": "Cite o que está estudando esta semana, não o que estudou no ano passado. Ligue a um projeto concreto que você está construindo.",
-    "cuidado": "Resposta vaga do tipo 'estou estudando segurança' não diz nada. Nomeie o tema e o projeto."
+    "cuidado": "Resposta vaga do tipo 'estou estudando segurança' não diz nada. Nomeie o tema e o projeto.",
+    "foco": "seguranca"
   },
   {
     "tema": "Você",
     "pergunta": "Você tem alguma pergunta pra gente?",
     "querem": "Se você pesquisou e se está avaliando eles também. Dizer 'não' é o pior desfecho possível.",
     "esqueleto": "Pergunte como é o processo quando alguém encontra uma falha grave, como o time decide prioridade, e o que separa quem vai bem no primeiro ano de quem não vai.",
-    "cuidado": "Deixe salário e benefício pra fase de proposta, salvo se eles abrirem o assunto."
+    "cuidado": "Deixe salário e benefício pra fase de proposta, salvo se eles abrirem o assunto.",
+    "foco": "seguranca"
   }
 ]

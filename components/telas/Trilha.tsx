@@ -14,9 +14,7 @@ type ProjetoItem = { id: string; titulo: string; nivel: number; tempo: string; m
 const ABAS = [{ id: "modulos", rotulo: "Módulos" }, { id: "projetos", rotulo: "Projetos" }] as const;
 type Aba = (typeof ABAS)[number]["id"];
 
-const ETIQUETA = { base: null, fullstack: "full stack", seguranca: "segurança" } as const;
-
-export function Trilha({ modulos, projetos }: { modulos: ModuloItem[]; projetos: ProjetoItem[] }) {
+export function Trilha({ modulos, projetos, focoNome }: { modulos: ModuloItem[]; projetos: ProjetoItem[]; focoNome: string }) {
   const { progresso } = useProgresso();
   const [aba, setAba] = useState<Aba>("modulos");
 
@@ -31,19 +29,19 @@ export function Trilha({ modulos, projetos }: { modulos: ModuloItem[]; projetos:
       {aba === "modulos" && (
         <>
           <h2 className="h2">Sua trilha</h2>
-          <p className="sub">Doze módulos, do zero até escrever suas próprias ferramentas. A ordem importa, mas nada está trancado.</p>
+          <p className="sub">A base para todo mundo, e o seu foco em {focoNome}. A ordem importa, mas nada está trancado.</p>
 
           {modulos.map((m) => {
             const feitas = m.aulas.filter((a) => progresso.feitas[a.id]).length;
             const estaAberto = aberto === m.id;
-            const etiqueta = ETIQUETA[m.etiqueta];
+            const rotulo = m.foco === "base" ? "comum a todos" : m.faculdade;
             return (
               <div className="mod" key={m.id}>
                 <button type="button" className="mod-cab" aria-expanded={estaAberto} onClick={() => setAberto(estaAberto ? null : m.id)}>
                   <span className="num">{String(m.ordem).padStart(2, "0")}</span>
                   <span style={{ flex: 1 }}>
                     <span className="mod-nome">{m.nome}</span>
-                    <span className="mod-fac">Faculdade: {m.faculdade}{etiqueta && ` · ${etiqueta}`}</span>
+                    {rotulo && <span className="mod-fac">{rotulo}</span>}
                   </span>
                   <span className={`mod-prog ${feitas === m.aulas.length ? "full" : ""}`}>{feitas}/{m.aulas.length}</span>
                   {estaAberto ? <ChevronDown size={17} /> : <ChevronRight size={17} />}

@@ -1,0 +1,25 @@
+{
+  "modulo": "dados3",
+  "aulas": [
+    {
+      "id": "dados3a1",
+      "titulo": "Linha e barra",
+      "minutos": 12
+    },
+    {
+      "id": "dados3a2",
+      "titulo": "Distribuições",
+      "minutos": 12
+    },
+    {
+      "id": "dados3a3",
+      "titulo": "Relação entre variáveis",
+      "minutos": 12
+    },
+    {
+      "id": "dados3a4",
+      "titulo": "Contar história com dado",
+      "minutos": 12
+    }
+  ]
+}

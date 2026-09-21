@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { usuarioAtual } from "@/lib/auth";
+import { focoValido } from "@/lib/conteudo";
 import { carregarProgresso } from "@/lib/progresso-servidor";
 import { temChaveIA } from "@/lib/ia";
 import { ProgressoProvider } from "@/lib/progresso";
@@ -11,6 +12,8 @@ import { Nav } from "@/components/Nav";
 export default async function LayoutApp({ children }: LayoutProps<"/">) {
   const u = await usuarioAtual();
   if (!u) redirect("/entrar");
+  // primeiro acesso (ou foco inválido): escolher um foco antes de entrar
+  if (!focoValido(u.foco)) redirect("/foco");
 
   const [progresso, iaLigada] = await Promise.all([carregarProgresso(u.id), temChaveIA(u.id)]);
 

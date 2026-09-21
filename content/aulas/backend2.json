@@ -1,0 +1,25 @@
+{
+  "modulo": "backend2",
+  "aulas": [
+    {
+      "id": "backend2a1",
+      "titulo": "Rotas",
+      "minutos": 12
+    },
+    {
+      "id": "backend2a2",
+      "titulo": "Receber e validar dados",
+      "minutos": 12
+    },
+    {
+      "id": "backend2a3",
+      "titulo": "Respostas e erros",
+      "minutos": 12
+    },
+    {
+      "id": "backend2a4",
+      "titulo": "Organização",
+      "minutos": 12
+    }
+  ]
+}

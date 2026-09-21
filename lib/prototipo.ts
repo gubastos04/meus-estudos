@@ -87,7 +87,7 @@ export function lerPrototipo(bruto: string): Leitura {
     projetos: Object.fromEntries(Object.entries(a.projetos).map(([k, v]) => [k, { dia: v.d }])),
     provas: Object.fromEntries(Object.entries(a.provas).map(([k, v]) => [k, { melhor: v.melhor, total: v.total, tentativas: v.tentativas, dia: v.d }])),
     geradas: geradas.flatMap((g) => (g.success ? [g.data] : [])),
-    meta: a.meta, energia: a.energia, tema: a.tema, fonte: a.fonte,
+    meta: a.meta, energia: a.energia, tema: a.tema, fonte: a.fonte, foco: null,
   };
 
   return { ok: true, progresso, geradasIgnoradas: geradas.filter((g) => !g.success).length };

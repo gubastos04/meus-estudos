@@ -1,0 +1,25 @@
+{
+  "modulo": "backend1",
+  "aulas": [
+    {
+      "id": "backend1a1",
+      "titulo": "Cliente e servidor",
+      "minutos": 12
+    },
+    {
+      "id": "backend1a2",
+      "titulo": "HTTP por dentro",
+      "minutos": 12
+    },
+    {
+      "id": "backend1a3",
+      "titulo": "JSON",
+      "minutos": 12
+    },
+    {
+      "id": "backend1a4",
+      "titulo": "Status e verbos",
+      "minutos": 12
+    }
+  ]
+}

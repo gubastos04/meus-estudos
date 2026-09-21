@@ -1,0 +1,25 @@
+{
+  "modulo": "web4",
+  "aulas": [
+    {
+      "id": "web4a1",
+      "titulo": "Componentes",
+      "minutos": 12
+    },
+    {
+      "id": "web4a2",
+      "titulo": "Estado",
+      "minutos": 12
+    },
+    {
+      "id": "web4a3",
+      "titulo": "Props e listas",
+      "minutos": 12
+    },
+    {
+      "id": "web4a4",
+      "titulo": "Um app pequeno",
+      "minutos": 12
+    }
+  ]
+}

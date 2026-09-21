@@ -1,6 +1,6 @@
 # Meus Estudos
 
-App pessoal de estudo: trilha de programação com foco em segurança da informação, feita para quem tem pouca atenção, pouca constância e trabalha em escala 12x36.
+App de estudo: trilha de programação com foco selecionável (segurança, web, dados ou back-end). Uma base comum de lógica e Python, e um foco que define os módulos avançados, os projetos e a voz da IA. Feito para quem tem pouca atenção e pouca constância.
 
 A regra de tudo está em [docs/especificacao.md](docs/especificacao.md). Leia a seção 2 (princípios) antes de mexer em qualquer tela. O contexto de produto está em [PRODUCT.md](PRODUCT.md) e o sistema visual em [DESIGN.md](DESIGN.md).
 

@@ -1,6 +1,9 @@
 // Única porta de entrada para /content. Nenhum componente importa JSON direto.
 // A validação roda no carregamento do módulo: conteúdo malformado quebra o build,
 // não a tela do usuário.
+//
+// Modelo: base comum a todos + um foco escolhido. Todo conteúdo tem foco "base"
+// (visível sempre) ou o id de um foco (visível só quando aquele foco está ativo).
 import { z } from "zod";
 
 import trilhaJson from "@/content/trilha.json";
@@ -16,6 +19,21 @@ import m9 from "@/content/aulas/m9.json";
 import m10 from "@/content/aulas/m10.json";
 import m11 from "@/content/aulas/m11.json";
 import m12 from "@/content/aulas/m12.json";
+import web1 from "@/content/aulas/web1.json";
+import web2 from "@/content/aulas/web2.json";
+import web3 from "@/content/aulas/web3.json";
+import web4 from "@/content/aulas/web4.json";
+import web5 from "@/content/aulas/web5.json";
+import dados1 from "@/content/aulas/dados1.json";
+import dados2 from "@/content/aulas/dados2.json";
+import dados3 from "@/content/aulas/dados3.json";
+import dados4 from "@/content/aulas/dados4.json";
+import dados5 from "@/content/aulas/dados5.json";
+import backend1 from "@/content/aulas/backend1.json";
+import backend2 from "@/content/aulas/backend2.json";
+import backend3 from "@/content/aulas/backend3.json";
+import backend4 from "@/content/aulas/backend4.json";
+import backend5 from "@/content/aulas/backend5.json";
 import demandasJson from "@/content/demandas.json";
 import treinosJson from "@/content/treinos.json";
 import projetosJson from "@/content/projetos.json";
@@ -25,6 +43,9 @@ import entrevistaJson from "@/content/entrevista.json";
 import certificadosJson from "@/content/certificados.json";
 
 /* ── Esquemas ─────────────────────────────────────────────────── */
+
+// foco de um conteúdo: "base" (todos) ou o id de um foco
+const Foco = z.string().min(1);
 
 const Questao = z.object({
   pergunta: z.string(),
@@ -45,16 +66,19 @@ const Aula = z.object({
   desafio: z.object({ pergunta: z.string(), solucao: z.string() }).optional(),
 });
 
+const FocoDef = z.object({ id: z.string(), nome: z.string(), descricao: z.string() });
+
 const ModuloMeta = z.object({
   id: z.string(),
   ordem: z.number().int().positive(),
   nome: z.string(),
-  faculdade: z.string(),
-  etiqueta: z.enum(["base", "fullstack", "seguranca"]),
+  faculdade: z.string().optional(),
+  foco: Foco,
   descricao: z.string(),
 });
 
 const Trilha = z.object({
+  focos: z.array(FocoDef).min(1),
   modulos: z.array(ModuloMeta).min(1),
   micro: z.array(z.string()).min(1),
 });
@@ -75,6 +99,7 @@ export const Demanda = z.object({
   reviravolta: z.object({ texto: z.string(), criterios: z.array(z.string()).min(1) }).optional(),
   solucao: z.string(),
   aprendizado: z.string(),
+  foco: Foco.optional(),
 });
 
 const Treino = z.object({
@@ -87,6 +112,7 @@ const Treino = z.object({
   dica: z.string(),
   solucao: z.string(),
   custo: z.string(),
+  foco: Foco.optional(),
 });
 
 const Projeto = z.object({
@@ -102,9 +128,10 @@ const Projeto = z.object({
   pronto: z.array(z.string()).min(1),
   readme: z.string(),
   linkedin: z.string(),
+  foco: Foco.optional(),
 });
 
-const ProvaBase = { id: z.string(), titulo: z.string(), escopo: z.string(), tempo: z.number().int().positive() };
+const ProvaBase = { id: z.string(), titulo: z.string(), escopo: z.string(), tempo: z.number().int().positive(), foco: Foco.optional() };
 const Prova = z.discriminatedUnion("tipo", [
   z.object({ ...ProvaBase, tipo: z.literal("alternativas"), questoes: z.array(Questao).min(1) }),
   z.object({
@@ -120,7 +147,7 @@ const Prova = z.discriminatedUnion("tipo", [
   }),
 ]);
 
-const Termo = z.object({ termo: z.string(), area: z.string(), definicao: z.string() });
+const Termo = z.object({ termo: z.string(), area: z.string(), definicao: z.string(), foco: Foco.optional() });
 
 const PerguntaEntrevista = z.object({
   tema: z.string(),
@@ -128,6 +155,7 @@ const PerguntaEntrevista = z.object({
   querem: z.string(),
   esqueleto: z.string(),
   cuidado: z.string(),
+  foco: Foco.optional(),
 });
 
 const Certificado = z.object({
@@ -137,14 +165,16 @@ const Certificado = z.object({
   ordem: z.number().int().positive(),
   quando: z.string(),
   porque: z.string(),
+  foco: Foco.optional(),
 });
 
-const Lab = z.object({ nome: z.string(), tema: z.string(), descricao: z.string(), url: z.string().optional() });
+const Lab = z.object({ nome: z.string(), tema: z.string(), descricao: z.string(), url: z.string().optional(), foco: Foco.optional() });
 
 /* ── Tipos ────────────────────────────────────────────────────── */
 
 export type Questao = z.infer<typeof Questao>;
 export type Aula = z.infer<typeof Aula>;
+export type FocoDef = z.infer<typeof FocoDef>;
 export type ModuloMeta = z.infer<typeof ModuloMeta>;
 export type Modulo = ModuloMeta & { aulas: Aula[] };
 export type Demanda = z.infer<typeof Demanda>;
@@ -157,7 +187,7 @@ export type Certificado = z.infer<typeof Certificado>;
 export type Lab = z.infer<typeof Lab>;
 
 /** Aula com o módulo a que pertence. É o que as telas usam. */
-export type AulaComModulo = Aula & { moduloId: string; moduloNome: string; moduloOrdem: number };
+export type AulaComModulo = Aula & { moduloId: string; moduloNome: string; moduloOrdem: number; moduloFoco: string };
 
 /** O mínimo que listas e a tela Agora precisam saber de uma aula, sem carregar o texto. */
 export type AulaResumo = {
@@ -176,8 +206,14 @@ function valida<T>(nome: string, esquema: z.ZodType<T>, dados: unknown): T {
 }
 
 const trilha = valida("trilha.json", Trilha, trilhaJson);
+const FOCOS = trilha.focos;
 
-const arquivosAulas = { m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12 } as Record<string, unknown>;
+const arquivosAulas = {
+  m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12,
+  web1, web2, web3, web4, web5,
+  dados1, dados2, dados3, dados4, dados5,
+  backend1, backend2, backend3, backend4, backend5,
+} as Record<string, unknown>;
 
 const MODULOS: Modulo[] = trilha.modulos
   .slice()
@@ -187,11 +223,14 @@ const MODULOS: Modulo[] = trilha.modulos
     if (!bruto) throw new Error(`content/aulas/${meta.id}.json não existe, mas o módulo está em trilha.json`);
     const arq = valida(`aulas/${meta.id}.json`, ArquivoAulas, bruto);
     if (arq.modulo !== meta.id) throw new Error(`content/aulas/${meta.id}.json declara modulo "${arq.modulo}"`);
+    if (meta.foco !== "base" && !FOCOS.some((f) => f.id === meta.foco)) {
+      throw new Error(`módulo ${meta.id} tem foco "${meta.foco}" que não existe em focos`);
+    }
     return { ...meta, aulas: arq.aulas };
   });
 
 const TODAS_AULAS: AulaComModulo[] = MODULOS.flatMap((m) =>
-  m.aulas.map((a) => ({ ...a, moduloId: m.id, moduloNome: m.nome, moduloOrdem: m.ordem }))
+  m.aulas.map((a) => ({ ...a, moduloId: m.id, moduloNome: m.nome, moduloOrdem: m.ordem, moduloFoco: m.foco }))
 );
 
 {
@@ -216,6 +255,13 @@ const { certificados: CERTIFICADOS, labs: LABS } = valida(
 
 /* ── API ──────────────────────────────────────────────────────── */
 
+/** Id de um foco (ex.: "seguranca"), ou undefined para "tudo, sem filtrar". */
+export type FocoId = string;
+
+// Visível quando: sem filtro (foco undefined), ou o item é base, ou é do foco ativo.
+const visivel = (itemFoco: string | undefined, foco: FocoId | undefined) =>
+  foco === undefined || (itemFoco ?? "base") === "base" || itemFoco === foco;
+
 /** Uma aula "tem conteúdo" quando a ideia foi escrita. Só o título não conta. */
 export const temConteudo = (a: Aula) => Boolean(a.ideia && a.ideia.length > 0);
 
@@ -224,21 +270,38 @@ export const resumoAula = (a: AulaComModulo): AulaResumo => ({
   moduloId: a.moduloId, moduloNome: a.moduloNome, temConteudo: temConteudo(a),
 });
 
-export const modulos = () => MODULOS;
+export const focos = () => FOCOS;
+export const foco = (id: string) => FOCOS.find((f) => f.id === id) ?? null;
+export const focoValido = (id: string | null | undefined): boolean => Boolean(id) && FOCOS.some((f) => f.id === id);
+
+// Nas listas, foco opcional: com foco filtra base+foco; sem foco devolve tudo
+// (usado por generateStaticParams e por buscas por id).
+export const modulos = (foco?: FocoId) => MODULOS.filter((m) => visivel(m.foco, foco));
 export const modulo = (id: string) => MODULOS.find((m) => m.id === id) ?? null;
-export const todasAulas = () => TODAS_AULAS;
+export const todasAulas = (foco?: FocoId) => TODAS_AULAS.filter((a) => visivel(a.moduloFoco, foco));
 export const aula = (id: string) => TODAS_AULAS.find((a) => a.id === id) ?? null;
 export const microMissoes = () => trilha.micro;
 
-export const demandas = () => DEMANDAS;
+export const demandas = (foco?: FocoId) => DEMANDAS.filter((d) => visivel(d.foco, foco));
 export const demanda = (id: string) => DEMANDAS.find((d) => d.id === id) ?? null;
-export const treinos = () => TREINOS;
+export const treinos = (foco?: FocoId) => TREINOS.filter((t) => visivel(t.foco, foco));
 export const treino = (id: string) => TREINOS.find((t) => t.id === id) ?? null;
-export const projetos = () => PROJETOS;
+export const projetos = (foco?: FocoId) => PROJETOS.filter((p) => visivel(p.foco, foco));
 export const projeto = (id: string) => PROJETOS.find((p) => p.id === id) ?? null;
-export const provas = () => PROVAS;
+export const provas = (foco?: FocoId) => PROVAS.filter((p) => visivel(p.foco, foco));
 export const prova = (id: string) => PROVAS.find((p) => p.id === id) ?? null;
-export const glossario = () => GLOSSARIO;
-export const entrevista = () => ENTREVISTA;
-export const certificados = () => CERTIFICADOS;
-export const labs = () => LABS;
+export const glossario = (foco?: FocoId) => GLOSSARIO.filter((g) => visivel(g.foco, foco));
+export const entrevista = (foco?: FocoId) => ENTREVISTA.filter((q) => visivel(q.foco, foco));
+export const certificados = (foco?: FocoId) => CERTIFICADOS.filter((c) => visivel(c.foco, foco));
+export const labs = (foco?: FocoId) => LABS.filter((l) => visivel(l.foco, foco));
+
+/** Descrição curta da área para a voz da IA. */
+export function areaDoFoco(id: string | null | undefined): string {
+  switch (id) {
+    case "seguranca": return "segurança da informação";
+    case "web": return "desenvolvimento web";
+    case "dados": return "dados e IA";
+    case "backend": return "back-end e APIs";
+    default: return "programação";
+  }
+}

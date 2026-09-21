@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { Demanda, type Demanda as TDemanda } from "@/lib/conteudo";
 import { db } from "@/lib/db";
 import { decifrar } from "@/lib/cripto";
+import { areaDoFoco } from "@/lib/conteudo";
 import { hoje } from "@/lib/datas";
 
 // Cada usuário usa a própria chave (paga o próprio uso). A chave nunca vai para
@@ -17,17 +18,17 @@ export async function temChaveIA(usuarioId: string): Promise<boolean> {
   return Boolean(u?.iaChave);
 }
 
-/** Decifra a chave do usuário; lança ErroIA amigável se não houver ou falhar. */
-async function chaveDoUsuario(usuarioId: string): Promise<string> {
-  const u = await db.usuario.findUnique({ where: { id: usuarioId }, select: { iaChave: true } });
+/** Decifra a chave do usuário e descobre a área do foco (para a voz). */
+async function chaveEArea(usuarioId: string): Promise<{ chave: string; area: string }> {
+  const u = await db.usuario.findUnique({ where: { id: usuarioId }, select: { iaChave: true, foco: true } });
   if (!u?.iaChave) throw new ErroIA("Você ainda não cadastrou sua chave da API. Vá em Você e adicione uma para usar a IA.");
   const chave = decifrar(u.iaChave);
   if (!chave) throw new ErroIA("Não consegui ler sua chave (o segredo do servidor pode ter mudado). Recadastre a chave em Você.");
-  return chave;
+  return { chave, area: areaDoFoco(u.foco) };
 }
 
-// Voz compartilhada (seção 7). Texto puro, direto, sem elogio vazio.
-const VOZ = `Você é professor particular de um aluno brasileiro que está começando programação do zero, com foco em segurança da informação.
+// Voz compartilhada (seção 7). Texto puro, direto, sem elogio vazio. A área vem do foco.
+const voz = (area: string) => `Você é professor particular de um aluno brasileiro que está começando programação do zero, com foco em ${area}.
 
 Regras de estilo, sem exceção:
 - Português do Brasil, direto, sem enrolação.
@@ -38,7 +39,7 @@ Regras de estilo, sem exceção:
 - Máximo 250 palavras.
 - Nunca elogie por elogiar. Se estiver errado, diga que está errado.`;
 
-const VOZ_JSON = `Você gera demandas de trabalho realistas para um aluno brasileiro que está aprendendo Python com foco em segurança.
+const vozJson = (area: string) => `Você gera demandas de trabalho realistas para um aluno brasileiro que está aprendendo programação com foco em ${area}.
 
 Responda APENAS com um objeto JSON válido. Sem markdown, sem cercas de crase, sem texto antes ou depois.`;
 
@@ -63,15 +64,16 @@ async function registrarUso(usuarioId: string) {
   });
 }
 
-async function conversar(usuarioId: string, prompt: string, sistema: string, maxTokens = 1024): Promise<string> {
+async function conversar(usuarioId: string, prompt: string, sistema: (area: string) => string, maxTokens = 1024): Promise<string> {
   await checarCota(usuarioId);
-  const cliente = new Anthropic({ apiKey: await chaveDoUsuario(usuarioId) });
+  const { chave, area } = await chaveEArea(usuarioId);
+  const cliente = new Anthropic({ apiKey: chave });
   let resposta;
   try {
     resposta = await cliente.messages.create({
       model: MODELO,
       max_tokens: maxTokens,
-      system: sistema,
+      system: sistema(area),
       messages: [{ role: "user", content: prompt }],
     });
   } catch (e) {
@@ -105,7 +107,7 @@ Faça, nesta ordem:
 3. Termine com uma frase dizendo se está pronto pra entregar ou não.
 
 Não reescreva o código inteiro. Se precisar mostrar correção, mostre só a linha ou o trecho.`;
-  return conversar(usuarioId, prompt, VOZ, 1024);
+  return conversar(usuarioId, prompt, voz, 1024);
 }
 
 /* ── 7.2 Explica de outro jeito ───────────────────────────────── */
@@ -121,7 +123,7 @@ Essa explicação não entrou na cabeça dele. Explique o MESMO conceito de outr
 - Use uma analogia diferente da que está acima.
 - Comece pelo exemplo concreto, não pela definição.
 - Termine com uma pergunta curta que ele possa responder pra si mesmo e saber se entendeu.`;
-  return conversar(usuarioId, prompt, VOZ, 700);
+  return conversar(usuarioId, prompt, voz, 700);
 }
 
 /* ── 7.3 Pergunta livre ───────────────────────────────────────── */
@@ -138,7 +140,7 @@ Pergunta dele:
 ${entrada.pergunta}
 
 Responda a pergunta dele. Se a pergunta for sobre assunto de um módulo posterior, responda o essencial em duas frases e diga onde é aprofundado. Nunca responda apenas "depende".`;
-  return conversar(usuarioId, prompt, VOZ, 900);
+  return conversar(usuarioId, prompt, voz, 900);
 }
 
 /* ── 7.4 Demanda gerada ───────────────────────────────────────── */
@@ -147,10 +149,12 @@ const IDS_PROIBIDOS = new Set(["validador de senha", "análise de log de login",
 
 /** Gera uma demanda nova, valida com Zod, tenta mais uma vez se falhar. */
 export async function gerarDemanda(usuarioId: string, aulasFeitas: string[]): Promise<TDemanda> {
+  const u = await db.usuario.findUnique({ where: { id: usuarioId }, select: { foco: true } });
+  const area = areaDoFoco(u?.foco);
   const sabe = aulasFeitas.length ? aulasFeitas.join(", ") : "lógica básica, variáveis, condicionais, laços";
   const prompt = `O aluno já domina: ${sabe}.
 
-Gere UMA demanda de trabalho nova, em português do Brasil, sobre um tema de segurança ou back-end aplicado (tratamento de log, validação de entrada, proteção de dado pessoal, controle de acesso, automação interna). Não repita validador de senha nem análise de log de login, que ele já fez.
+Gere UMA demanda de trabalho nova, em português do Brasil, sobre um tema aplicado da área de ${area} (algo que aparece no trabalho de verdade nessa área). Não repita um tema que provavelmente ele já fez; seja específico e prático.
 
 O JSON deve ter exatamente estas chaves:
 {
@@ -174,7 +178,7 @@ O JSON deve ter exatamente estas chaves:
 O campo canal deve ser exatamente Slack, E-mail ou Ticket, sem número junto.`;
 
   const tentar = async (): Promise<TDemanda> => {
-    const txt = await conversar(usuarioId, prompt, VOZ_JSON, 2000);
+    const txt = await conversar(usuarioId, prompt, vozJson, 2000);
     const limpo = txt.replace(/```json/gi, "").replace(/```/g, "").trim();
     let bruto: unknown;
     try {

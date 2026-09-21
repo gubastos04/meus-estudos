@@ -1,0 +1,25 @@
+{
+  "modulo": "web5",
+  "aulas": [
+    {
+      "id": "web5a1",
+      "titulo": "Um servidor Node",
+      "minutos": 12
+    },
+    {
+      "id": "web5a2",
+      "titulo": "Rotas e API REST",
+      "minutos": 12
+    },
+    {
+      "id": "web5a3",
+      "titulo": "Banco de dados",
+      "minutos": 12
+    },
+    {
+      "id": "web5a4",
+      "titulo": "Publicar na web",
+      "minutos": 12
+    }
+  ]
+}

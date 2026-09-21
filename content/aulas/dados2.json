@@ -1,0 +1,25 @@
+{
+  "modulo": "dados2",
+  "aulas": [
+    {
+      "id": "dados2a1",
+      "titulo": "Valores faltando",
+      "minutos": 12
+    },
+    {
+      "id": "dados2a2",
+      "titulo": "Tipos e datas",
+      "minutos": 12
+    },
+    {
+      "id": "dados2a3",
+      "titulo": "Juntar tabelas",
+      "minutos": 12
+    },
+    {
+      "id": "dados2a4",
+      "titulo": "Duplicatas",
+      "minutos": 12
+    }
+  ]
+}

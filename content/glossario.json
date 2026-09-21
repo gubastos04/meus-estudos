@@ -2,416 +2,499 @@
   {
     "termo": "Algoritmo",
     "area": "Código",
-    "definicao": "Sequência de passos em ordem que resolve um problema."
+    "definicao": "Sequência de passos em ordem que resolve um problema.",
+    "foco": "base"
   },
   {
     "termo": "Variável",
     "area": "Código",
-    "definicao": "Caixa com nome onde você guarda um valor pra usar depois."
+    "definicao": "Caixa com nome onde você guarda um valor pra usar depois.",
+    "foco": "base"
   },
   {
     "termo": "Função",
     "area": "Código",
-    "definicao": "Bloco de código com nome, que recebe entradas e devolve uma saída."
+    "definicao": "Bloco de código com nome, que recebe entradas e devolve uma saída.",
+    "foco": "base"
   },
   {
     "termo": "Parâmetro",
     "area": "Código",
-    "definicao": "O nome que a função dá à entrada que ela espera receber."
+    "definicao": "O nome que a função dá à entrada que ela espera receber.",
+    "foco": "base"
   },
   {
     "termo": "Argumento",
     "area": "Código",
-    "definicao": "O valor real que você passa quando chama a função."
+    "definicao": "O valor real que você passa quando chama a função.",
+    "foco": "base"
   },
   {
     "termo": "Return",
     "area": "Código",
-    "definicao": "Devolve o resultado pra quem chamou a função. Sem ele, a função devolve None."
+    "definicao": "Devolve o resultado pra quem chamou a função. Sem ele, a função devolve None.",
+    "foco": "base"
   },
   {
     "termo": "Laço",
     "area": "Código",
-    "definicao": "Repetição. for quando você sabe quantas vezes, while quando repete até algo mudar."
+    "definicao": "Repetição. for quando você sabe quantas vezes, while quando repete até algo mudar.",
+    "foco": "base"
   },
   {
     "termo": "Condicional",
     "area": "Código",
-    "definicao": "Decisão entre caminhos. if, elif, else."
+    "definicao": "Decisão entre caminhos. if, elif, else.",
+    "foco": "base"
   },
   {
     "termo": "Indentação",
     "area": "Código",
-    "definicao": "Os espaços no começo da linha. Em Python, definem o que está dentro de um bloco."
+    "definicao": "Os espaços no começo da linha. Em Python, definem o que está dentro de um bloco.",
+    "foco": "base"
   },
   {
     "termo": "Lista",
     "area": "Código",
-    "definicao": "Vários valores em ordem, acessados por posição. Começa no zero."
+    "definicao": "Vários valores em ordem, acessados por posição. Começa no zero.",
+    "foco": "base"
   },
   {
     "termo": "Dicionário",
     "area": "Código",
-    "definicao": "Valores acessados por chave com nome, em vez de posição."
+    "definicao": "Valores acessados por chave com nome, em vez de posição.",
+    "foco": "base"
   },
   {
     "termo": "Exceção",
     "area": "Código",
-    "definicao": "Erro que acontece durante a execução e interrompe o programa se ninguém tratar."
+    "definicao": "Erro que acontece durante a execução e interrompe o programa se ninguém tratar.",
+    "foco": "base"
   },
   {
     "termo": "Stack trace",
     "area": "Código",
-    "definicao": "O relatório que o Python imprime quando quebra. Leia de baixo pra cima."
+    "definicao": "O relatório que o Python imprime quando quebra. Leia de baixo pra cima.",
+    "foco": "base"
   },
   {
     "termo": "Big O",
     "area": "Código",
-    "definicao": "Notação que descreve como o custo cresce quando a entrada cresce. O(n) cresce junto, O(n²) cresce ao quadrado."
+    "definicao": "Notação que descreve como o custo cresce quando a entrada cresce. O(n) cresce junto, O(n²) cresce ao quadrado.",
+    "foco": "base"
   },
   {
     "termo": "Refatorar",
     "area": "Código",
-    "definicao": "Melhorar a estrutura do código sem mudar o que ele faz."
+    "definicao": "Melhorar a estrutura do código sem mudar o que ele faz.",
+    "foco": "base"
   },
   {
     "termo": "Biblioteca",
     "area": "Código",
-    "definicao": "Código pronto de terceiros que você importa em vez de escrever."
+    "definicao": "Código pronto de terceiros que você importa em vez de escrever.",
+    "foco": "base"
   },
   {
     "termo": "Regex",
     "area": "Código",
-    "definicao": "Linguagem de padrões pra buscar e validar texto. Poderosa e ilegível na mesma medida."
+    "definicao": "Linguagem de padrões pra buscar e validar texto. Poderosa e ilegível na mesma medida.",
+    "foco": "base"
   },
   {
     "termo": "Git",
     "area": "Código",
-    "definicao": "Sistema que guarda o histórico do seu código e permite voltar atrás."
+    "definicao": "Sistema que guarda o histórico do seu código e permite voltar atrás.",
+    "foco": "base"
   },
   {
     "termo": "Commit",
     "area": "Código",
-    "definicao": "Uma foto do projeto num momento, com uma mensagem explicando o que mudou."
+    "definicao": "Uma foto do projeto num momento, com uma mensagem explicando o que mudou.",
+    "foco": "base"
   },
   {
     "termo": "Branch",
     "area": "Código",
-    "definicao": "Linha paralela de desenvolvimento, pra mexer sem quebrar o que já funciona."
+    "definicao": "Linha paralela de desenvolvimento, pra mexer sem quebrar o que já funciona.",
+    "foco": "base"
   },
   {
     "termo": "Pull request",
     "area": "Código",
-    "definicao": "Pedido pra juntar sua branch na principal, com espaço pra revisão."
+    "definicao": "Pedido pra juntar sua branch na principal, com espaço pra revisão.",
+    "foco": "base"
   },
   {
     "termo": "Terminal",
     "area": "Sistema",
-    "definicao": "Onde você digita comandos em vez de clicar. Também chamado de shell ou console."
+    "definicao": "Onde você digita comandos em vez de clicar. Também chamado de shell ou console.",
+    "foco": "seguranca"
   },
   {
     "termo": "PATH",
     "area": "Sistema",
-    "definicao": "Lista de pastas onde o sistema procura programas quando você digita um nome."
+    "definicao": "Lista de pastas onde o sistema procura programas quando você digita um nome.",
+    "foco": "seguranca"
   },
   {
     "termo": "Processo",
     "area": "Sistema",
-    "definicao": "Um programa em execução, com sua própria memória."
+    "definicao": "Um programa em execução, com sua própria memória.",
+    "foco": "seguranca"
   },
   {
     "termo": "Thread",
     "area": "Sistema",
-    "definicao": "Linha de execução dentro de um processo. Várias threads dividem a mesma memória."
+    "definicao": "Linha de execução dentro de um processo. Várias threads dividem a mesma memória.",
+    "foco": "seguranca"
   },
   {
     "termo": "Permissão",
     "area": "Sistema",
-    "definicao": "Define quem pode ler, escrever ou executar um arquivo."
+    "definicao": "Define quem pode ler, escrever ou executar um arquivo.",
+    "foco": "seguranca"
   },
   {
     "termo": "root",
     "area": "Sistema",
-    "definicao": "O usuário com poder total no sistema. Quem tem root não tem restrição."
+    "definicao": "O usuário com poder total no sistema. Quem tem root não tem restrição.",
+    "foco": "seguranca"
   },
   {
     "termo": "sudo",
     "area": "Sistema",
-    "definicao": "Executa um comando como root, pedindo sua senha antes."
+    "definicao": "Executa um comando como root, pedindo sua senha antes.",
+    "foco": "seguranca"
   },
   {
     "termo": "Log",
     "area": "Sistema",
-    "definicao": "Registro do que aconteceu no sistema, com data e hora. A primeira coisa que se olha num incidente."
+    "definicao": "Registro do que aconteceu no sistema, com data e hora. A primeira coisa que se olha num incidente.",
+    "foco": "seguranca"
   },
   {
     "termo": "Stack",
     "area": "Sistema",
-    "definicao": "Área de memória organizada, usada para chamadas de função e variáveis locais."
+    "definicao": "Área de memória organizada, usada para chamadas de função e variáveis locais.",
+    "foco": "seguranca"
   },
   {
     "termo": "Heap",
     "area": "Sistema",
-    "definicao": "Área de memória livre, usada para dados que crescem ou duram além da função."
+    "definicao": "Área de memória livre, usada para dados que crescem ou duram além da função.",
+    "foco": "seguranca"
   },
   {
     "termo": "Buffer overflow",
     "area": "Sistema",
-    "definicao": "Escrever mais dado do que cabe no espaço reservado, sobrescrevendo memória vizinha."
+    "definicao": "Escrever mais dado do que cabe no espaço reservado, sobrescrevendo memória vizinha.",
+    "foco": "seguranca"
   },
   {
     "termo": "IP",
     "area": "Rede",
-    "definicao": "Endereço que identifica uma máquina na rede."
+    "definicao": "Endereço que identifica uma máquina na rede.",
+    "foco": "seguranca"
   },
   {
     "termo": "Porta",
     "area": "Rede",
-    "definicao": "Número que identifica um serviço específico dentro da máquina. 80 é HTTP, 443 é HTTPS, 22 é SSH."
+    "definicao": "Número que identifica um serviço específico dentro da máquina. 80 é HTTP, 443 é HTTPS, 22 é SSH.",
+    "foco": "seguranca"
   },
   {
     "termo": "Protocolo",
     "area": "Rede",
-    "definicao": "Conjunto de regras sobre como duas máquinas conversam."
+    "definicao": "Conjunto de regras sobre como duas máquinas conversam.",
+    "foco": "seguranca"
   },
   {
     "termo": "TCP",
     "area": "Rede",
-    "definicao": "Protocolo que garante entrega e ordem. Mais lento, mais confiável."
+    "definicao": "Protocolo que garante entrega e ordem. Mais lento, mais confiável.",
+    "foco": "seguranca"
   },
   {
     "termo": "UDP",
     "area": "Rede",
-    "definicao": "Protocolo que manda e não confere. Mais rápido, sem garantia."
+    "definicao": "Protocolo que manda e não confere. Mais rápido, sem garantia.",
+    "foco": "seguranca"
   },
   {
     "termo": "DNS",
     "area": "Rede",
-    "definicao": "Traduz nome de site em endereço IP."
+    "definicao": "Traduz nome de site em endereço IP.",
+    "foco": "seguranca"
   },
   {
     "termo": "HTTP",
     "area": "Rede",
-    "definicao": "Protocolo da web. Cliente faz uma requisição, servidor devolve uma resposta."
+    "definicao": "Protocolo da web. Cliente faz uma requisição, servidor devolve uma resposta.",
+    "foco": "seguranca"
   },
   {
     "termo": "HTTPS",
     "area": "Rede",
-    "definicao": "HTTP dentro de um túnel criptografado com TLS."
+    "definicao": "HTTP dentro de um túnel criptografado com TLS.",
+    "foco": "seguranca"
   },
   {
     "termo": "TLS",
     "area": "Rede",
-    "definicao": "Camada que criptografa a conexão e prova que o servidor é quem diz ser."
+    "definicao": "Camada que criptografa a conexão e prova que o servidor é quem diz ser.",
+    "foco": "seguranca"
   },
   {
     "termo": "Handshake",
     "area": "Rede",
-    "definicao": "Troca inicial de mensagens que estabelece uma conexão antes dos dados começarem."
+    "definicao": "Troca inicial de mensagens que estabelece uma conexão antes dos dados começarem.",
+    "foco": "seguranca"
   },
   {
     "termo": "Firewall",
     "area": "Rede",
-    "definicao": "Filtro que decide qual tráfego passa e qual é bloqueado."
+    "definicao": "Filtro que decide qual tráfego passa e qual é bloqueado.",
+    "foco": "seguranca"
   },
   {
     "termo": "Proxy",
     "area": "Rede",
-    "definicao": "Intermediário que recebe sua requisição e repassa. Usado pra filtrar, cachear ou interceptar."
+    "definicao": "Intermediário que recebe sua requisição e repassa. Usado pra filtrar, cachear ou interceptar.",
+    "foco": "seguranca"
   },
   {
     "termo": "VPN",
     "area": "Rede",
-    "definicao": "Túnel criptografado que faz seu tráfego sair de outro ponto da rede."
+    "definicao": "Túnel criptografado que faz seu tráfego sair de outro ponto da rede.",
+    "foco": "seguranca"
   },
   {
     "termo": "Front-end",
     "area": "Web",
-    "definicao": "A parte que roda no navegador e o usuário vê."
+    "definicao": "A parte que roda no navegador e o usuário vê.",
+    "foco": "seguranca"
   },
   {
     "termo": "Back-end",
     "area": "Web",
-    "definicao": "A parte que roda no servidor, processa e guarda os dados."
+    "definicao": "A parte que roda no servidor, processa e guarda os dados.",
+    "foco": "seguranca"
   },
   {
     "termo": "Endpoint",
     "area": "Web",
-    "definicao": "Um endereço específico da API que faz uma coisa. Ex: /usuarios/42."
+    "definicao": "Um endereço específico da API que faz uma coisa. Ex: /usuarios/42.",
+    "foco": "seguranca"
   },
   {
     "termo": "Cookie",
     "area": "Web",
-    "definicao": "Pedacinho de dado que o servidor pede pro navegador guardar e devolver a cada requisição."
+    "definicao": "Pedacinho de dado que o servidor pede pro navegador guardar e devolver a cada requisição.",
+    "foco": "seguranca"
   },
   {
     "termo": "Sessão",
     "area": "Web",
-    "definicao": "O estado de 'este usuário está logado', mantido entre requisições."
+    "definicao": "O estado de 'este usuário está logado', mantido entre requisições.",
+    "foco": "seguranca"
   },
   {
     "termo": "Token",
     "area": "Web",
-    "definicao": "Credencial temporária que prova quem você é, sem reenviar a senha."
+    "definicao": "Credencial temporária que prova quem você é, sem reenviar a senha.",
+    "foco": "seguranca"
   },
   {
     "termo": "JWT",
     "area": "Web",
-    "definicao": "Formato de token que carrega os dados dentro dele, assinado pelo servidor."
+    "definicao": "Formato de token que carrega os dados dentro dele, assinado pelo servidor.",
+    "foco": "seguranca"
   },
   {
     "termo": "CORS",
     "area": "Web",
-    "definicao": "Regra do navegador que controla quais sites podem chamar sua API."
+    "definicao": "Regra do navegador que controla quais sites podem chamar sua API.",
+    "foco": "seguranca"
   },
   {
     "termo": "CIA",
     "area": "Segurança",
-    "definicao": "Confidencialidade, integridade e disponibilidade. Os três pilares. Toda medida de segurança serve a pelo menos um."
+    "definicao": "Confidencialidade, integridade e disponibilidade. Os três pilares. Toda medida de segurança serve a pelo menos um.",
+    "foco": "seguranca"
   },
   {
     "termo": "Ameaça",
     "area": "Segurança",
-    "definicao": "Algo ou alguém que pode causar dano."
+    "definicao": "Algo ou alguém que pode causar dano.",
+    "foco": "seguranca"
   },
   {
     "termo": "Vulnerabilidade",
     "area": "Segurança",
-    "definicao": "A falha que permite o dano acontecer."
+    "definicao": "A falha que permite o dano acontecer.",
+    "foco": "seguranca"
   },
   {
     "termo": "Risco",
     "area": "Segurança",
-    "definicao": "A chance da ameaça explorar a vulnerabilidade, vezes o estrago."
+    "definicao": "A chance da ameaça explorar a vulnerabilidade, vezes o estrago.",
+    "foco": "seguranca"
   },
   {
     "termo": "Exploit",
     "area": "Segurança",
-    "definicao": "O código ou técnica que aproveita uma vulnerabilidade na prática."
+    "definicao": "O código ou técnica que aproveita uma vulnerabilidade na prática.",
+    "foco": "seguranca"
   },
   {
     "termo": "Payload",
     "area": "Segurança",
-    "definicao": "A parte do ataque que realmente faz o estrago, depois que a entrada foi conseguida."
+    "definicao": "A parte do ataque que realmente faz o estrago, depois que a entrada foi conseguida.",
+    "foco": "seguranca"
   },
   {
     "termo": "Hash",
     "area": "Segurança",
-    "definicao": "Função de mão única: transforma um dado em um código fixo, sem volta. Usada pra guardar senha."
+    "definicao": "Função de mão única: transforma um dado em um código fixo, sem volta. Usada pra guardar senha.",
+    "foco": "seguranca"
   },
   {
     "termo": "Salt",
     "area": "Segurança",
-    "definicao": "Valor aleatório somado à senha antes do hash, pra duas senhas iguais não gerarem o mesmo resultado."
+    "definicao": "Valor aleatório somado à senha antes do hash, pra duas senhas iguais não gerarem o mesmo resultado.",
+    "foco": "seguranca"
   },
   {
     "termo": "Criptografia simétrica",
     "area": "Segurança",
-    "definicao": "Mesma chave criptografa e descriptografa. Rápida, mas a chave precisa ser combinada antes."
+    "definicao": "Mesma chave criptografa e descriptografa. Rápida, mas a chave precisa ser combinada antes.",
+    "foco": "seguranca"
   },
   {
     "termo": "Criptografia assimétrica",
     "area": "Segurança",
-    "definicao": "Par de chaves: a pública criptografa, a privada descriptografa. Resolve o problema de combinar a chave."
+    "definicao": "Par de chaves: a pública criptografa, a privada descriptografa. Resolve o problema de combinar a chave.",
+    "foco": "seguranca"
   },
   {
     "termo": "Autenticação",
     "area": "Segurança",
-    "definicao": "Provar quem você é."
+    "definicao": "Provar quem você é.",
+    "foco": "seguranca"
   },
   {
     "termo": "Autorização",
     "area": "Segurança",
-    "definicao": "Decidir o que você pode fazer, depois de já saber quem você é."
+    "definicao": "Decidir o que você pode fazer, depois de já saber quem você é.",
+    "foco": "seguranca"
   },
   {
     "termo": "MFA",
     "area": "Segurança",
-    "definicao": "Exigir dois ou mais fatores: algo que você sabe, algo que você tem, algo que você é."
+    "definicao": "Exigir dois ou mais fatores: algo que você sabe, algo que você tem, algo que você é.",
+    "foco": "seguranca"
   },
   {
     "termo": "Força bruta",
     "area": "Segurança",
-    "definicao": "Tentar todas as combinações até acertar."
+    "definicao": "Tentar todas as combinações até acertar.",
+    "foco": "seguranca"
   },
   {
     "termo": "SQL Injection",
     "area": "Segurança",
-    "definicao": "Fazer o dado enviado virar comando no banco, por falta de separação entre consulta e valor."
+    "definicao": "Fazer o dado enviado virar comando no banco, por falta de separação entre consulta e valor.",
+    "foco": "seguranca"
   },
   {
     "termo": "XSS",
     "area": "Segurança",
-    "definicao": "Injetar script que roda no navegador de outro usuário."
+    "definicao": "Injetar script que roda no navegador de outro usuário.",
+    "foco": "seguranca"
   },
   {
     "termo": "CSRF",
     "area": "Segurança",
-    "definicao": "Fazer o navegador da vítima enviar uma ação sem ela querer, aproveitando que ela já está logada."
+    "definicao": "Fazer o navegador da vítima enviar uma ação sem ela querer, aproveitando que ela já está logada.",
+    "foco": "seguranca"
   },
   {
     "termo": "IDOR",
     "area": "Segurança",
-    "definicao": "Trocar um identificador na URL e acessar dado de outra pessoa, porque ninguém checou a permissão."
+    "definicao": "Trocar um identificador na URL e acessar dado de outra pessoa, porque ninguém checou a permissão.",
+    "foco": "seguranca"
   },
   {
     "termo": "Phishing",
     "area": "Segurança",
-    "definicao": "Enganar a pessoa pra ela entregar credencial ou clicar em algo."
+    "definicao": "Enganar a pessoa pra ela entregar credencial ou clicar em algo.",
+    "foco": "seguranca"
   },
   {
     "termo": "Engenharia social",
     "area": "Segurança",
-    "definicao": "Atacar a pessoa em vez do sistema. Costuma ser o caminho mais barato."
+    "definicao": "Atacar a pessoa em vez do sistema. Costuma ser o caminho mais barato.",
+    "foco": "seguranca"
   },
   {
     "termo": "CVE",
     "area": "Segurança",
-    "definicao": "Identificador público de uma vulnerabilidade conhecida. Ex: CVE-2021-44228."
+    "definicao": "Identificador público de uma vulnerabilidade conhecida. Ex: CVE-2021-44228.",
+    "foco": "seguranca"
   },
   {
     "termo": "Zero-day",
     "area": "Segurança",
-    "definicao": "Vulnerabilidade ainda sem correção disponível."
+    "definicao": "Vulnerabilidade ainda sem correção disponível.",
+    "foco": "seguranca"
   },
   {
     "termo": "Pentest",
     "area": "Segurança",
-    "definicao": "Teste de invasão autorizado, com escopo e contrato."
+    "definicao": "Teste de invasão autorizado, com escopo e contrato.",
+    "foco": "seguranca"
   },
   {
     "termo": "Red team",
     "area": "Segurança",
-    "definicao": "Quem ataca, simulando adversário real."
+    "definicao": "Quem ataca, simulando adversário real.",
+    "foco": "seguranca"
   },
   {
     "termo": "Blue team",
     "area": "Segurança",
-    "definicao": "Quem defende, detecta e responde."
+    "definicao": "Quem defende, detecta e responde.",
+    "foco": "seguranca"
   },
   {
     "termo": "OWASP",
     "area": "Segurança",
-    "definicao": "Organização que publica o Top 10, a lista das falhas web mais comuns."
+    "definicao": "Organização que publica o Top 10, a lista das falhas web mais comuns.",
+    "foco": "seguranca"
   },
   {
     "termo": "Menor privilégio",
     "area": "Segurança",
-    "definicao": "Cada um recebe só o acesso que precisa pra fazer o trabalho, nada além."
+    "definicao": "Cada um recebe só o acesso que precisa pra fazer o trabalho, nada além.",
+    "foco": "seguranca"
   },
   {
     "termo": "Defesa em profundidade",
     "area": "Segurança",
-    "definicao": "Várias camadas de proteção, assumindo que uma delas vai falhar."
+    "definicao": "Várias camadas de proteção, assumindo que uma delas vai falhar.",
+    "foco": "seguranca"
   },
   {
     "termo": "k-anonymity",
     "area": "Segurança",
-    "definicao": "Esconder um dado no meio de muitos parecidos, pra ninguém saber qual é o seu."
+    "definicao": "Esconder um dado no meio de muitos parecidos, pra ninguém saber qual é o seu.",
+    "foco": "seguranca"
   },
   {
     "termo": "LGPD",
     "area": "Segurança",
-    "definicao": "Lei brasileira de proteção de dados pessoais. Define o que pode ser coletado, por quê e por quanto tempo."
+    "definicao": "Lei brasileira de proteção de dados pessoais. Define o que pode ser coletado, por quê e por quanto tempo.",
+    "foco": "seguranca"
   }
 ]

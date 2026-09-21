@@ -19,16 +19,16 @@ const ABAS = [
 
 type ModuloIds = { id: string; aulas: string[] };
 
-export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificados, labs, email, temChave }: {
+export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificados, labs, email, temChave, focoNome }: {
   abaInicial: Aba; modulos: ModuloIds[]; totalTreinos: number;
   perguntas: PerguntaEntrevista[]; certificados: Certificado[]; labs: Lab[];
-  email: string; temChave: boolean;
+  email: string; temChave: boolean; focoNome: string;
 }) {
   const [aba, setAba] = useState<Aba>(abaInicial);
   return (
     <>
       <Abas itens={ABAS} ativa={aba} aoMudar={setAba} />
-      {aba === "progresso" && <Progresso modulos={modulos} totalTreinos={totalTreinos} email={email} temChave={temChave} />}
+      {aba === "progresso" && <Progresso modulos={modulos} totalTreinos={totalTreinos} email={email} temChave={temChave} focoNome={focoNome} />}
       {aba === "entrevista" && <Entrevista perguntas={perguntas} />}
       {aba === "certificados" && <Certificados certificados={certificados} labs={labs} />}
     </>
@@ -37,7 +37,7 @@ export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificado
 
 /* ── Progresso ────────────────────────────────────────────────── */
 
-function Progresso({ modulos, totalTreinos, email, temChave }: { modulos: ModuloIds[]; totalTreinos: number; email: string; temChave: boolean }) {
+function Progresso({ modulos, totalTreinos, email, temChave, focoNome }: { modulos: ModuloIds[]; totalTreinos: number; email: string; temChave: boolean; focoNome: string }) {
   const { progresso: p, acoes } = useProgresso();
   const [confirmando, setConfirmando] = useState(false);
 
@@ -80,6 +80,11 @@ function Progresso({ modulos, totalTreinos, email, temChave }: { modulos: Modulo
             className={`pill ${p.meta === n ? "on" : ""}`} onClick={() => acoes.setMeta(n)}>{n} dias</button>
         ))}
       </div>
+
+      <h3 className="h3" style={{ marginTop: 32 }}>Seu foco</h3>
+      <div className="conta"><span className="conta-email">{focoNome}</span></div>
+      <p className="nota">Define os módulos avançados, os projetos e a voz da IA. Dá pra trocar quando quiser.</p>
+      <Link href="/foco" className="bt-2">Trocar de foco</Link>
 
       <h3 className="h3" style={{ marginTop: 32 }}>Chave da IA</h3>
       <ChaveIA temChave={temChave} />
@@ -221,6 +226,15 @@ function Entrevista({ perguntas }: { perguntas: PerguntaEntrevista[] }) {
 
 function Certificados({ certificados, labs }: { certificados: Certificado[]; labs: Lab[] }) {
   const ordenados = certificados.slice().sort((a, b) => a.ordem - b.ordem);
+  if (ordenados.length === 0 && labs.length === 0) {
+    return (
+      <>
+        <h2 className="h2">Certificados e labs</h2>
+        <p className="sub">Certificados e laboratórios do seu foco aparecem aqui.</p>
+        <div className="vazio">Ainda não há certificados listados para este foco. Vem chegando.</div>
+      </>
+    );
+  }
   return (
     <>
       <h2 className="h2">Certificados e labs</h2>

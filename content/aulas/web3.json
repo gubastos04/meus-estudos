@@ -1,0 +1,25 @@
+{
+  "modulo": "web3",
+  "aulas": [
+    {
+      "id": "web3a1",
+      "titulo": "Variáveis e funções",
+      "minutos": 12
+    },
+    {
+      "id": "web3a2",
+      "titulo": "Manipular o DOM",
+      "minutos": 12
+    },
+    {
+      "id": "web3a3",
+      "titulo": "Eventos",
+      "minutos": 12
+    },
+    {
+      "id": "web3a4",
+      "titulo": "Fetch e APIs",
+      "minutos": 12
+    }
+  ]
+}

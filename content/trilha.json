@@ -5,96 +5,201 @@
       "ordem": 1,
       "nome": "Lógica de verdade",
       "faculdade": "Pensamento Computacional",
-      "etiqueta": "base",
-      "descricao": "Pensar como programador antes de escrever qualquer código."
+      "descricao": "Pensar como programador antes de escrever qualquer código.",
+      "foco": "base"
     },
     {
       "id": "m2",
       "ordem": 2,
       "nome": "Python: primeiros comandos",
       "faculdade": "Paradigmas de Linguagens de Programação em Python",
-      "etiqueta": "base",
-      "descricao": "Sair do papel. Escrever código que roda de verdade."
+      "descricao": "Sair do papel. Escrever código que roda de verdade.",
+      "foco": "base"
     },
     {
       "id": "m3",
       "ordem": 3,
       "nome": "Linux e linha de comando",
       "faculdade": "Sistemas Operacionais",
-      "etiqueta": "base",
-      "descricao": "Onde segurança acontece de verdade. Sem terminal, não dá."
+      "descricao": "Onde segurança acontece de verdade. Sem terminal, não dá.",
+      "foco": "seguranca"
     },
     {
       "id": "m4",
       "ordem": 4,
       "nome": "Redes: como as máquinas conversam",
       "faculdade": "Comunicação Entre Aplicações",
-      "etiqueta": "base",
-      "descricao": "Todo ataque atravessa a rede. Entender o caminho é meio caminho."
+      "descricao": "Todo ataque atravessa a rede. Entender o caminho é meio caminho.",
+      "foco": "seguranca"
     },
     {
       "id": "m5",
       "ordem": 5,
       "nome": "Web na prática",
       "faculdade": "Desenv. Web em HTML5, CSS, JavaScript e PHP",
-      "etiqueta": "fullstack",
-      "descricao": "Construir o alvo antes de aprender a atacá-lo."
+      "descricao": "Construir o alvo antes de aprender a atacá-lo.",
+      "foco": "seguranca"
     },
     {
       "id": "m6",
       "ordem": 6,
       "nome": "Fundamentos de segurança",
       "faculdade": "Introdução à Segurança da Informação",
-      "etiqueta": "seguranca",
-      "descricao": "O vocabulário e os princípios, agora com contexto pra fazer sentido."
+      "descricao": "O vocabulário e os princípios, agora com contexto pra fazer sentido.",
+      "foco": "seguranca"
     },
     {
       "id": "m7",
       "ordem": 7,
       "nome": "Quebrando aplicações web",
       "faculdade": "Desenvolvimento de Software Seguro",
-      "etiqueta": "seguranca",
-      "descricao": "OWASP Top 10 em laboratório próprio. Atacar pra aprender a defender."
+      "descricao": "OWASP Top 10 em laboratório próprio. Atacar pra aprender a defender.",
+      "foco": "seguranca"
     },
     {
       "id": "m8",
       "ordem": 8,
       "nome": "Banco de dados e SQL Injection",
       "faculdade": "Banco de Dados",
-      "etiqueta": "fullstack",
-      "descricao": "Onde o dado mora. E como ele vaza."
+      "descricao": "Onde o dado mora. E como ele vaza.",
+      "foco": "seguranca"
     },
     {
       "id": "m9",
       "ordem": 9,
       "nome": "Como a máquina funciona por dentro",
       "faculdade": "Arquitetura de Computadores",
-      "etiqueta": "base",
-      "descricao": "Memória, processo e por que buffer overflow existe."
+      "descricao": "Memória, processo e por que buffer overflow existe.",
+      "foco": "seguranca"
     },
     {
       "id": "m10",
       "ordem": 10,
       "nome": "Estrutura de dados e algoritmos",
       "faculdade": "Estrutura de Dados / Algoritmos e Complexidade",
-      "etiqueta": "base",
-      "descricao": "O que separa quem programa de quem copia código."
+      "descricao": "O que separa quem programa de quem copia código.",
+      "foco": "seguranca"
     },
     {
       "id": "m11",
       "ordem": 11,
       "nome": "Python para segurança",
       "faculdade": "Desenvolvimento Rápido de Aplicações em Python",
-      "etiqueta": "seguranca",
-      "descricao": "Escrever as suas próprias ferramentas."
+      "descricao": "Escrever as suas próprias ferramentas.",
+      "foco": "seguranca"
     },
     {
       "id": "m12",
       "ordem": 12,
       "nome": "Nuvem, deploy e DevSecOps",
       "faculdade": "Computação em Nuvem / Engenharia de Software",
-      "etiqueta": "fullstack",
-      "descricao": "Onde o sistema roda hoje e como blindar a esteira."
+      "descricao": "Onde o sistema roda hoje e como blindar a esteira.",
+      "foco": "seguranca"
+    },
+    {
+      "id": "web1",
+      "ordem": 3,
+      "nome": "HTML: a estrutura da página",
+      "foco": "web",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "web2",
+      "ordem": 4,
+      "nome": "CSS: layout sem sofrer",
+      "foco": "web",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "web3",
+      "ordem": 5,
+      "nome": "JavaScript no navegador",
+      "foco": "web",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "web4",
+      "ordem": 6,
+      "nome": "Front-end com React",
+      "foco": "web",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "web5",
+      "ordem": 7,
+      "nome": "Back-end e banco",
+      "foco": "web",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "dados1",
+      "ordem": 3,
+      "nome": "Python para dados: Pandas",
+      "foco": "dados",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "dados2",
+      "ordem": 4,
+      "nome": "Limpar e preparar dados",
+      "foco": "dados",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "dados3",
+      "ordem": 5,
+      "nome": "Visualização",
+      "foco": "dados",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "dados4",
+      "ordem": 6,
+      "nome": "Estatística que importa",
+      "foco": "dados",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "dados5",
+      "ordem": 7,
+      "nome": "Introdução a machine learning",
+      "foco": "dados",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "backend1",
+      "ordem": 3,
+      "nome": "Como uma API funciona",
+      "foco": "backend",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "backend2",
+      "ordem": 4,
+      "nome": "Construindo uma API REST",
+      "foco": "backend",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "backend3",
+      "ordem": 5,
+      "nome": "Banco de dados e SQL",
+      "foco": "backend",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "backend4",
+      "ordem": 6,
+      "nome": "Autenticação e sessão",
+      "foco": "backend",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+    },
+    {
+      "id": "backend5",
+      "ordem": 7,
+      "nome": "Testes e deploy",
+      "foco": "backend",
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
     }
   ],
   "micro": [
@@ -105,5 +210,27 @@
     "Abra o terminal e rode 3 comandos que você já conhece.",
     "Refaça o desafio da última aula sem olhar a solução.",
     "Escolha 1 palavra que você viu e não entendeu. Procure o significado."
+  ],
+  "focos": [
+    {
+      "id": "seguranca",
+      "nome": "Segurança da informação",
+      "descricao": "Pentest, OWASP, criptografia, análise de log. Do zero até escrever suas próprias ferramentas."
+    },
+    {
+      "id": "web",
+      "nome": "Desenvolvimento web",
+      "descricao": "HTML, CSS, JavaScript, um framework de front e o back que serve tudo. Construir e publicar na web."
+    },
+    {
+      "id": "dados",
+      "nome": "Dados e IA",
+      "descricao": "Python para dados: limpar, analisar, visualizar e dar os primeiros passos em machine learning."
+    },
+    {
+      "id": "backend",
+      "nome": "Back-end e APIs",
+      "descricao": "Servidores, APIs REST, banco de dados, autenticação e deploy. A engenharia por trás dos apps."
+    }
   ]
 }

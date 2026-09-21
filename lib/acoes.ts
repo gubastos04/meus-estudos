@@ -11,6 +11,7 @@ import { db } from "@/lib/db";
 import { requisitarUsuario } from "@/lib/auth";
 import { cifrar } from "@/lib/cripto";
 import { lerPrototipo, resumir } from "@/lib/prototipo";
+import { focoValido } from "@/lib/conteudo";
 import type { Erro, Nota, Preferencias, Progresso } from "@/lib/modelo";
 
 const Dia = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -176,6 +177,14 @@ export async function salvarChaveIA(chave: string): Promise<{ ok: true } | { ok:
 
 export async function removerChaveIA() {
   await db.usuario.update({ where: { id: await uid() }, data: { iaChave: null } });
+}
+
+/* ── Foco (área de estudo) ────────────────────────────────────── */
+
+export async function escolherFoco(foco: string): Promise<{ ok: true } | { ok: false; erro: string }> {
+  if (!focoValido(foco)) return { ok: false, erro: "Esse foco não existe." };
+  await db.usuario.update({ where: { id: await uid() }, data: { foco } });
+  return { ok: true };
 }
 
 /* ── Importação do protótipo ──────────────────────────────────── */

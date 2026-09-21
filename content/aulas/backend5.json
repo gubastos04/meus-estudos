@@ -1,0 +1,25 @@
+{
+  "modulo": "backend5",
+  "aulas": [
+    {
+      "id": "backend5a1",
+      "titulo": "Escrever um teste",
+      "minutos": 12
+    },
+    {
+      "id": "backend5a2",
+      "titulo": "Tratar erro de verdade",
+      "minutos": 12
+    },
+    {
+      "id": "backend5a3",
+      "titulo": "Variáveis de ambiente",
+      "minutos": 12
+    },
+    {
+      "id": "backend5a4",
+      "titulo": "Publicar",
+      "minutos": 12
+    }
+  ]
+}

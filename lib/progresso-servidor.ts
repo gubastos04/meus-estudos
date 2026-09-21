@@ -53,6 +53,7 @@ export async function carregarProgresso(usuarioId: string): Promise<Progresso> {
     energia: u.energia as Energia,
     tema: u.tema as Tema,
     fonte: u.fonte as Fonte,
+    foco: u.foco,
   };
 }
 

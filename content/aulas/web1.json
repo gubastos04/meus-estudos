@@ -1,0 +1,25 @@
+{
+  "modulo": "web1",
+  "aulas": [
+    {
+      "id": "web1a1",
+      "titulo": "Tags e semântica",
+      "minutos": 12
+    },
+    {
+      "id": "web1a2",
+      "titulo": "Formulários",
+      "minutos": 12
+    },
+    {
+      "id": "web1a3",
+      "titulo": "Imagens e links",
+      "minutos": 12
+    },
+    {
+      "id": "web1a4",
+      "titulo": "Acessibilidade básica",
+      "minutos": 12
+    }
+  ]
+}

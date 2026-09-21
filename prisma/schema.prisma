@@ -15,6 +15,7 @@ model Usuario {
   email       String   @unique
   senhaHash   String
   iaChave     String?  // ANTHROPIC_API_KEY do próprio usuário, criptografada; cada um paga o seu
+  foco        String?  // área de foco escolhida (seguranca | web | dados | backend); null = ainda não escolheu
   criadoEm    DateTime @default(now())
   metaSemanal Int      @default(3)
   energia     String   @default("media")  // baixa | media | alta

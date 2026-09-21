@@ -10,7 +10,7 @@ import type { AulaResumo } from "@/lib/conteudo";
 
 export const rotaAula = (a: { moduloId: string; id: string }) => `/trilha/${a.moduloId}/${a.id}`;
 
-export function Agora({ aulas, micro, proximoModulo }: { aulas: AulaResumo[]; micro: string[]; proximoModulo: string | null }) {
+export function Agora({ aulas, micro }: { aulas: AulaResumo[]; micro: string[] }) {
   const { progresso, acoes } = useProgresso();
   const roteador = useRouter();
   const [missao, setMissao] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function Agora({ aulas, micro, proximoModulo }: { aulas: AulaResumo[]; mi
   return (
     <>
       <h2 className="h2">Como você está agora?</h2>
-      <p className="sub">Isso define o tamanho do bloco de hoje. Dia de plantão não precisa ser dia perdido.</p>
+      <p className="sub">Isso define o tamanho do bloco de hoje. Sem energia? Dez minutos já contam.</p>
 
       <div className="linha-bt" role="radiogroup" aria-label="Energia">
         {(Object.keys(BLOCO) as Energia[]).map((k) => (
@@ -53,11 +53,10 @@ export function Agora({ aulas, micro, proximoModulo }: { aulas: AulaResumo[]; mi
         </div>
       ) : (
         <div className="agora">
-          <div className="onde">Fim do conteúdo escrito</div>
-          <div className="titulo">Você terminou tudo que está pronto</div>
+          <div className="onde">Por enquanto é isso</div>
+          <div className="titulo">Você terminou o que está pronto do seu foco</div>
           <p className="nota" style={{ marginBottom: 18 }}>
-            {feitasTotal} aulas concluídas. O próximo módulo a escrever é
-            {" "}<code className="inl">{proximoModulo ?? "o seguinte"}</code>. Ele entra em <code className="inl">content/aulas/</code>.
+            {feitasTotal} aulas concluídas. Mais conteúdo do seu foco vem chegando. Enquanto isso, dá pra revisar ou treinar.
           </p>
           <Link href="/trilha" className="bt-2"><BookOpen size={16} /> Ver a trilha</Link>
         </div>

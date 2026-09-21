@@ -53,10 +53,8 @@ export function AulaView({ aula }: { aula: AulaComModulo }) {
         <h2 className="h2">{aula.titulo}</h2>
         <p className="sub">{aula.moduloNome}</p>
         <div className="aviso">
-          Esta aula ainda não tem conteúdo escrito. Ela entra em
-          {" "}<code className="inl">content/aulas/{aula.moduloId}.json</code>, no mesmo formato das aulas dos módulos 1 e 2.
-          <br /><br />
-          Peça no chat: <code className="inl">escreve o módulo &quot;{aula.moduloNome}&quot;</code>
+          Conteúdo em breve. Esta aula ainda está sendo escrita. Enquanto isso, siga pelas aulas
+          que já têm conteúdo (as sem cadeado na trilha) ou revise o que já fez.
         </div>
       </>
     );
