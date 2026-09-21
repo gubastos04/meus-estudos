@@ -14,11 +14,14 @@ const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["lati
 
 export const metadata: Metadata = {
   title: { default: "Meus Estudos", template: "%s · Meus Estudos" },
-  description: "Trilha de programação e segurança, um bloco por vez.",
+  description: "Trilha de programação com foco selecionável, um bloco por vez.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#17150f",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f8fa" },
+    { media: "(prefers-color-scheme: dark)", color: "#121721" },
+  ],
   width: "device-width",
   initialScale: 1,
 };

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { criarConta, entrar } from "@/lib/acoes-auth";
 
 type Modo = "entrar" | "criar";
@@ -10,6 +11,7 @@ type Modo = "entrar" | "criar";
 export function FormAuth({ modo, exigeConvite }: { modo: Modo; exigeConvite: boolean }) {
   const roteador = useRouter();
   const [erro, setErro] = useState<string | null>(null);
+  const [verSenha, setVerSenha] = useState(false);
   const [pendente, iniciar] = useTransition();
   const criando = modo === "criar";
 
@@ -51,9 +53,15 @@ export function FormAuth({ modo, exigeConvite }: { modo: Modo; exigeConvite: boo
         </div>
         <div style={{ marginBottom: 14 }}>
           <label className="rotulo" htmlFor="senha">Senha</label>
-          <input id="senha" name="senha" className="busca" type="password"
-            autoComplete={criando ? "new-password" : "current-password"} required minLength={8}
-            placeholder={criando ? "pelo menos 8 caracteres" : "sua senha"} />
+          <div className="senha-wrap">
+            <input id="senha" name="senha" className="busca" type={verSenha ? "text" : "password"}
+              autoComplete={criando ? "new-password" : "current-password"} required minLength={8}
+              placeholder={criando ? "pelo menos 8 caracteres" : "sua senha"} />
+            <button type="button" className="senha-olho" onClick={() => setVerSenha((v) => !v)}
+              aria-label={verSenha ? "Ocultar senha" : "Mostrar senha"} aria-pressed={verSenha}>
+              {verSenha ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
         {criando && exigeConvite && (
           <div style={{ marginBottom: 14 }}>
@@ -62,7 +70,7 @@ export function FormAuth({ modo, exigeConvite }: { modo: Modo; exigeConvite: boo
           </div>
         )}
 
-        {erro && <div className="aviso aviso-falha" style={{ marginBottom: 16 }}>{erro}</div>}
+        {erro && <div className="aviso aviso-falha" role="alert" style={{ marginBottom: 16 }}>{erro}</div>}
 
         <button type="submit" className="bt" style={{ width: "100%", justifyContent: "center" }} disabled={pendente}>
           {pendente ? "Um instante..." : criando ? "Criar conta" : "Entrar"}
