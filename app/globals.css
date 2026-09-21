@@ -1,32 +1,39 @@
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════
-   Meus Estudos — "Caderno"
-   Um caderno de estudo bem-feito: papel morno de dia, tinta morna
-   de madrugada. Hierarquia por escala, tom e espaço — nunca por
-   tarja lateral. Âmbar = ativo, verde = feito, vermelho = alerta real.
-   Cores em OKLCH, neutros levemente puxados para o quente.
+   Meus Estudos — "Estúdio" (premium, frio)
+   Base slate neutra, profundidade por elevação sutil, acento
+   indigo/violeta vivo que troca por foco. Acento = ativo/atenção,
+   verde = feito, vermelho = alerta real. Cores em OKLCH.
+   Nomes --amber* são aliases de --acento* (compat. retroativa).
    ══════════════════════════════════════════════════════════════ */
 
 :root {
   color-scheme: light;
   --esc: 1;
 
-  /* papel (dia) */
-  --ink:    oklch(0.958 0.012 85);   /* fundo, papel morno */
-  --panel:  oklch(0.988 0.008 90);   /* bloco levemente elevado */
-  --panel2: oklch(0.928 0.016 82);   /* inset, campo, bloco fundo */
-  --line:   oklch(0.865 0.020 82);   /* regra fina, como pauta de caderno */
-  --text:   oklch(0.255 0.020 60);   /* tinta */
-  --dim:    oklch(0.505 0.022 62);   /* secundário */
-  --code:   oklch(0.310 0.022 60);
+  /* superfícies (dia) — slate frio */
+  --ink:    oklch(0.977 0.004 255);  /* fundo do app */
+  --panel:  oklch(1 0 0);            /* cartão elevado */
+  --panel2: oklch(0.958 0.006 255);  /* campo, inset */
+  --line:   oklch(0.912 0.008 255);  /* borda fina */
+  --text:   oklch(0.278 0.028 262);  /* slate escuro */
+  --dim:    oklch(0.556 0.032 258);  /* secundário */
+  --code:   oklch(0.340 0.030 262);
 
-  --amber:  oklch(0.560 0.130 62);   /* ocre legível sobre papel */
-  --amber-fundo: oklch(0.935 0.045 78); /* tom âmbar do herói */
-  --done:   oklch(0.500 0.120 158);
-  --alert:  oklch(0.530 0.165 33);
-  --sobre-amber: oklch(0.985 0.01 90); /* texto sobre âmbar cheio */
+  /* acento — indigo/violeta (padrão; trocado por foco) */
+  --acento:       oklch(0.556 0.196 274);
+  --acento-fundo: oklch(0.945 0.038 278);  /* tinta do herói */
+  --sobre-acento: oklch(0.990 0.010 278);  /* texto sobre acento cheio */
+  --done:   oklch(0.596 0.132 156);
+  --alert:  oklch(0.556 0.196 24);
 
+  /* aliases retroativos (classes antigas usam --amber*) */
+  --amber:       var(--acento);
+  --amber-fundo: var(--acento-fundo);
+  --sobre-amber: var(--sobre-acento);
+
+  /* tipografia */
   --f-prosa: calc(16.5px * var(--esc));
   --f-ui:    calc(14.5px * var(--esc));
   --f-min:   calc(12.5px * var(--esc));
@@ -35,26 +42,54 @@
   --f-hero:  calc(34px * var(--esc));
   --f-code:  calc(13.5px * var(--esc));
 
-  --raio: 10px;
+  /* espaçamento (escala 4pt) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+
+  /* raio */
+  --raio-sm: 8px;
+  --raio:    12px;
+  --raio-lg: 16px;
+  --raio-xl: 22px;
+  --raio-full: 999px;
+
+  /* elevação — sombra fria, sutil */
+  --sombra-1: 0 1px 2px oklch(0.30 0.03 262 / 0.06), 0 1px 3px oklch(0.30 0.03 262 / 0.05);
+  --sombra-2: 0 4px 12px oklch(0.30 0.03 262 / 0.08), 0 2px 4px oklch(0.30 0.03 262 / 0.05);
+  --sombra-3: 0 12px 32px oklch(0.30 0.03 262 / 0.14), 0 4px 10px oklch(0.30 0.03 262 / 0.06);
 }
 
 :root[data-tema="escuro"] {
   color-scheme: dark;
-  /* tinta (noite) — quente, não azul de SaaS */
-  --ink:    oklch(0.178 0.008 74);
-  --panel:  oklch(0.228 0.010 74);
-  --panel2: oklch(0.278 0.012 74);
-  --line:   oklch(0.345 0.014 74);
-  --text:   oklch(0.920 0.014 86);
-  --dim:    oklch(0.700 0.020 80);
-  --code:   oklch(0.860 0.022 86);
+  /* superfícies (noite) — navy slate profundo */
+  --ink:    oklch(0.205 0.021 262);
+  --panel:  oklch(0.253 0.024 262);
+  --panel2: oklch(0.303 0.028 262);
+  --line:   oklch(0.372 0.030 262);
+  --text:   oklch(0.928 0.012 266);
+  --dim:    oklch(0.688 0.024 262);
+  --code:   oklch(0.860 0.020 266);
 
-  --amber:  oklch(0.800 0.130 76);
-  --amber-fundo: oklch(0.285 0.045 72);
-  --done:   oklch(0.770 0.110 160);
-  --alert:  oklch(0.720 0.150 42);
-  --sobre-amber: oklch(0.220 0.045 66);
+  --acento:       oklch(0.706 0.162 278);
+  --acento-fundo: oklch(0.322 0.060 276);
+  --sobre-acento: oklch(0.205 0.030 276);
+  --done:   oklch(0.752 0.130 158);
+  --alert:  oklch(0.712 0.160 28);
+
+  --sombra-1: 0 1px 2px oklch(0 0 0 / 0.30);
+  --sombra-2: 0 6px 16px oklch(0 0 0 / 0.40);
+  --sombra-3: 0 16px 40px oklch(0 0 0 / 0.55);
 }
+
+/* acento por foco — pinta --acento; o resto do sistema segue junto */
+:root[data-foco="seguranca"] { --acento: oklch(0.620 0.140 62);  --acento-fundo: oklch(0.940 0.045 78);  --sobre-acento: oklch(0.990 0.010 90); }
+:root[data-foco="web"]       { --acento: oklch(0.556 0.180 250); --acento-fundo: oklch(0.945 0.040 250); --sobre-acento: oklch(0.990 0.010 250); }
+:root[data-foco="dados"]     { --acento: oklch(0.556 0.196 300); --acento-fundo: oklch(0.945 0.040 300); --sobre-acento: oklch(0.990 0.010 300); }
+:root[data-foco="backend"]   { --acento: oklch(0.560 0.130 168); --acento-fundo: oklch(0.940 0.045 168); --sobre-acento: oklch(0.990 0.010 168); }
+:root[data-tema="escuro"][data-foco="seguranca"] { --acento: oklch(0.800 0.130 76);  --acento-fundo: oklch(0.322 0.055 72); }
+:root[data-tema="escuro"][data-foco="web"]       { --acento: oklch(0.720 0.150 252); --acento-fundo: oklch(0.322 0.060 252); }
+:root[data-tema="escuro"][data-foco="dados"]     { --acento: oklch(0.730 0.160 302); --acento-fundo: oklch(0.322 0.060 300); }
+:root[data-tema="escuro"][data-foco="backend"]   { --acento: oklch(0.760 0.130 168); --acento-fundo: oklch(0.322 0.055 168); }
 
 @theme inline {
   --color-ink: var(--ink);
@@ -64,6 +99,7 @@
   --color-text: var(--text);
   --color-dim: var(--dim);
   --color-code: var(--code);
+  --color-acento: var(--acento);
   --color-amber: var(--amber);
   --color-done: var(--done);
   --color-alert: var(--alert);
@@ -89,27 +125,89 @@ button:disabled { cursor: not-allowed; }
 /* ── Componentes ──────────────────────────────────────────────── */
 
 @layer components {
-  .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px 128px; }
+  /* shell: sidebar no desktop, barra + nav inferior no mobile */
+  .app { min-height: 100dvh; }
+  .conteudo { min-height: 100dvh; display: flex; flex-direction: column; }
+  .wrap { width: 100%; max-width: 860px; margin: 0 auto; padding: 24px 20px 120px; flex: 1; }
 
-  /* topo: um cabeçalho de caderno, com uma regra dupla embaixo */
+  .side { display: none; }
+
+  /* barra superior (mobile): fina, fixa, com desfoque */
   .topo {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    padding: 22px 0 16px; margin-bottom: 30px;
-    border-bottom: 3px double var(--line);
+    padding: 13px 20px; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 9;
+    background: color-mix(in oklch, var(--ink) 82%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .marca {
-    font-family: var(--font-display); font-size: calc(22px * var(--esc)); font-weight: 600;
+    font-family: var(--font-display); font-size: calc(21px * var(--esc)); font-weight: 600;
     letter-spacing: -0.015em; color: inherit; text-decoration: none;
   }
-  .marca span { color: var(--amber); }
+  .marca span { color: var(--acento); }
+
   .ctrl { display: flex; gap: 8px; }
   .ctrl button {
     background: transparent; border: 1px solid var(--line); color: var(--dim);
-    width: 44px; height: 44px; border-radius: var(--raio);
+    width: 40px; height: 40px; border-radius: var(--raio-sm);
     display: flex; align-items: center; justify-content: center;
-    transition: color 160ms ease, border-color 160ms ease;
+    transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
   }
-  .ctrl button:hover { color: var(--amber); border-color: var(--amber); }
+  .ctrl button:hover { color: var(--acento); border-color: var(--acento); }
+
+  /* sidebar (desktop) */
+  .side-marca {
+    display: flex; align-items: center; gap: 9px; text-decoration: none; color: inherit;
+    font-family: var(--font-display); font-size: calc(20px * var(--esc)); font-weight: 600;
+    letter-spacing: -0.015em; padding: 6px 10px; margin-bottom: 8px;
+  }
+  .side-marca span { color: var(--acento); }
+  .side-secao {
+    font-family: var(--font-mono); font-size: calc(10.5px * var(--esc)); text-transform: uppercase;
+    letter-spacing: 0.11em; color: var(--dim); padding: 0 10px; margin: 14px 0 6px;
+  }
+  .side-nav { display: flex; flex-direction: column; gap: 2px; }
+  .side-bt {
+    display: flex; align-items: center; gap: 12px; padding: 10px 10px;
+    border-radius: var(--raio-sm); color: var(--dim); text-decoration: none;
+    font-size: var(--f-ui); font-weight: 600; min-height: 42px; line-height: 1;
+    transition: background 140ms ease, color 140ms ease;
+  }
+  .side-bt svg { flex-shrink: 0; }
+  .side-bt:hover { background: var(--panel2); color: var(--text); }
+  .side-bt.on { background: var(--acento); color: var(--sobre-acento); }
+  .side-rodape { margin-top: auto; border-top: 1px solid var(--line); padding-top: var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); }
+  .side-conta { font-family: var(--font-mono); font-size: var(--f-min); color: var(--dim); padding: 0 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (min-width: 900px) {
+    .app { display: grid; grid-template-columns: 252px minmax(0, 1fr); }
+    .side {
+      display: flex; flex-direction: column; gap: 2px;
+      position: sticky; top: 0; height: 100dvh; align-self: start; overflow-y: auto;
+      background: var(--panel); border-right: 1px solid var(--line); padding: 20px 12px;
+    }
+    .app .topo { display: none; }
+    .app .nav { display: none; }
+    .wrap { max-width: 1000px; padding: 36px 44px 64px; }
+
+    /* sub-abas: largura natural à esquerda, não esticadas na largura toda */
+    .wrap .abas { gap: 6px; }
+    .wrap .abas .aba { flex: 0 0 auto; padding: 12px 22px; }
+  }
+
+  /* ── Dashboard ──────────────────────────────────────────────── */
+  .pagina-t { font-family: var(--font-display); font-size: var(--f-h2); font-weight: 600; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .pagina-sub { color: var(--dim); font-size: var(--f-ui); margin: 0 0 24px; line-height: 1.55; }
+
+  .dash-secao { font-family: var(--font-mono); font-size: var(--f-min); font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin: 30px 0 12px; }
+
+  .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s-3); margin-bottom: var(--s-3); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--raio); padding: var(--s-4); }
+  .card-rotulo { display: flex; align-items: center; gap: 7px; font-size: var(--f-min); color: var(--dim); margin-bottom: 10px; }
+  .card-rotulo svg { color: var(--acento); }
+  .card-num { font-family: var(--font-display); font-size: calc(30px * var(--esc)); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+  .card-num.ok { color: var(--done); }
+  .card-pe { font-size: var(--f-min); color: var(--dim); margin-top: 8px; line-height: 1.4; }
 
   /* tipografia */
   .h2 {
@@ -168,8 +266,8 @@ button:disabled { cursor: not-allowed; }
 
   /* Agora: o herói. Fundo com tom âmbar e o título da próxima aula grande em serif. */
   .agora {
-    background: var(--amber-fundo); border: 1px solid color-mix(in oklch, var(--amber) 40%, transparent);
-    border-radius: 14px; padding: 26px 24px; margin-bottom: 26px;
+    background: var(--acento-fundo); border: 1px solid color-mix(in oklch, var(--acento) 32%, transparent);
+    border-radius: var(--raio-lg); padding: 26px 24px; margin-bottom: 26px;
   }
   .agora .onde { font-family: var(--font-mono); font-size: var(--f-min); color: var(--amber); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
   .agora .titulo { font-family: var(--font-display); font-size: var(--f-hero); line-height: 1.08; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 16px; }
@@ -419,10 +517,40 @@ button:disabled { cursor: not-allowed; }
 
 /* ── Autenticação ─────────────────────────────────────────────── */
 @layer components {
-  .auth { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 24px 20px; }
-  .auth-cartao { width: 100%; max-width: 400px; }
-  .link { color: var(--amber); text-decoration: none; font-weight: 600; }
+  .auth { min-height: 100dvh; display: grid; grid-template-columns: 1fr; }
+  .auth-brand { display: none; }
+  .auth-form-wrap { display: flex; align-items: center; justify-content: center; padding: var(--s-6) var(--s-5); }
+  .auth-cartao {
+    width: 100%; max-width: 400px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: var(--raio-lg);
+    box-shadow: var(--sombra-1); padding: var(--s-7) var(--s-6);
+  }
+  .auth-marca-mobile { margin-bottom: var(--s-5); }
+
+  .link { color: var(--acento); text-decoration: none; font-weight: 600; }
   .link:hover { text-decoration: underline; }
   .conta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; }
   .conta-email { font-family: var(--font-mono); font-size: var(--f-min); color: var(--dim); }
+
+  /* painel de marca (desktop) */
+  .auth-brand-marca { font-family: var(--font-display); font-size: calc(24px * var(--esc)); font-weight: 600; letter-spacing: -0.015em; }
+  .auth-brand-tit { font-family: var(--font-display); font-size: calc(40px * var(--esc)); font-weight: 600; line-height: 1.08; letter-spacing: -0.025em; margin: 0 0 var(--s-4); }
+  .auth-brand-sub { font-size: var(--f-prosa); line-height: 1.6; opacity: 0.9; max-width: 34ch; margin: 0; }
+  .auth-pontos { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+  .auth-ponto { display: flex; gap: 10px; align-items: flex-start; font-size: var(--f-ui); line-height: 1.5; opacity: 0.94; }
+  .auth-ponto svg { flex-shrink: 0; margin-top: 2px; }
+
+  @media (min-width: 860px) {
+    .auth { grid-template-columns: 1.05fr 1fr; }
+    .auth-brand {
+      display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-7);
+      padding: var(--s-8) var(--s-7); color: var(--sobre-acento);
+      background:
+        radial-gradient(130% 120% at 100% 0%, color-mix(in oklch, var(--acento) 62%, white) 0%, transparent 55%),
+        radial-gradient(120% 120% at 0% 100%, color-mix(in oklch, var(--acento) 68%, black) 0%, transparent 60%),
+        var(--acento);
+    }
+    .auth-cartao { box-shadow: var(--sombra-2); }
+    .auth-marca-mobile { display: none; }
+  }
 }

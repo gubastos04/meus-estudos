@@ -1,27 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Moon, Sun, Type } from "lucide-react";
-import { useProgresso } from "@/lib/progresso";
+import { ControlesTema } from "@/components/ControlesTema";
 
+// Barra superior — só no mobile (a sidebar traz marca e controles no desktop).
 export function Topo() {
-  const { progresso, acoes, falha } = useProgresso();
-  const claro = progresso.tema === "claro";
-
   return (
-    <>
     <header className="topo">
       <Link href="/" className="marca">Meus Estudos<span>.</span></Link>
-      <div className="ctrl">
-        <button type="button" onClick={acoes.proximaFonte} aria-label="Mudar tamanho do texto" title="Tamanho do texto">
-          <Type size={17} />
-        </button>
-        <button type="button" onClick={acoes.alternarTema} aria-label="Mudar tema" title={claro ? "Tema escuro" : "Tema claro"}>
-          {claro ? <Moon size={17} /> : <Sun size={17} />}
-        </button>
-      </div>
+      <ControlesTema />
     </header>
-    {falha && <div className="aviso aviso-falha" role="alert">{falha}</div>}
-    </>
   );
 }

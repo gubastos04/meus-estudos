@@ -33,16 +33,17 @@ Direto, sem entusiasmo forçado, sem culpa. Português do Brasil, frases curtas.
 
 ## Anti-referências
 
-- Sem gamificação: nada de pontos, níveis, medalhas, ranking, confete, "Parabéns!".
+- Sem gamificação barulhenta: nada de pontos, níveis, medalhas, ranking, confete, "Parabéns!". Métricas de progresso são bem-vindas, mas apresentadas com calma e honestidade — número que informa, não que premia.
 - Sem emoji na interface. Sem exclamação em excesso. Sem mensagem motivacional genérica.
-- Sem sequência diária ("streak") nem contador regressivo de dias perdidos. A métrica é dias ativos nos últimos 7, e falhar um dia não zera nada.
-- Nada de dashboard de monitoramento nem terminal neon verde-no-preto. É um espaço de estudo calmo e legível, não uma ferramenta de trabalho barulhenta. Serve a qualquer foco, não só segurança.
+- A métrica de constância é **dias ativos nos últimos 7**, e falhar um dia não zera nada nem pune. Sem contador regressivo de dias perdidos.
 - Vermelho é só alerta real, nunca a falha do usuário.
+
+O visual segue "Estúdio": um SaaS de estudo moderno, calmo e legível — dashboard com sidebar no desktop, foco em hierarquia e navegação previsível. Nada de terminal neon verde-no-preto; serve a qualquer foco, não só segurança.
 
 ## Princípios estratégicos (não negociáveis)
 
-1. Uma decisão por vez. A tela inicial mostra UMA próxima ação e um botão, nunca uma grade.
-2. Meta semanal (dias ativos nos últimos 7), nunca sequência diária. Ninguém consegue estudar todo dia; falhar um dia não pode zerar nada. Sem punição visual.
+1. Uma decisão por vez. A tela inicial (dashboard) destaca UMA próxima ação com um botão; métricas de progresso ficam em segundo plano, abaixo dela.
+2. Meta semanal (dias ativos nos últimos 7), nunca sequência diária punitiva. Ninguém consegue estudar todo dia; falhar um dia não pode zerar nada. Sem punição visual.
 3. Bloco dimensionado por energia (baixa/média/alta = 10/25/50 min). Cronômetro informativo, nunca bloqueante; estourar o tempo vira verde, não vermelho.
 4. Curto por padrão, profundo sob demanda. Resumo + ideia; o resto é opcional.
 5. Escopo fechado e explícito. Todo projeto declara o que NÃO faz com o mesmo peso do que faz.
@@ -51,8 +52,8 @@ Direto, sem entusiasmo forçado, sem culpa. Português do Brasil, frases curtas.
 
 ## Semântica de cor (significado, não estética)
 
-- Âmbar: agora, ativo, atenção. O que fazer em seguida.
+- Acento (indigo/violeta, token `--acento`): agora, ativo, atenção. O que fazer em seguida. É a única cor de destaque para ações importantes.
 - Verde: concluído.
 - Vermelho: alerta real (apagar dados, gravação falhou). Nunca falha do aluno.
 
-Estes papéis são fixos. A paleta neutra ao redor deles é livre.
+Estes papéis são fixos. A base é slate frio neutro (tema claro e escuro). O acento pode ser tingido por foco (`data-foco`), mas mantém o mesmo papel.

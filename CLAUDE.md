@@ -12,9 +12,9 @@ App de estudo de uma pessoa só. A especificação completa está em `docs/espec
 - O `dia` de qualquer registro vem do cliente (`hoje()` de `lib/datas.ts`), nunca do servidor: o servidor pode estar em UTC.
 - Mudou `prisma/schema.prisma`? Rode `npx prisma migrate dev --name <o-que-mudou>`. Usuário é único e fixo (`USUARIO_ID = "eu"`) até a fase 6.
 - Páginas em `app/` são server components finas: carregam conteúdo e passam para uma tela em `components/telas/` (client). Passe só os campos que a tela usa.
-- Estilo: classes de componente em `app/globals.css` (`.bt`, `.secao-t`, `.cartao`...) + utilitários Tailwind para ajuste fino. Cores só pelos tokens (`--amber`, `--done`, `--alert`...). Âmbar = ativo/atenção, verde = concluído, vermelho = só alerta real.
+- Estilo: sistema "Estúdio" (premium frio) em `app/globals.css`, classes de componente (`.bt`, `.card`, `.cartao`, `.side-bt`...) + utilitários Tailwind para ajuste fino. Cores só pelos tokens. Acento = `--acento` (indigo; `--amber*` são aliases retroativos), verde = `--done`, vermelho = `--alert` (só alerta real). Superfícies slate frias (`--ink`/`--panel`/`--panel2`/`--line`), escalas `--s-*` (espaço), `--raio*` (raio), `--sombra-*` (elevação, usada com parcimônia — borda primeiro).
 - Datas do usuário sempre via `lib/datas.ts` (fuso local). Nunca `toISOString().slice(0,10)`.
-- Navegação inferior tem 5 itens. Não adicione um sexto; coisa nova vira sub-aba.
+- Navegação: shell com sidebar no desktop (`components/Sidebar.tsx`) e barra inferior no mobile (`components/Nav.tsx`), ambas geradas de `components/itensNav.ts` (5 itens — não adicione um sexto; coisa nova vira sub-aba via `components/Abas.tsx`). A home é um dashboard: uma próxima ação em destaque + métricas de progresso (`.dash-cards`/`.card`) abaixo.
 
 ## IA (fase 5)
 

@@ -35,7 +35,7 @@ export function FormAuth({ modo, exigeConvite }: { modo: Modo; exigeConvite: boo
 
   return (
     <div className="auth-cartao">
-      <div className="marca" style={{ marginBottom: 6 }}>Meus Estudos<span>.</span></div>
+      <div className="marca auth-marca-mobile">Meus Estudos<span>.</span></div>
       <h1 className="h2" style={{ marginBottom: 6 }}>{criando ? "Criar conta" : "Entrar"}</h1>
       <p className="sub" style={{ marginBottom: 22 }}>
         {criando

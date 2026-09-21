@@ -6,6 +6,8 @@ import { temChaveIA } from "@/lib/ia";
 import { ProgressoProvider } from "@/lib/progresso";
 import { IAProvider } from "@/components/IA";
 import { Topo } from "@/components/Topo";
+import { Sidebar } from "@/components/Sidebar";
+import { AvisoFalha } from "@/components/AvisoFalha";
 import { Nav } from "@/components/Nav";
 
 // Tudo aqui dentro exige login. Sem sessão válida, vai para /entrar.
@@ -20,11 +22,15 @@ export default async function LayoutApp({ children }: LayoutProps<"/">) {
   return (
     <ProgressoProvider inicial={progresso}>
       <IAProvider ligada={iaLigada}>
-        <div className="wrap">
-          <Topo />
-          <main>{children}</main>
+        <div className="app">
+          <Sidebar email={u.email} />
+          <div className="conteudo">
+            <Topo />
+            <AvisoFalha />
+            <main className="wrap">{children}</main>
+          </div>
+          <Nav />
         </div>
-        <Nav />
       </IAProvider>
     </ProgressoProvider>
   );

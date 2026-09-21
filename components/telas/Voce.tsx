@@ -62,12 +62,14 @@ function Progresso({ modulos, totalTreinos, email, temChave, focoNome }: { modul
       <h2 className="h2">Você</h2>
       <p className="sub">O número que importa não é a sequência perfeita. É o total que não volta pra trás.</p>
 
-      {linhas.map(([rotulo, valor], i) => (
-        <div className="stat" key={rotulo} style={i === linhas.length - 1 ? { borderBottom: "none" } : undefined}>
-          <span className="stat-l">{rotulo}</span>
-          <span className="stat-n">{valor}</span>
-        </div>
-      ))}
+      <div className="dash-cards">
+        {linhas.map(([rotulo, valor]) => (
+          <div className="card" key={rotulo}>
+            <div className="card-rotulo">{rotulo}</div>
+            <div className="card-num">{valor}</div>
+          </div>
+        ))}
+      </div>
       {treinosFeitos.length > 0 && sozinho < treinosFeitos.length && (
         <p className="nota" style={{ marginTop: 8 }}>{totalTreinos} treinos no total. Os feitos com ajuda valem refazer daqui a uma semana.</p>
       )}
