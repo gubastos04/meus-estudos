@@ -19,7 +19,7 @@ export default async function LayoutAuth({ children }: LayoutProps<"/">) {
         <ul className="auth-pontos">
           <li className="auth-ponto"><Layers size={18} /> Base comum + foco: segurança, web, dados ou back-end.</li>
           <li className="auth-ponto"><Timer size={18} /> Blocos de 10, 25 ou 50 min, conforme sua energia.</li>
-          <li className="auth-ponto"><CalendarCheck size={18} /> Meta por dias ativos na semana — faltar um dia não zera nada.</li>
+          <li className="auth-ponto"><CalendarCheck size={18} /> Meta por dias ativos na semana. Faltar um dia não zera nada.</li>
         </ul>
       </aside>
       <section className="auth-form-wrap">{children}</section>

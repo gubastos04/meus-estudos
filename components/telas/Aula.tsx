@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, ChevronDown, ChevronRight, Plus, X } from "lucide-react";
@@ -37,6 +37,22 @@ export function AulaView({ aula }: { aula: AulaComModulo }) {
     acoes.concluirAula(aula.id, segundos);
     roteador.push("/");
   };
+
+  // Atalho: Ctrl/⌘+Enter conclui a aula (a ação mais repetida do loop).
+  // Ref atualizado em effect (nunca no render) para não re-registrar o
+  // listener a cada tique do cronômetro.
+  const concluirRef = useRef(concluir);
+  useEffect(() => { concluirRef.current = concluir; });
+  useEffect(() => {
+    const aoTeclar = (ev: KeyboardEvent) => {
+      if ((ev.metaKey || ev.ctrlKey) && ev.key === "Enter" && aula.ideia && !progresso.feitas[aula.id]) {
+        ev.preventDefault();
+        concluirRef.current();
+      }
+    };
+    window.addEventListener("keydown", aoTeclar);
+    return () => window.removeEventListener("keydown", aoTeclar);
+  }, [aula.ideia, aula.id, progresso.feitas]);
 
   const desmarcar = () => {
     acoes.desmarcarAula(aula.id);
@@ -154,9 +170,12 @@ export function AulaView({ aula }: { aula: AulaComModulo }) {
             <button type="button" className="bt-2" onClick={desmarcar}>Desmarcar</button>
           </div>
         ) : (
-          <button type="button" className="bt" onClick={concluir}>
-            <Check size={18} /> Marcar como feita
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <button type="button" className="bt" onClick={concluir}>
+              <Check size={18} /> Marcar como feita
+            </button>
+            <span className="kbd" aria-hidden="true">Ctrl + Enter</span>
+          </div>
         )}
         <p className="nota" style={{ marginTop: 14 }}>
           {passou

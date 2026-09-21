@@ -82,7 +82,7 @@ export function Corretor({ titulo, enunciado, criterios, solucao }: {
             corpo={() => ({ titulo, enunciado, criterios, solucao, codigo })} />
         </>
       ) : (
-        <IADesligada>Cole seu código e a IA corrige critério por critério — quando estiver ligada. Por enquanto, confira você mesmo pela lista acima.</IADesligada>
+        <IADesligada>Cole seu código e a IA corrige critério por critério, quando estiver ligada. Por enquanto, confira você mesmo pela lista acima.</IADesligada>
       )}
     </div>
   );
@@ -113,7 +113,7 @@ export function NaoEntendeu({ titulo, modulo, resumo, ideia, exemplo }: {
           </div>
         </>
       ) : (
-        <IADesligada>Aqui a IA reexplica a aula de outro jeito e responde suas perguntas — quando estiver ligada.</IADesligada>
+        <IADesligada>Aqui a IA reexplica a aula de outro jeito e responde suas perguntas, quando estiver ligada.</IADesligada>
       )}
     </div>
   );

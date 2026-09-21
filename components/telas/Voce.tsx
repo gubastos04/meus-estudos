@@ -62,11 +62,15 @@ function Progresso({ modulos, totalTreinos, email, temChave, focoNome }: { modul
       <h2 className="h2">Você</h2>
       <p className="sub">O número que importa não é a sequência perfeita. É o total que não volta pra trás.</p>
 
-      <div className="dash-cards">
-        {linhas.map(([rotulo, valor]) => (
-          <div className="card" key={rotulo}>
-            <div className="card-rotulo">{rotulo}</div>
-            <div className="card-num">{valor}</div>
+      <div className="stat-hero">
+        <span className="stat-hero-n">{linhas[0][1]}</span>
+        <span className="stat-hero-l">{String(linhas[0][0]).toLowerCase()}</span>
+      </div>
+      <div className="stats-lista">
+        {linhas.slice(1).map(([rotulo, valor], i, arr) => (
+          <div className="stat" key={rotulo} style={i === arr.length - 1 ? { borderBottom: "none" } : undefined}>
+            <span className="stat-l">{rotulo}</span>
+            <span className="stat-n">{valor}</span>
           </div>
         ))}
       </div>

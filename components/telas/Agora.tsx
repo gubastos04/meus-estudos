@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, CalendarCheck, CheckCircle2, Clock, Play, Shuffle, Timer, Zap } from "lucide-react";
+import { BookOpen, Clock, Play, Shuffle, Zap } from "lucide-react";
 import { BLOCO, ROTULO_ENERGIA, type Energia } from "@/lib/constantes";
 import { diasAtivos, minutosTotais, proximaAula, useProgresso } from "@/lib/progresso";
 import type { AulaResumo } from "@/lib/conteudo";
@@ -35,7 +35,7 @@ export function Agora({ aulas, micro }: { aulas: AulaResumo[]; micro: string[] }
   return (
     <>
       <h1 className="pagina-t">No que vamos avançar?</h1>
-      <p className="pagina-sub">Escolha sua energia — isso define o tamanho do bloco. Sem energia? Dez minutos já contam.</p>
+      <p className="pagina-sub">Escolha sua energia: isso define o tamanho do bloco. Sem energia? Dez minutos já contam.</p>
 
       <div className="linha-bt" role="radiogroup" aria-label="Energia">
         {(Object.keys(BLOCO) as Energia[]).map((k) => (
@@ -64,28 +64,21 @@ export function Agora({ aulas, micro }: { aulas: AulaResumo[]; micro: string[] }
         </div>
       )}
 
-      <div className="dash-secao">Seu progresso</div>
-      <div className="dash-cards">
-        <div className="card">
-          <div className="card-rotulo"><CalendarCheck size={15} /> Dias ativos na semana</div>
-          <div className="card-num">{ativos}<span style={{ color: "var(--dim)", fontSize: "0.5em", fontWeight: 600 }}> / {progresso.meta}</span></div>
-          <div className="barras" aria-hidden="true" style={{ marginTop: 12 }}>
-            {Array.from({ length: progresso.meta }).map((_, i) => (
-              <div key={i} className={`tick ${i < ativos ? "on" : ""}`} />
-            ))}
-          </div>
+      <div className="dash-secao">Sua semana</div>
+      <div className="meta">
+        <div className="meta-linha">
+          <span>Dias ativos</span>
+          <span>{ativos} de {progresso.meta}</span>
         </div>
-        <div className="card">
-          <div className="card-rotulo"><CheckCircle2 size={15} /> Aulas concluídas</div>
-          <div className="card-num ok">{feitasTotal}</div>
-          <div className="card-pe">Total que não volta pra trás.</div>
-        </div>
-        <div className="card">
-          <div className="card-rotulo"><Timer size={15} /> Tempo estudado</div>
-          <div className="card-num">{tempo}</div>
-          <div className="card-pe">Somando aulas, treinos e provas.</div>
+        <div className="barras" aria-hidden="true">
+          {Array.from({ length: progresso.meta }).map((_, i) => (
+            <div key={i} className={`tick ${i < ativos ? "on" : ""}`} />
+          ))}
         </div>
       </div>
+      <p className="nota" style={{ marginTop: -12 }}>
+        {feitasTotal} {feitasTotal === 1 ? "aula concluída" : "aulas concluídas"}, {tempo} estudados. O total não volta pra trás.
+      </p>
 
       <div className="dash-secao">Sem saber por onde ir?</div>
       <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
