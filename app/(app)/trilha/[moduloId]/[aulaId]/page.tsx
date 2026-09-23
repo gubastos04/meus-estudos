@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { aula as buscarAula, todasAulas } from "@/lib/conteudo";
+import { aula as buscarAula, stacks, todasAulas } from "@/lib/conteudo";
 import { AulaView } from "@/components/telas/Aula";
 
 type Props = PageProps<"/trilha/[moduloId]/[aulaId]">;
@@ -19,5 +19,5 @@ export default async function PaginaAula({ params }: Props) {
   const { moduloId, aulaId } = await params;
   const a = buscarAula(aulaId);
   if (!a || a.moduloId !== moduloId) notFound();
-  return <AulaView aula={a} />;
+  return <AulaView aula={a} stacks={stacks().map((s) => ({ id: s.id, nome: s.nome }))} />;
 }

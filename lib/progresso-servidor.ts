@@ -9,13 +9,14 @@ import { META_PADRAO } from "@/lib/constantes";
 export async function preferencias(usuarioId: string): Promise<Preferencias> {
   const u = await db.usuario.findUnique({
     where: { id: usuarioId },
-    select: { metaSemanal: true, energia: true, tema: true, fonte: true },
+    select: { metaSemanal: true, energia: true, tema: true, fonte: true, stack: true },
   });
   return {
     meta: u?.metaSemanal ?? META_PADRAO,
     energia: (u?.energia as Energia) ?? "media",
     tema: (u?.tema as Tema) ?? "escuro",
     fonte: (u?.fonte as Fonte) ?? 1,
+    stack: u?.stack ?? null,
   };
 }
 
@@ -54,6 +55,7 @@ export async function carregarProgresso(usuarioId: string): Promise<Progresso> {
     tema: u.tema as Tema,
     fonte: u.fonte as Fonte,
     foco: u.foco,
+    stack: u.stack,
   };
 }
 

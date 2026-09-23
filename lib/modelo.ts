@@ -26,15 +26,16 @@ export type Progresso = {
   tema: Tema;
   fonte: Fonte;
   foco: string | null;
+  stack: string | null;   // stack do foco back-end
 };
 
 export const VAZIO: Progresso = {
   feitas: {}, sessoes: [], notas: [], erros: [],
   demandas: {}, treinos: {}, projetos: {}, provas: {}, geradas: [],
-  meta: META_PADRAO, energia: "media", tema: "escuro", fonte: 1, foco: null,
+  meta: META_PADRAO, energia: "media", tema: "escuro", fonte: 1, foco: null, stack: null,
 };
 
-export type Preferencias = Pick<Progresso, "meta" | "energia" | "tema" | "fonte">;
+export type Preferencias = Pick<Progresso, "meta" | "energia" | "tema" | "fonte" | "stack">;
 
 /* ── Derivados ────────────────────────────────────────────────── */
 

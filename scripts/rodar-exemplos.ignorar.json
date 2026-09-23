@@ -4,5 +4,12 @@
   "m11a1:solucao": "precisa da biblioteca requests e de rede",
   "pp4.1:solucao": "solução em bash (pipeline no terminal), conferida à mão",
   "pp4.2:solucao": "solução em PHP, conferida com php -l e no php -S",
-  "pp4.3:solucao": "solução em PHP, conferida com php -l e no php -S"
+  "pp4.3:solucao": "solução em PHP, conferida com php -l e no php -S",
+  "backend1a5:exemplo": "sobe um servidor e fica esperando pedido; conferido à mão com curl",
+  "backend2a5:exemplo:fastapi": "mostra vários arquivos do projeto num bloco só",
+  "backend2a5:solucao:fastapi": "mostra vários arquivos do projeto num bloco só",
+  "backend2a5:exemplo:flask": "mostra vários arquivos do projeto num bloco só",
+  "backend2a5:solucao:flask": "mostra vários arquivos do projeto num bloco só",
+  "backend2a5:exemplo:express": "mostra vários arquivos do projeto num bloco só",
+  "backend2a5:solucao:express": "mostra vários arquivos do projeto num bloco só"
 }

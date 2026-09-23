@@ -80,6 +80,26 @@ Pontos que ficaram registrados em código:
 
 ### Back-end: 25 aulas (FastAPI, Flask e Express · SQLite · pytest e node:test)
 
+**Mecanismo das 3 stacks (pronto em 23/09/2026).** A aula traz `exemplos` e `desafio.solucoes` com uma entrada por stack (`fastapi`, `flask`, `express`), definidas em `stacks` no `trilha.json`. O build recusa aula que cubra só parte das stacks. Na tela, o Exemplo ganha abas; a aba que abre é a preferência da pessoa (`Usuario.stack`) e trocar de aba troca a preferência, pelo mesmo caminho de tema e fonte. A escolha da stack aparece em `/foco` logo depois de escolher back-end.
+
+**Pendente em produção:** `npx prisma db push` na Neon e redeploy, por causa da coluna `stack`. Local já resolve sozinho no `npm run dev`.
+
+**Verificação das stacks:** os exemplos importam FastAPI, Flask e Express de verdade, então o runner precisa de dois apontadores:
+
+```bash
+RODAR_PYTHON=/caminho/venv/Scripts/python.exe RODAR_NODE_MODULES=/caminho/node_modules npm run conteudo:rodar -- backend1 backend2
+```
+
+O venv tem `fastapi[standard]` e `flask`; a pasta do Node tem `express`. Código que sobe servidor (Express, sempre) é verificado de outro jeito: o runner deixa rodando por 5 segundos e só aceita se ele ficar de pé sem reclamar. As três APIs da aula 4.3 também foram testadas de ponta a ponta com curl (201, 400, 422, cabeçalho Location).
+
+| Módulo | Aulas | Status |
+|---|---|---|
+| 3 · Como uma API funciona | 5 | escrito (código compartilhado: curl, JSON, HTTP) |
+| 4 · Construindo uma API REST | 5 | escrito (código nas 3 stacks) |
+| 5 · Banco de dados e SQL | 4 | pendente |
+| 6 · Autenticação e sessão | 4 | pendente |
+| 7 · Testes e deploy | 4 | pendente |
+
 - **3 · Como uma API funciona:** Cliente e servidor · HTTP por dentro · Verbos e status · JSON · Testar uma API na mão
 - **4 · Construindo uma API REST:** Primeira API · Rotas e parâmetros · Receber e validar dados · Respostas e erros · Organizar o projeto
 - **5 · Banco de dados e SQL:** Tabelas e chaves · SELECT e WHERE · JOIN · Consulta parametrizada · A API conversando com o banco

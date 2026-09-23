@@ -27,6 +27,12 @@ const PYTHON = process.env.RODAR_PYTHON || (process.platform === "win32" ? "pyth
 const ENTRADA = "10\n".repeat(50);
 const LIMITE_MS = 20_000;
 
+// Código que sobe servidor não termina sozinho. Pra esse, o teste é outro:
+// subir, ficar de pé pelo tempo do limite e não reclamar. É o que pega erro
+// de digitação, import errado e uso errado da biblioteca.
+const SERVIDOR = /(app\.listen\(|serve_forever\(|uvicorn\.run\(|app\.run\()/;
+const LIMITE_SERVIDOR_MS = 5_000;
+
 // executa um .sql comando por comando e imprime o resultado de cada SELECT
 const RODA_SQL = [
   "import sqlite3, sys",
@@ -60,10 +66,19 @@ function rodar(linguagem, codigo) {
     } else {
       return null;
     }
+    const servidor = SERVIDOR.test(codigo);
     const r = spawnSync(cmd, args, {
-      cwd: dir, input: ENTRADA, timeout: LIMITE_MS, encoding: "utf8",
-      env: { ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1", MPLBACKEND: "Agg" },
+      cwd: dir, input: ENTRADA, timeout: servidor ? LIMITE_SERVIDOR_MS : LIMITE_MS, encoding: "utf8",
+      env: {
+        ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1", MPLBACKEND: "Agg",
+        // pacote do Node (express) fica numa pasta à parte, apontada por RODAR_NODE_MODULES
+        ...(process.env.RODAR_NODE_MODULES && { NODE_PATH: process.env.RODAR_NODE_MODULES }),
+      },
     });
+    // servidor que aguentou o tempo todo sem reclamar passou no teste dele
+    const porTempo = Boolean(r.error && r.error.code === "ETIMEDOUT");
+    if (servidor && porTempo && !r.stderr?.trim()) return { ok: true, servidor: true, saida: "" };
+
     const falha = r.error ? r.error.message : r.stderr;
     return { ok: !r.error && r.status === 0, saida: (falha || "").trim() };
   } finally {
@@ -92,7 +107,7 @@ function conferir(chave, codigo, linguagem) {
   const proposital = /(#|\/\/|--)\s*ERRO\b/.test(codigo);
   if (r.ok !== proposital) {
     conta.ok++;
-    console.log(`  ok ${chave}${proposital ? "  (erro proposital)" : ""}`);
+    console.log(`  ok ${chave}${proposital ? "  (erro proposital)" : r.servidor ? "  (servidor de pé)" : ""}`);
   } else {
     conta.falhas++;
     console.log(`  XX ${chave}  ${proposital ? "marcado com ERRO, mas rodou sem erro" : "falhou:"}`);
@@ -104,8 +119,21 @@ for (const m of modulos) {
   const { aulas } = ler(`content/aulas/${m.id}.json`);
   for (const a of aulas) {
     if (!a.ideia?.length) continue;
-    conferir(`${a.id}:exemplo`, a.exemplo?.codigo, a.exemplo?.linguagem);
-    conferir(`${a.id}:solucao`, a.desafio?.solucao, a.desafio?.linguagem ?? a.exemplo?.linguagem);
+
+    // aula de back-end tem um exemplo por stack; as outras, um só
+    if (a.exemplos) {
+      for (const [stack, t] of Object.entries(a.exemplos)) conferir(`${a.id}:exemplo:${stack}`, t.codigo, t.linguagem);
+    } else {
+      conferir(`${a.id}:exemplo`, a.exemplo?.codigo, a.exemplo?.linguagem);
+    }
+
+    if (a.desafio?.solucoes) {
+      for (const [stack, s] of Object.entries(a.desafio.solucoes)) {
+        conferir(`${a.id}:solucao:${stack}`, s.codigo, s.linguagem ?? a.exemplos?.[stack]?.linguagem);
+      }
+    } else {
+      conferir(`${a.id}:solucao`, a.desafio?.solucao, a.desafio?.linguagem ?? a.exemplo?.linguagem);
+    }
   }
 }
 

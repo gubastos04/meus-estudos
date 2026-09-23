@@ -57,18 +57,31 @@ const Questao = z.object({
   porque: z.string(),
 }).refine((q) => q.correta < q.opcoes.length, { message: "índice da correta fora das opções" });
 
+const Trecho = z.object({ nota: z.string().optional(), codigo: z.string(), linguagem: z.string().optional() });
+
 const Aula = z.object({
   id: z.string(),
   titulo: z.string(),
   minutos: z.number().int().positive(),
   resumo: z.string().optional(),
   ideia: z.array(z.string()).min(1).optional(),
-  exemplo: z.object({ nota: z.string().optional(), codigo: z.string(), linguagem: z.string().optional() }).optional(),
+  exemplo: Trecho.optional(),
+  // mesmo conceito, código em cada stack (back-end). A chave é o id da stack.
+  // A aula usa exemplo OU exemplos, nunca os dois.
+  exemplos: z.record(z.string(), Trecho).optional(),
   mais: z.object({ titulo: z.string(), linhas: z.array(z.string()).min(1) }).optional(),
   quiz: z.array(Questao).optional(),
   // linguagem da solução, quando difere da do exemplo (usada só pelo verificador de código)
-  desafio: z.object({ pergunta: z.string(), solucao: z.string(), linguagem: z.string().optional() }).optional(),
-});
+  desafio: z.object({
+    pergunta: z.string(),
+    solucao: z.string().optional(),
+    linguagem: z.string().optional(),
+    // uma solução por stack, quando a aula tem código nas três
+    solucoes: z.record(z.string(), z.object({ codigo: z.string(), linguagem: z.string().optional() })).optional(),
+  }).refine((d) => Boolean(d.solucao) !== Boolean(d.solucoes), {
+    message: "desafio precisa de solucao ou de solucoes, nunca os dois",
+  }).optional(),
+}).refine((a) => !(a.exemplo && a.exemplos), { message: "aula usa exemplo ou exemplos, nunca os dois" });
 
 const FocoDef = z.object({ id: z.string(), nome: z.string(), descricao: z.string() });
 
@@ -81,8 +94,12 @@ const ModuloMeta = z.object({
   descricao: z.string(),
 });
 
+// Stack do foco back-end: o conceito é ensinado uma vez e o código vem em cada uma.
+const StackDef = z.object({ id: z.string(), nome: z.string(), linguagem: z.string(), descricao: z.string() });
+
 const Trilha = z.object({
   focos: z.array(FocoDef).min(1),
+  stacks: z.array(StackDef).min(1),
   modulos: z.array(ModuloMeta).min(1),
   micro: z.array(z.string()).min(1),
 });
@@ -179,6 +196,7 @@ const Lab = z.object({ nome: z.string(), tema: z.string(), descricao: z.string()
 export type Questao = z.infer<typeof Questao>;
 export type Aula = z.infer<typeof Aula>;
 export type FocoDef = z.infer<typeof FocoDef>;
+export type StackDef = z.infer<typeof StackDef>;
 export type ModuloMeta = z.infer<typeof ModuloMeta>;
 export type Modulo = ModuloMeta & { aulas: Aula[] };
 export type Demanda = z.infer<typeof Demanda>;
@@ -211,6 +229,7 @@ function valida<T>(nome: string, esquema: z.ZodType<T>, dados: unknown): T {
 
 const trilha = valida("trilha.json", Trilha, trilhaJson);
 const FOCOS = trilha.focos;
+const STACKS = trilha.stacks;
 
 const arquivosAulas = {
   m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12,
@@ -242,6 +261,20 @@ const TODAS_AULAS: AulaComModulo[] = MODULOS.flatMap((m) =>
   for (const a of TODAS_AULAS) {
     if (ids.has(a.id)) throw new Error(`id de aula repetido: ${a.id}`);
     ids.add(a.id);
+  }
+}
+
+// Aula com código por stack precisa cobrir todas: quem escolheu Express não pode
+// abrir a aula e não encontrar código.
+{
+  const todas = STACKS.map((s) => s.id);
+  const conferir = (onde: string, chaves: string[]) => {
+    for (const id of chaves) if (!todas.includes(id)) throw new Error(`${onde}: stack "${id}" não existe em stacks`);
+    for (const id of todas) if (!chaves.includes(id)) throw new Error(`${onde}: falta a stack "${id}"`);
+  };
+  for (const a of TODAS_AULAS) {
+    if (a.exemplos) conferir(`aula ${a.id} (exemplos)`, Object.keys(a.exemplos));
+    if (a.desafio?.solucoes) conferir(`aula ${a.id} (solucoes)`, Object.keys(a.desafio.solucoes));
   }
 }
 
@@ -314,6 +347,15 @@ export const resumoAula = (a: AulaComModulo): AulaResumo => ({
 export const focos = () => FOCOS;
 export const foco = (id: string) => FOCOS.find((f) => f.id === id) ?? null;
 export const focoValido = (id: string | null | undefined): boolean => Boolean(id) && FOCOS.some((f) => f.id === id);
+
+export const stacks = () => STACKS;
+export const stackValida = (id: string | null | undefined): boolean => Boolean(id) && STACKS.some((s) => s.id === id);
+/** A stack que a aula mostra: a escolhida, se a aula tiver; senão a primeira. */
+export const stackDaAula = (a: Pick<Aula, "exemplos">, escolhida: string | null | undefined): string | null => {
+  const chaves = Object.keys(a.exemplos ?? {});
+  if (!chaves.length) return null;
+  return escolhida && chaves.includes(escolhida) ? escolhida : chaves[0];
+};
 
 // Nas listas, foco opcional: com foco filtra base+foco; sem foco devolve tudo
 // (usado por generateStaticParams e por buscas por id).

@@ -4,22 +4,252 @@
     {
       "id": "backend1a1",
       "titulo": "Cliente e servidor",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "Cliente pede, servidor responde. Back-end é o programa que fica esperando o pedido chegar.",
+      "ideia": [
+        "Cliente é quem pede: navegador, aplicativo de celular, outro programa. Servidor é quem espera e responde. Servidor é papel, não máquina: a sua roda os dois agora.",
+        "Todo o resto deste foco é isso com detalhes: o que vai no pedido, o que volta na resposta e o que o seu código faz no meio."
+      ],
+      "exemplo": {
+        "nota": "Sem instalar nada. Crie um arquivo nota.txt numa pasta, entre nela e suba o servidor:",
+        "codigo": "python -m http.server 8000\n# Serving HTTP on :: port 8000 (http://[::]:8000/) ...\n\n# em OUTRO terminal, o cliente pede:\ncurl http://127.0.0.1:8000/nota.txt\n# oi do servidor\n\n# e a janela do servidor conta o que recebeu:\n# 127.0.0.1 - - [23/Sep/2026 07:23:21] \"GET /nota.txt HTTP/1.1\" 200 -\n\n# Ctrl+C derruba o servidor.",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Servidor de arquivos não é API",
+        "linhas": [
+          "Esse servidor entrega o arquivo como ele está no disco. Uma API não entrega arquivo: ela recebe o pedido, decide o que fazer, olha o banco e devolve dado.",
+          "Muda também quem monta a tela. No site tradicional o servidor manda a página pronta; com API, ele manda o dado e o front-end monta.",
+          "Aquela linha que apareceu na janela do servidor é o log de acesso, no mesmo formato que qualquer servidor web do mundo usa. Você vai reler muita linha dessas."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Nessa história, o que é o servidor?",
+          "opcoes": [
+            "Uma máquina potente num data center",
+            "O programa que fica esperando pedido e responde",
+            "O navegador de quem acessa"
+          ],
+          "correta": 1,
+          "porque": "É papel, não hardware. Por isso a sua máquina consegue ser cliente e servidor ao mesmo tempo, em dois terminais."
+        },
+        {
+          "pergunta": "Por que o endereço do teste é 127.0.0.1?",
+          "opcoes": [
+            "É o endereço da internet inteira",
+            "É um endereço aleatório que o Python escolheu",
+            "É a sua própria máquina: o pedido nem sai dela"
+          ],
+          "correta": 2,
+          "porque": "Ele tem até apelido: localhost. Enquanto você estiver aprendendo, é onde tudo acontece."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Suba o servidor numa pasta com dois arquivos, peça um deles com curl e depois peça um nome que não existe. Anote no Caderno o que apareceu nas duas janelas: a resposta que o cliente recebeu e a linha que apareceu no servidor.",
+        "solucao": "mkdir -p ~/api-testes && cd ~/api-testes\necho \"oi do servidor\" > nota.txt\necho \"segundo arquivo\" > outro.txt\n\npython -m http.server 8000\n\n# no outro terminal:\ncurl http://127.0.0.1:8000/nota.txt\n# oi do servidor\n\ncurl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:8000/nao-existe.txt\n# 404\n\n# na janela do servidor, as duas linhas:\n# 127.0.0.1 - - [...] \"GET /nota.txt HTTP/1.1\" 200 -\n# 127.0.0.1 - - [...] \"GET /nao-existe.txt HTTP/1.1\" 404 -\n\n# o 404 não é erro do seu código: é o servidor dizendo\n# \"entendi o pedido, mas isso aqui não existe\".",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "backend1a2",
       "titulo": "HTTP por dentro",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "Requisição e resposta são texto. Saber ler os dois é o que separa quem adivinha de quem resolve.",
+      "ideia": [
+        "A requisição tem a linha do pedido (GET /nota.txt), os cabeçalhos e, às vezes, um corpo. A resposta tem status, cabeçalhos e corpo.",
+        "Cabeçalho é recado sobre o conteúdo: que formato vai, que formato eu aceito, quem está falando, quanto mede."
+      ],
+      "exemplo": {
+        "nota": "Com o servidor da aula anterior no ar, o curl -v mostra a conversa inteira. O sinal > é o que sai, o < é o que volta:",
+        "codigo": "curl -v http://127.0.0.1:8000/nota.txt\n\n# > GET /nota.txt HTTP/1.1\n# > Host: 127.0.0.1:8000\n# > User-Agent: curl/8.17.0\n# > Accept: */*\n# >\n# < HTTP/1.0 200 OK\n# < Server: SimpleHTTP/0.6 Python/3.14.2\n# < Content-type: text/plain\n# < Content-Length: 15\n\ncurl -s -I http://127.0.0.1:8000/nota.txt   # só os cabeçalhos da resposta",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Os cabeçalhos que você vai usar sempre",
+        "linhas": [
+          "Content-Type diz o formato do que está indo: application/json na API, text/html numa página. Quem recebe usa isso pra saber como ler.",
+          "Accept é o contrário: o cliente diz o que sabe receber. Authorization carrega quem está falando, e você vai mexer nele no módulo 6.",
+          "HTTP não guarda nada entre uma requisição e outra. Cada pedido chega como se fosse o primeiro, e é por isso que existe cookie e token."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que o cabeçalho Content-Type informa?",
+          "opcoes": [
+            "O tamanho do arquivo",
+            "O formato do conteúdo que está sendo enviado",
+            "O endereço do servidor"
+          ],
+          "correta": 1,
+          "porque": "Mandar JSON sem dizer que é JSON é a causa de metade dos erros de quem começa a integrar API."
+        },
+        {
+          "pergunta": "O HTTP não guarda estado. O que isso quer dizer na prática?",
+          "opcoes": [
+            "Que o servidor esquece tudo entre uma requisição e outra, e cada pedido precisa se identificar sozinho",
+            "Que o servidor não pode usar banco de dados",
+            "Que a resposta nunca pode ser guardada em cache"
+          ],
+          "correta": 0,
+          "porque": "É daí que vem cookie, sessão e token: alguém precisa carregar a identidade em toda requisição."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Com o servidor no ar, faça uma requisição com curl -v e copie no Caderno as três partes que você identificar: a linha do pedido, dois cabeçalhos que o curl mandou e dois que o servidor respondeu. Depois explique com as suas palavras para que serve cada um dos quatro cabeçalhos.",
+        "solucao": "curl -v http://127.0.0.1:8000/nota.txt\n\n# a linha do pedido\n#   GET /nota.txt HTTP/1.1\n#   verbo, caminho e versão do protocolo\n\n# o que o curl mandou\n#   Host: 127.0.0.1:8000       pra qual site é o pedido (um servidor atende vários)\n#   Accept: */*                aceito qualquer formato de volta\n\n# o que o servidor respondeu\n#   HTTP/1.0 200 OK            deu certo\n#   Content-type: text/plain   o que vem no corpo é texto puro\n#   Content-Length: 15         o corpo tem 15 bytes\n\n# o Host existe porque uma máquina só hospeda muitos sites:\n# é esse cabeçalho que diz qual deles você quer.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "backend1a3",
-      "titulo": "JSON",
-      "minutos": 12
+      "titulo": "Verbos e status",
+      "minutos": 12,
+      "resumo": "O verbo diz a intenção do pedido. O status diz o que aconteceu com ele.",
+      "ideia": [
+        "GET lê, POST cria, PUT e PATCH alteram, DELETE apaga. É combinação, não obrigação técnica, e é o que todo mundo espera de uma API.",
+        "O status vem em famílias: 2xx deu certo, 3xx foi pra outro lugar, 4xx o pedido está errado, 5xx o servidor quebrou."
+      ],
+      "exemplo": {
+        "nota": "O -w mostra só o código do status. Repare no que o servidor de arquivos faz com um POST:",
+        "codigo": "curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:8000/nota.txt\n# 200   existe e foi entregue\n\ncurl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:8000/nao-existe.txt\n# 404   entendi o pedido, isso não existe\n\ncurl -s -o /dev/null -w \"%{http_code}\\n\" -X POST http://127.0.0.1:8000/\n# 501   esse servidor não sabe fazer POST\n\n# os que você mais vai devolver:\n# 200 ok            201 criei (responda com o endereço do novo)\n# 204 ok, sem corpo 400 o pedido veio errado\n# 401 quem é você   403 sei quem é, não pode\n# 404 não existe    500 quebrei aqui dentro",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Idempotente, a palavra que cai em entrevista",
+        "linhas": [
+          "Uma operação é idempotente quando repetir não muda mais nada. GET, PUT e DELETE são: pedir duas vezes dá no mesmo. POST não é, e é por isso que dois cliques no botão criam dois pedidos.",
+          "4xx é culpa do pedido, 5xx é culpa do servidor. Devolver 200 com uma mensagem de erro dentro do corpo é o erro de API mais comum que existe, porque quem chama não tem como perceber que deu errado.",
+          "Ao criar, o certo é 201 com o cabeçalho Location apontando pro que acabou de nascer. Ao apagar, 204: deu certo e não tem nada pra devolver."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Sua API recebe um pedido com um campo obrigatório faltando. Qual status responder?",
+          "opcoes": [
+            "500, porque deu erro",
+            "200, com a mensagem de erro no corpo",
+            "400, porque o problema está no pedido"
+          ],
+          "correta": 2,
+          "porque": "5xx diz que o servidor falhou, e não foi o caso. 200 com erro dentro engana quem chamou."
+        },
+        {
+          "pergunta": "Qual destas operações não é idempotente?",
+          "opcoes": [
+            "POST /tarefas, que cria uma tarefa nova a cada chamada",
+            "GET /tarefas/7",
+            "DELETE /tarefas/7"
+          ],
+          "correta": 0,
+          "porque": "Repetir o POST cria outra tarefa. Repetir o DELETE só confirma que aquilo não está mais lá."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Desenhe no Caderno a API de uma lista de tarefas com cinco operações: listar, ver uma, criar, alterar e apagar. Para cada uma escreva o verbo, o caminho e o status de sucesso, e diga quais são idempotentes.",
+        "solucao": "operação          verbo    caminho          sucesso   idempotente\n--------------------------------------------------------------------\nlistar tudo       GET      /tarefas         200       sim\nver uma           GET      /tarefas/7       200       sim\ncriar             POST     /tarefas         201       não\nalterar           PUT      /tarefas/7       200       sim\nalterar um campo  PATCH    /tarefas/7       200       não necessariamente\napagar            DELETE   /tarefas/7       204       sim\n\ndetalhes que fazem diferença:\n- o 201 do criar vem com Location: /tarefas/8, o endereço do que nasceu\n- o 204 do apagar não tem corpo nenhum\n- pedir /tarefas/999, que não existe, responde 404 em qualquer um deles\n- o caminho é substantivo no plural, sempre. /criarTarefa é verbo no lugar errado:\n  quem diz a ação é o método, não a URL.",
+        "linguagem": "texto"
+      }
     },
     {
       "id": "backend1a4",
-      "titulo": "Status e verbos",
-      "minutos": 12
+      "titulo": "JSON",
+      "minutos": 12,
+      "resumo": "O formato em que as APIs conversam. Parece um dicionário do Python, com três regras a menos.",
+      "ideia": [
+        "JSON tem objeto, lista, texto, número, booleano e nulo. Chave sempre entre aspas duplas, e nada de vírgula sobrando no fim.",
+        "No Python, json.dumps transforma dado em texto pra enviar, e json.loads transforma o texto recebido em dado."
+      ],
+      "exemplo": {
+        "nota": "O módulo json já vem com o Python:",
+        "codigo": "import json\n\ntarefa = {\n    \"id\": 7,\n    \"titulo\": \"Estudar API\",\n    \"feita\": False,\n    \"etiquetas\": [\"estudo\", \"backend\"],\n    \"prazo\": None,\n}\n\ntexto = json.dumps(tarefa, ensure_ascii=False)\nprint(texto)\n# {\"id\": 7, \"titulo\": \"Estudar API\", \"feita\": false, \"etiquetas\": [\"estudo\", \"backend\"], \"prazo\": null}\n\n# repare na tradução: False virou false, None virou null\n\nde_volta = json.loads(texto)\nprint(de_volta[\"titulo\"], type(de_volta[\"feita\"]))\n# Estudar API <class 'bool'>\n\nprint(json.dumps(tarefa, indent=2, ensure_ascii=False)[:40])\n# {\n#   \"id\": 7,\n#   \"titulo\": \"Estudar API\",",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "O que o JSON não tem",
+        "linhas": [
+          "Não tem data: manda-se texto no formato 2026-09-23T10:00:00Z e cada lado converte. Não tem comentário. Não tem aspas simples.",
+          "Número com vírgula em JSON é ponto flutuante, e isso estraga dinheiro: 0.1 + 0.2 não dá 0.3. Valor em dinheiro vai como inteiro de centavos ou como texto.",
+          "Mandar JSON sem o cabeçalho Content-Type: application/json é o erro clássico: o servidor recebe, não sabe que é JSON e recusa com 400 ou 415."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual destes é JSON válido?",
+          "opcoes": [
+            "{'titulo': 'Estudar'}",
+            "{\"titulo\": \"Estudar\", \"feita\": false}",
+            "{\"titulo\": \"Estudar\", \"feita\": False,}"
+          ],
+          "correta": 1,
+          "porque": "Aspas duplas na chave e no texto, false em minúscula e nada de vírgula sobrando antes de fechar."
+        },
+        {
+          "pergunta": "Por que não guardar preço como número decimal em JSON?",
+          "opcoes": [
+            "Porque JSON não aceita número",
+            "Porque ponto flutuante arredonda errado, e em dinheiro isso vira diferença de centavo",
+            "Porque números ocupam mais espaço que texto"
+          ],
+          "correta": 1,
+          "porque": "É o mesmo problema do 0.1 + 0.2 em qualquer linguagem. Em dinheiro se usa inteiro de centavos ou texto."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um programa que receba o texto JSON de uma tarefa, transforme em dicionário, confira se os campos obrigatórios titulo e feita estão presentes e devolva uma mensagem clara quando faltar algum. Teste com um JSON completo, um sem o titulo e um texto quebrado.",
+        "solucao": "import json\n\nOBRIGATORIOS = (\"titulo\", \"feita\")\n\ndef ler_tarefa(texto):\n    try:\n        dado = json.loads(texto)\n    except json.JSONDecodeError as erro:\n        return None, f\"JSON inválido: {erro.msg} na posição {erro.pos}\"\n\n    if not isinstance(dado, dict):\n        return None, \"esperava um objeto JSON\"\n\n    faltando = [campo for campo in OBRIGATORIOS if campo not in dado]\n    if faltando:\n        return None, f\"falta: {', '.join(faltando)}\"\n\n    return dado, None\n\nprint(ler_tarefa('{\"titulo\": \"Estudar\", \"feita\": false}'))\n# ({'titulo': 'Estudar', 'feita': False}, None)\n\nprint(ler_tarefa('{\"feita\": false}'))\n# (None, 'falta: titulo')\n\nprint(ler_tarefa('{\"titulo\": \"Estudar\",}'))\n# (None, \"JSON inválido: Illegal trailing comma before end of object na posição 20\")\n\n# devolver (dado, erro) em vez de levantar exceção deixa quem chamou decidir.\n# no módulo 4 isso vira uma resposta 400 com a mensagem do erro dentro.",
+        "linguagem": "python"
+      }
+    },
+    {
+      "id": "backend1a5",
+      "titulo": "Testar uma API na mão",
+      "minutos": 14,
+      "resumo": "Antes de escrever API, saber pedir. O curl faz qualquer requisição e mostra exatamente o que chegou.",
+      "ideia": [
+        "Com curl você monta a requisição inteira: verbo, cabeçalho e corpo. É assim que se testa API antes de existir tela.",
+        "E dá pra ver o outro lado: um servidor de dez linhas que imprime tudo o que recebeu mostra o pedido como o seu código vai enxergar."
+      ],
+      "exemplo": {
+        "nota": "Salve como eco.py e rode com python eco.py. Ele responde qualquer coisa e imprime o que chegou:",
+        "codigo": "from http.server import BaseHTTPRequestHandler, HTTPServer\nimport json\n\nclass Eco(BaseHTTPRequestHandler):\n    def _responder(self, corpo):\n        dado = json.dumps(corpo, ensure_ascii=False).encode()\n        self.send_response(200)\n        self.send_header(\"Content-Type\", \"application/json\")\n        self.send_header(\"Content-Length\", str(len(dado)))\n        self.end_headers()\n        self.wfile.write(dado)\n\n    def do_GET(self):\n        self._responder({\"metodo\": \"GET\", \"caminho\": self.path})\n\n    def do_POST(self):\n        tamanho = int(self.headers.get(\"Content-Length\", 0))\n        corpo = self.rfile.read(tamanho).decode()\n        print(\"recebi:\", corpo)\n        self._responder({\"metodo\": \"POST\", \"caminho\": self.path, \"corpo\": corpo})\n\nHTTPServer((\"127.0.0.1\", 8000), Eco).serve_forever()",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "As opções do curl que resolvem o dia",
+        "linhas": [
+          "-X escolhe o verbo, -H manda cabeçalho, -d manda corpo, -i mostra os cabeçalhos da resposta junto e -s tira a barra de progresso.",
+          "No navegador, F12 > Network > botão direito na requisição > Copy as cURL copia a chamada inteira, com cabeçalho e corpo, pronta pra colar no terminal. É o jeito mais rápido de reproduzir um bug.",
+          "Existem programas de tela pra isso, como Insomnia, Postman e Bruno. Todos fazem o mesmo que o curl, e todos exportam o comando curl equivalente."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual comando manda um JSON por POST?",
+          "opcoes": [
+            "curl -d '{\"titulo\":\"Estudar\"}' -H \"Content-Type: application/json\" http://127.0.0.1:8000/tarefas",
+            "curl -X GET -d '{\"titulo\":\"Estudar\"}' http://127.0.0.1:8000/tarefas",
+            "curl --json http://127.0.0.1:8000/tarefas"
+          ],
+          "correta": 0,
+          "porque": "O -d já assume POST. O cabeçalho é o que avisa o servidor de que aquilo é JSON."
+        },
+        {
+          "pergunta": "Você precisa reproduzir no terminal uma requisição que a página fez sozinha. Qual o caminho mais curto?",
+          "opcoes": [
+            "Ler o código JavaScript da página e montar o curl na mão",
+            "F12 > Network > botão direito na requisição > Copy as cURL",
+            "Não é possível: requisição de página não dá pra repetir"
+          ],
+          "correta": 1,
+          "porque": "Vem com cabeçalho, cookie e corpo, exatamente como o navegador mandou. Dali você muda um pedaço por vez."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Suba o servidor de eco e faça três requisições com curl: um GET num caminho qualquer, um POST com JSON no corpo e um POST sem o cabeçalho Content-Type. Anote no Caderno o que mudou na resposta e o que apareceu na janela do servidor.",
+        "solucao": "python eco.py\n\n# 1. GET num caminho qualquer\ncurl -s http://127.0.0.1:8000/tarefas/7\n# {\"metodo\": \"GET\", \"caminho\": \"/tarefas/7\"}\n\n# 2. POST com JSON\ncurl -s -H \"Content-Type: application/json\" \\\n     -d '{\"titulo\": \"Estudar API\", \"feita\": false}' \\\n     http://127.0.0.1:8000/tarefas\n# {\"metodo\": \"POST\", \"caminho\": \"/tarefas\", \"corpo\": \"{\\\"titulo\\\": \\\"Estudar API\\\", \\\"feita\\\": false}\"}\n\n# 3. POST sem o cabeçalho\ncurl -s -d '{\"titulo\": \"Sem tipo\"}' http://127.0.0.1:8000/tarefas\n\n# na janela do servidor aparece o corpo das duas vezes:\n# recebi: {\"titulo\": \"Estudar API\", \"feita\": false}\n# recebi: {\"titulo\": \"Sem tipo\"}\n\n# o que muda: esse servidor de eco aceita os dois, porque ele nem olha o\n# Content-Type. Framework de verdade olha, e sem o cabeçalho ele recusa\n# com 400 ou 415 antes de o seu código rodar.\n# guarde isso: quando a API responder \"corpo inválido\" e o JSON parecer certo,\n# o primeiro suspeito é o cabeçalho que faltou.",
+        "linguagem": "bash"
+      }
     }
   ]
 }

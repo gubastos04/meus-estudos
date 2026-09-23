@@ -16,7 +16,7 @@ export { diasAtivos, minutosTotais, proximaAula } from "@/lib/modelo";
 /* ── Reducer ──────────────────────────────────────────────────── */
 
 type Acao =
-  | { tipo: "prefs"; prefs: Partial<Pick<Progresso, "meta" | "energia" | "tema" | "fonte">> }
+  | { tipo: "prefs"; prefs: Partial<Pick<Progresso, "meta" | "energia" | "tema" | "fonte" | "stack">> }
   | { tipo: "concluirAula"; aulaId: string; dia: string; minutos: number }
   | { tipo: "desmarcarAula"; aulaId: string }
   | { tipo: "anotar"; nota: Nota }
@@ -101,6 +101,7 @@ type Acoes = {
   alternarTema: () => void;
   proximaFonte: () => void;
   setMeta: (n: number) => void;
+  setStack: (stack: string) => void;
   concluirAula: (aulaId: string, segundos: number) => void;
   desmarcarAula: (aulaId: string) => void;
   anotar: (texto: string, aula?: { id: string; titulo: string }) => void;
@@ -152,6 +153,7 @@ export function ProgressoProvider({ inicial, children }: { inicial: Progresso; c
       alternarTema: () => prefs({ tipo: "prefs", prefs: { tema: progresso.tema === "claro" ? "escuro" : "claro" } }),
       proximaFonte: () => prefs({ tipo: "prefs", prefs: { fonte: ((progresso.fonte + 1) % 3) as Fonte } }),
       setMeta: (meta) => prefs({ tipo: "prefs", prefs: { meta } }),
+      setStack: (stack: string) => prefs({ tipo: "prefs", prefs: { stack } }),
 
       concluirAula: (aulaId, segundos) => {
         const dia = hoje(), minutos = segundosParaMinutos(segundos);

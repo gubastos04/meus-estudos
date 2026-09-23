@@ -7,19 +7,29 @@ import { ArrowLeft, Check, ChevronDown, ChevronRight, Plus, X } from "lucide-rea
 import { BLOCO } from "@/lib/constantes";
 import { useProgresso } from "@/lib/progresso";
 import type { AulaComModulo } from "@/lib/conteudo";
+import { Abas } from "@/components/Abas";
 import { Cronometro } from "@/components/Cronometro";
 import { useCronometro } from "@/components/useCronometro";
 import { QuestaoImediata } from "@/components/Quiz";
 import { Codigo } from "@/components/Codigo";
 import { Corretor, NaoEntendeu } from "@/components/IA";
 
-export function AulaView({ aula }: { aula: AulaComModulo }) {
+export function AulaView({ aula, stacks = [] }: { aula: AulaComModulo; stacks?: { id: string; nome: string }[] }) {
   const { progresso, acoes } = useProgresso();
   const roteador = useRouter();
   const { segundos } = useCronometro();
   const [verMais, setVerMais] = useState(false);
   const [verSolucao, setVerSolucao] = useState(false);
   const [texto, setTexto] = useState("");
+
+  // Aula de back-end traz o mesmo conceito em três stacks. A aba mostra a
+  // escolhida, e trocar de aba troca a preferência (a pessoa decide, sempre).
+  const abasStack = stacks.filter((s) => aula.exemplos?.[s.id]).map((s) => ({ id: s.id, rotulo: s.nome }));
+  const stackAtual = abasStack.length
+    ? (abasStack.find((s) => s.id === progresso.stack)?.id ?? abasStack[0].id)
+    : null;
+  const exemplo = stackAtual ? aula.exemplos![stackAtual] : aula.exemplo;
+  const solucao = (stackAtual && aula.desafio?.solucoes?.[stackAtual]?.codigo) || aula.desafio?.solucao || "";
 
   const bloco = BLOCO[progresso.energia];
   const passou = segundos >= bloco * 60;
@@ -93,11 +103,19 @@ export function AulaView({ aula }: { aula: AulaComModulo }) {
         {aula.ideia.map((l, i) => <p key={i} className="prosa">{l}</p>)}
       </section>
 
-      {aula.exemplo && (
+      {exemplo && (
         <section className="secao">
           <div className="secao-t">Exemplo</div>
-          {aula.exemplo.nota && <p className="nota">{aula.exemplo.nota}</p>}
-          <Codigo>{aula.exemplo.codigo}</Codigo>
+          {stackAtual && (
+            <>
+              <Abas itens={abasStack} ativa={stackAtual} aoMudar={acoes.setStack} />
+              <p className="nota">
+                O conceito é o mesmo nas três. Trocar aqui também muda a sua stack no resto da trilha.
+              </p>
+            </>
+          )}
+          {exemplo.nota && <p className="nota">{exemplo.nota}</p>}
+          <Codigo>{exemplo.codigo}</Codigo>
         </section>
       )}
 
@@ -129,16 +147,16 @@ export function AulaView({ aula }: { aula: AulaComModulo }) {
           <div className="secao-t">Desafio</div>
           <p className="prosa">{aula.desafio.pergunta}</p>
           {verSolucao
-            ? <Codigo>{aula.desafio.solucao}</Codigo>
+            ? <Codigo>{solucao}</Codigo>
             : <button type="button" className="bt-2" onClick={() => setVerSolucao(true)}>Ver uma solução</button>}
-          <Corretor titulo={aula.titulo} enunciado={aula.desafio.pergunta} solucao={aula.desafio.solucao}
+          <Corretor titulo={aula.titulo} enunciado={aula.desafio.pergunta} solucao={solucao}
             criterios={["Resolve o que o enunciado pede", "O código roda sem erro", "Trata o caso vazio ou limite, se houver"]} />
         </section>
       )}
 
       <section className="secao">
         <NaoEntendeu titulo={aula.titulo} modulo={aula.moduloNome} resumo={aula.resumo}
-          ideia={aula.ideia} exemplo={aula.exemplo?.codigo} />
+          ideia={aula.ideia} exemplo={exemplo?.codigo} />
       </section>
 
       <section className="secao">

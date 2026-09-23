@@ -66,6 +66,7 @@ export function lerPrototipo(bruto: string): Leitura {
   const geradas = a.geradas.map(converterGerada);
 
   const progresso: Progresso = {
+    stack: null,
     feitas: a.feitas,
     sessoes: a.sessoes.flatMap((s) => {
       const par = s.aula ? ["aula", s.aula] : s.demanda ? ["demanda", s.demanda]

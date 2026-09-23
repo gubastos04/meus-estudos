@@ -3,23 +3,373 @@
   "aulas": [
     {
       "id": "backend2a1",
-      "titulo": "Rotas",
-      "minutos": 12
+      "titulo": "Primeira API",
+      "minutos": 16,
+      "resumo": "Um arquivo, uma rota, um comando pra subir. O framework cuida do HTTP e você cuida da regra.",
+      "ideia": [
+        "Você diz qual caminho responde o quê, e o framework faz o resto: escuta a porta, entende a requisição e devolve JSON com o cabeçalho certo.",
+        "O conceito é o mesmo nas três stacks. Muda o nome das coisas e o jeito de subir, e é por isso que aprender uma facilita todas."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "pip install \"fastapi[standard]\" e depois fastapi dev main.py. Sobe em http://127.0.0.1:8000",
+          "codigo": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/tarefas\")\ndef listar():\n    return [{\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False}]\n\n# fastapi dev main.py\n#\n# o dev recarrega sozinho quando você salva o arquivo.\n# e a documentação da API sai de graça em http://127.0.0.1:8000/docs",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "pip install flask e depois flask --app main run --debug. Sobe em http://127.0.0.1:5000",
+          "codigo": "from flask import Flask\n\napp = Flask(__name__)\n\n@app.get(\"/tarefas\")\ndef listar():\n    return [{\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False}]\n\n# flask --app main run --debug\n#\n# o --debug recarrega sozinho quando você salva.\n# devolver lista ou dicionário já vira JSON: o Flask converte.",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "npm init -y, npm install express e depois node main.js. Sobe em http://127.0.0.1:3000",
+          "codigo": "const express = require(\"express\");\n\nconst app = express();\n\napp.get(\"/tarefas\", (req, res) => {\n  res.json([{ id: 1, titulo: \"Estudar API\", feita: false }]);\n});\n\napp.listen(3000, () => console.log(\"de pé em http://127.0.0.1:3000\"));\n\n// node main.js\n// pra recarregar sozinho: node --watch main.js",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O que o framework faz, e o que ele não faz",
+        "linhas": [
+          "Ele faz: escutar a porta, ler a requisição, achar a rota certa, transformar o seu retorno em JSON e mandar os cabeçalhos. É muito código chato que você não escreve.",
+          "Ele não faz: a regra do seu negócio, a decisão de quem pode o quê e a validação do que chegou. Framework nenhum protege código que confia no cliente.",
+          "Porta diferente por stack é só convenção: 8000 no Python, 3000 no Node. Qualquer uma serve, desde que esteja livre."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que o framework resolve pra você nessa primeira API?",
+          "opcoes": [
+            "A regra de negócio e a segurança",
+            "Escutar a porta, entender a requisição, achar a rota e devolver JSON com o cabeçalho certo",
+            "O banco de dados"
+          ],
+          "correta": 1,
+          "porque": "É a parte repetitiva do HTTP. O que decide o que a API faz continua sendo você."
+        },
+        {
+          "pergunta": "Pra que serve o modo de recarga automática (dev, debug ou watch)?",
+          "opcoes": [
+            "Deixa a API mais rápida em produção",
+            "Reinicia o servidor a cada mudança no arquivo, pra você testar sem parar e subir de novo",
+            "Salva o arquivo sozinho"
+          ],
+          "correta": 1,
+          "porque": "É só pra desenvolver. Em produção ele fica desligado, porque expõe detalhe e custa desempenho."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Suba a sua primeira API com duas rotas: uma /ping que responde ok verdadeiro, e uma /tarefas que devolve uma lista com duas tarefas. Teste as duas com curl e confirme no terminal do servidor que as requisições apareceram.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "from fastapi import FastAPI\n\napp = FastAPI()\n\nTAREFAS = [\n    {\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False},\n    {\"id\": 2, \"titulo\": \"Fazer o desafio\", \"feita\": True},\n]\n\n@app.get(\"/ping\")\ndef ping():\n    return {\"ok\": True}\n\n@app.get(\"/tarefas\")\ndef listar():\n    return TAREFAS\n\n# fastapi dev main.py\n#\n# curl http://127.0.0.1:8000/ping\n# {\"ok\":true}\n#\n# curl http://127.0.0.1:8000/tarefas\n# [{\"id\":1,\"titulo\":\"Estudar API\",\"feita\":false}, ...]\n#\n# no terminal do servidor:\n# INFO: 127.0.0.1:52210 - \"GET /ping HTTP/1.1\" 200 OK",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "from flask import Flask\n\napp = Flask(__name__)\n\nTAREFAS = [\n    {\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False},\n    {\"id\": 2, \"titulo\": \"Fazer o desafio\", \"feita\": True},\n]\n\n@app.get(\"/ping\")\ndef ping():\n    return {\"ok\": True}\n\n@app.get(\"/tarefas\")\ndef listar():\n    return TAREFAS\n\n# flask --app main run --debug\n#\n# curl http://127.0.0.1:5000/ping\n# {\"ok\":true}\n#\n# no terminal do servidor:\n# 127.0.0.1 - - [23/Sep/2026 10:40:12] \"GET /ping HTTP/1.1\" 200 -",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\n\nconst app = express();\n\nconst TAREFAS = [\n  { id: 1, titulo: \"Estudar API\", feita: false },\n  { id: 2, titulo: \"Fazer o desafio\", feita: true },\n];\n\napp.get(\"/ping\", (req, res) => {\n  res.json({ ok: true });\n});\n\napp.get(\"/tarefas\", (req, res) => {\n  res.json(TAREFAS);\n});\n\napp.listen(3000, () => console.log(\"de pé em http://127.0.0.1:3000\"));\n\n// node main.js\n//\n// curl http://127.0.0.1:3000/ping\n// {\"ok\":true}",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend2a2",
-      "titulo": "Receber e validar dados",
-      "minutos": 12
+      "titulo": "Rotas e parâmetros",
+      "minutos": 14,
+      "resumo": "O caminho diz qual recurso. A query diz como filtrar. São dois lugares diferentes, com usos diferentes.",
+      "ideia": [
+        "Parâmetro de caminho identifica: /tarefas/2 é a tarefa 2. Parâmetro de query filtra ou ajusta: /tarefas?feita=true é a mesma lista, menor.",
+        "Tudo que chega pela URL chega como texto. Quem converte pra número ou booleano é você, ou o framework, se você disser o tipo."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "O tipo na assinatura é o que manda: o FastAPI converte e recusa o que não bate.",
+          "codigo": "from fastapi import FastAPI, HTTPException\n\napp = FastAPI()\n\nTAREFAS = [\n    {\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False},\n    {\"id\": 2, \"titulo\": \"Fazer o desafio\", \"feita\": True},\n]\n\n@app.get(\"/tarefas\")\ndef listar(feita: bool | None = None):          # /tarefas?feita=true\n    if feita is None:\n        return TAREFAS\n    return [t for t in TAREFAS if t[\"feita\"] == feita]\n\n@app.get(\"/tarefas/{id}\")                        # /tarefas/2\ndef uma(id: int):\n    for t in TAREFAS:\n        if t[\"id\"] == id:\n            return t\n    raise HTTPException(status_code=404, detail=\"tarefa não encontrada\")\n\n# /tarefas/abc responde 422 sozinho: o id tinha que ser inteiro",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "O <int:id> converte no caminho. Na query, o que chega é texto e a conversão é sua.",
+          "codigo": "from flask import Flask, abort, request\n\napp = Flask(__name__)\n\nTAREFAS = [\n    {\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False},\n    {\"id\": 2, \"titulo\": \"Fazer o desafio\", \"feita\": True},\n]\n\n@app.get(\"/tarefas\")\ndef listar():\n    feita = request.args.get(\"feita\")            # texto ou None\n    if feita is None:\n        return TAREFAS\n    quer = feita.lower() == \"true\"\n    return [t for t in TAREFAS if t[\"feita\"] == quer]\n\n@app.get(\"/tarefas/<int:id>\")                    # /tarefas/2\ndef uma(id):\n    for t in TAREFAS:\n        if t[\"id\"] == id:\n            return t\n    abort(404)\n\n# /tarefas/abc responde 404 sozinho: não casou com a rota de inteiro",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "No Express nada é convertido: caminho e query chegam como texto, sempre.",
+          "codigo": "const express = require(\"express\");\n\nconst app = express();\n\nconst TAREFAS = [\n  { id: 1, titulo: \"Estudar API\", feita: false },\n  { id: 2, titulo: \"Fazer o desafio\", feita: true },\n];\n\napp.get(\"/tarefas\", (req, res) => {\n  const { feita } = req.query;                   // texto ou undefined\n  if (feita === undefined) return res.json(TAREFAS);\n  res.json(TAREFAS.filter((t) => t.feita === (feita === \"true\")));\n});\n\napp.get(\"/tarefas/:id\", (req, res) => {\n  const id = Number(req.params.id);              // converta você mesmo\n  const tarefa = TAREFAS.find((t) => t.id === id);\n  if (!tarefa) return res.status(404).json({ erro: \"tarefa não encontrada\" });\n  res.json(tarefa);\n});\n\napp.listen(3000);\n\n// /tarefas/abc vira Number(\"abc\") = NaN, não acha nada e responde 404",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "Caminho ou query, e o nome das coisas",
+        "linhas": [
+          "Caminho é identidade: sem ele o pedido não faz sentido. Query é opcional: filtro, ordem, página. Se der pra tirar sem quebrar, é query.",
+          "O caminho é substantivo no plural: /tarefas, /tarefas/2, /usuarios/7/tarefas. Quem diz a ação é o verbo HTTP, então /criarTarefa é verbo no lugar errado.",
+          "Filtro que vem da URL nunca entra direto numa consulta ao banco. No módulo 5 isso vira parâmetro, e é a diferença entre uma API e um vazamento."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Onde vai o filtro que mostra só as tarefas feitas?",
+          "opcoes": [
+            "No caminho: /tarefas/feitas",
+            "Na query: /tarefas?feita=true",
+            "No corpo da requisição GET"
+          ],
+          "correta": 1,
+          "porque": "O recurso é o mesmo, a lista de tarefas. O que muda é o recorte, e recorte é query."
+        },
+        {
+          "pergunta": "Alguém chama /tarefas/abc, onde o id deveria ser número. O que deve acontecer?",
+          "opcoes": [
+            "A API responde erro de cliente (404 ou 422), sem quebrar",
+            "A API quebra com erro 500",
+            "A API devolve a lista inteira"
+          ],
+          "correta": 0,
+          "porque": "Pedido malformado é 4xx. Se isso derruba a sua API com 500, é a sua API que está errada."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Acrescente à sua API uma rota que devolve uma tarefa pelo id, respondendo 404 quando não existir, e um filtro por query que aceite feita verdadeiro ou falso. Teste os quatro casos com curl: id que existe, id que não existe, filtro verdadeiro e filtro falso.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "from fastapi import FastAPI, HTTPException\n\napp = FastAPI()\n\nTAREFAS = [\n    {\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False},\n    {\"id\": 2, \"titulo\": \"Fazer o desafio\", \"feita\": True},\n    {\"id\": 3, \"titulo\": \"Revisar\", \"feita\": False},\n]\n\ndef buscar(id: int):\n    return next((t for t in TAREFAS if t[\"id\"] == id), None)\n\n@app.get(\"/tarefas\")\ndef listar(feita: bool | None = None):\n    if feita is None:\n        return TAREFAS\n    return [t for t in TAREFAS if t[\"feita\"] == feita]\n\n@app.get(\"/tarefas/{id}\")\ndef uma(id: int):\n    tarefa = buscar(id)\n    if tarefa is None:\n        raise HTTPException(status_code=404, detail=\"tarefa não encontrada\")\n    return tarefa\n\n# curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:8000/tarefas/1    200\n# curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:8000/tarefas/99   404\n# curl -s \"http://127.0.0.1:8000/tarefas?feita=true\"    só a 2\n# curl -s \"http://127.0.0.1:8000/tarefas?feita=false\"   a 1 e a 3",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "from flask import Flask, abort, request\n\napp = Flask(__name__)\n\nTAREFAS = [\n    {\"id\": 1, \"titulo\": \"Estudar API\", \"feita\": False},\n    {\"id\": 2, \"titulo\": \"Fazer o desafio\", \"feita\": True},\n    {\"id\": 3, \"titulo\": \"Revisar\", \"feita\": False},\n]\n\ndef buscar(id):\n    return next((t for t in TAREFAS if t[\"id\"] == id), None)\n\n@app.get(\"/tarefas\")\ndef listar():\n    feita = request.args.get(\"feita\")\n    if feita is None:\n        return TAREFAS\n    quer = feita.lower() == \"true\"\n    return [t for t in TAREFAS if t[\"feita\"] == quer]\n\n@app.get(\"/tarefas/<int:id>\")\ndef uma(id):\n    tarefa = buscar(id)\n    if tarefa is None:\n        abort(404)\n    return tarefa\n\n# curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:5000/tarefas/1    200\n# curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:5000/tarefas/99   404\n# curl -s \"http://127.0.0.1:5000/tarefas?feita=true\"    só a 2",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\n\nconst app = express();\n\nconst TAREFAS = [\n  { id: 1, titulo: \"Estudar API\", feita: false },\n  { id: 2, titulo: \"Fazer o desafio\", feita: true },\n  { id: 3, titulo: \"Revisar\", feita: false },\n];\n\nconst buscar = (id) => TAREFAS.find((t) => t.id === id);\n\napp.get(\"/tarefas\", (req, res) => {\n  const { feita } = req.query;\n  if (feita === undefined) return res.json(TAREFAS);\n  res.json(TAREFAS.filter((t) => t.feita === (feita === \"true\")));\n});\n\napp.get(\"/tarefas/:id\", (req, res) => {\n  const tarefa = buscar(Number(req.params.id));\n  if (!tarefa) return res.status(404).json({ erro: \"tarefa não encontrada\" });\n  res.json(tarefa);\n});\n\napp.listen(3000);\n\n// curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:3000/tarefas/1    200\n// curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:3000/tarefas/99   404\n// curl -s \"http://127.0.0.1:3000/tarefas?feita=true\"    só a 2",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend2a3",
-      "titulo": "Respostas e erros",
-      "minutos": 12
+      "titulo": "Receber e validar dados",
+      "minutos": 16,
+      "resumo": "O corpo da requisição é o que o cliente mandou. Antes de usar, confira tudo: tipo, obrigatório e tamanho.",
+      "ideia": [
+        "POST e PUT trazem um corpo em JSON. O framework transforma em objeto, e a partir daí o dado é seu problema.",
+        "Validar não é desconfiança, é contrato: o que falta, o que tem tipo errado e o que está fora do tamanho volta como 400 com a lista do que está errado."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "O Pydantic valida antes do seu código rodar. Campo fora do contrato vira 422 com a lista dos erros.",
+          "codigo": "from fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nTAREFAS = []\n\nclass NovaTarefa(BaseModel):\n    titulo: str = Field(min_length=3, max_length=120)\n    feita: bool = False\n\n@app.post(\"/tarefas\", status_code=201)\ndef criar(nova: NovaTarefa):\n    tarefa = {\"id\": len(TAREFAS) + 1, **nova.model_dump()}\n    TAREFAS.append(tarefa)\n    return tarefa\n\n# curl -s -X POST -H \"Content-Type: application/json\" \\\n#      -d '{\"titulo\": \"Estudar\"}' http://127.0.0.1:8000/tarefas\n# {\"id\":1,\"titulo\":\"Estudar\",\"feita\":false}\n#\n# com titulo de 2 letras: 422, e o corpo diz qual campo e por quê",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "No Flask a validação é sua. Escreva uma função que devolve a lista de erros, e a rota fica curta.",
+          "codigo": "from flask import Flask, request\n\napp = Flask(__name__)\nTAREFAS = []\n\ndef erros_de(dado):\n    if not isinstance(dado, dict):\n        return [\"o corpo precisa ser um objeto JSON\"]\n\n    erros = []\n    titulo = dado.get(\"titulo\")\n    if not isinstance(titulo, str) or not 3 <= len(titulo.strip()) <= 120:\n        erros.append(\"titulo: texto de 3 a 120 caracteres\")\n    if not isinstance(dado.get(\"feita\", False), bool):\n        erros.append(\"feita: verdadeiro ou falso\")\n    return erros\n\n@app.post(\"/tarefas\")\ndef criar():\n    dado = request.get_json(silent=True)          # silent: JSON quebrado vira None\n    erros = erros_de(dado)\n    if erros:\n        return {\"erros\": erros}, 400\n\n    tarefa = {\"id\": len(TAREFAS) + 1, \"titulo\": dado[\"titulo\"].strip(), \"feita\": dado.get(\"feita\", False)}\n    TAREFAS.append(tarefa)\n    return tarefa, 201",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "Sem o express.json() o corpo chega vazio. É o esquecimento número um de quem começa.",
+          "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());              // sem isto, req.body fica undefined\n\nconst TAREFAS = [];\n\nfunction errosDe(corpo) {\n  const erros = [];\n  const titulo = corpo?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 3 || titulo.trim().length > 120) {\n    erros.push(\"titulo: texto de 3 a 120 caracteres\");\n  }\n  if (corpo?.feita !== undefined && typeof corpo.feita !== \"boolean\") {\n    erros.push(\"feita: verdadeiro ou falso\");\n  }\n  return erros;\n}\n\napp.post(\"/tarefas\", (req, res) => {\n  const erros = errosDe(req.body);\n  if (erros.length) return res.status(400).json({ erros });\n\n  const tarefa = { id: TAREFAS.length + 1, titulo: req.body.titulo.trim(), feita: req.body.feita ?? false };\n  TAREFAS.push(tarefa);\n  res.status(201).location(`/tarefas/${tarefa.id}`).json(tarefa);\n});\n\napp.listen(3000);",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "As regras que não mudam de stack",
+        "linhas": [
+          "Valide tipo, obrigatoriedade e tamanho, sempre. E aceite só os campos que você espera: se o cliente mandar id, dono ou preco, ignore, porque esses o servidor decide.",
+          "Erro de validação é 400 (ou 422, que o FastAPI usa). A resposta precisa dizer qual campo e o que se espera dele, senão quem chama fica adivinhando.",
+          "Existe biblioteca pra isso em toda stack: Pydantic no Python, Zod no JavaScript. Fazer na mão uma vez é o que faz você entender o que elas checam."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Sua API Express recebe POST e req.body chega undefined. O que faltou?",
+          "opcoes": [
+            "app.use(express.json())",
+            "Instalar o body-parser separado, obrigatoriamente",
+            "Trocar o verbo pra PUT"
+          ],
+          "correta": 0,
+          "porque": "Desde o Express 4.16 o leitor de JSON vem junto. Sem essa linha, ninguém transforma o corpo em objeto."
+        },
+        {
+          "pergunta": "O cliente manda, junto com o titulo, um campo id igual a 999. O que a API faz?",
+          "opcoes": [
+            "Usa o id que veio, o cliente sabe o que está fazendo",
+            "Responde 500",
+            "Ignora: id é decisão do servidor, e aceitar o do cliente deixa ele escolher o que sobrescrever"
+          ],
+          "correta": 2,
+          "porque": "É a mesma regra do preço em campo escondido: o que o servidor decide nunca vem do cliente."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça a rota de criar tarefa validando o titulo (texto de 3 a 120 caracteres) e a feita (verdadeiro ou falso), respondendo 201 com a tarefa criada ou 400 com a lista de erros. Teste com um corpo válido, um com titulo curto, um sem titulo e um com JSON quebrado.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "from fastapi import FastAPI\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nTAREFAS = []\n\nclass NovaTarefa(BaseModel):\n    model_config = {\"extra\": \"ignore\"}        # campo a mais que o cliente mandar é ignorado\n    titulo: str = Field(min_length=3, max_length=120)\n    feita: bool = False\n\n@app.post(\"/tarefas\", status_code=201)\ndef criar(nova: NovaTarefa):\n    tarefa = {\"id\": len(TAREFAS) + 1, **nova.model_dump()}\n    TAREFAS.append(tarefa)\n    return tarefa\n\n# os quatro testes:\n#\n# válido        -d '{\"titulo\": \"Estudar API\"}'        201\n# titulo curto  -d '{\"titulo\": \"ab\"}'                 422, com o campo e o motivo\n# sem titulo    -d '{}'                               422, campo obrigatório\n# JSON quebrado -d '{\"titulo\":}'                      422, erro de sintaxe\n#\n# repare: os quatro casos foram tratados sem um if no seu código.\n# é isso que o Pydantic entrega, e é o motivo de o FastAPI ter crescido tanto.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "from flask import Flask, request\n\napp = Flask(__name__)\nTAREFAS = []\nPERMITIDOS = {\"titulo\", \"feita\"}\n\ndef erros_de(dado):\n    if not isinstance(dado, dict):\n        return [\"corpo inválido: esperava um objeto JSON\"]\n\n    erros = []\n    titulo = dado.get(\"titulo\")\n    if not isinstance(titulo, str) or not 3 <= len(titulo.strip()) <= 120:\n        erros.append(\"titulo: texto de 3 a 120 caracteres\")\n    if not isinstance(dado.get(\"feita\", False), bool):\n        erros.append(\"feita: verdadeiro ou falso\")\n    return erros\n\n@app.post(\"/tarefas\")\ndef criar():\n    dado = request.get_json(silent=True)\n    erros = erros_de(dado)\n    if erros:\n        return {\"erros\": erros}, 400\n\n    limpo = {c: v for c, v in dado.items() if c in PERMITIDOS}   # ignora o resto\n    tarefa = {\"id\": len(TAREFAS) + 1, \"titulo\": limpo[\"titulo\"].strip(), \"feita\": limpo.get(\"feita\", False)}\n    TAREFAS.append(tarefa)\n    return tarefa, 201\n\n# os quatro testes:\n# válido        201 com a tarefa\n# titulo curto  400 {\"erros\": [\"titulo: texto de 3 a 120 caracteres\"]}\n# sem titulo    400, a mesma mensagem\n# JSON quebrado 400 {\"erros\": [\"corpo inválido: esperava um objeto JSON\"]}\n#\n# o silent=True é o que transforma JSON quebrado em None em vez de exceção,\n# e por isso o quarto caso cai na mesma checagem dos outros.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nconst TAREFAS = [];\n\nfunction errosDe(corpo) {\n  const erros = [];\n  const titulo = corpo?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 3 || titulo.trim().length > 120) {\n    erros.push(\"titulo: texto de 3 a 120 caracteres\");\n  }\n  if (corpo?.feita !== undefined && typeof corpo.feita !== \"boolean\") {\n    erros.push(\"feita: verdadeiro ou falso\");\n  }\n  return erros;\n}\n\napp.post(\"/tarefas\", (req, res) => {\n  const erros = errosDe(req.body);\n  if (erros.length) return res.status(400).json({ erros });\n\n  const tarefa = { id: TAREFAS.length + 1, titulo: req.body.titulo.trim(), feita: req.body.feita ?? false };\n  TAREFAS.push(tarefa);                       // só os campos que eu escolhi\n  res.status(201).location(`/tarefas/${tarefa.id}`).json(tarefa);\n});\n\n// JSON quebrado explode no express.json(): este tratador transforma em 400\napp.use((erro, req, res, proximo) => {\n  if (erro instanceof SyntaxError) return res.status(400).json({ erros: [\"corpo inválido: JSON malformado\"] });\n  proximo(erro);\n});\n\napp.listen(3000);\n\n// os quatro testes:\n// válido        201 com a tarefa e o cabeçalho Location\n// titulo curto  400 {\"erros\":[\"titulo: texto de 3 a 120 caracteres\"]}\n// sem titulo    400, a mesma mensagem\n// JSON quebrado 400 {\"erros\":[\"corpo inválido: JSON malformado\"]}",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend2a4",
-      "titulo": "Organização",
-      "minutos": 12
+      "titulo": "Respostas e erros",
+      "minutos": 14,
+      "resumo": "Erro faz parte da API. O que separa uma boa de uma ruim é o erro ser previsível e dizer o que fazer.",
+      "ideia": [
+        "Toda resposta de erro da sua API tem o mesmo formato, sempre. Quem consome escreve um tratamento só, e não um pra cada rota.",
+        "O que quebrou sem você esperar vira 500 com mensagem genérica na resposta e detalhe completo no log. Rastro de erro na resposta é mapa do sistema de graça."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "Um tratador para as exceções esperadas e outro para o resto. As rotas ficam limpas.",
+          "codigo": "import logging\nfrom fastapi import FastAPI, HTTPException, Request\nfrom fastapi.responses import JSONResponse\n\napp = FastAPI()\nlog = logging.getLogger(\"api\")\n\n@app.exception_handler(HTTPException)\nasync def erro_conhecido(req: Request, exc: HTTPException):\n    return JSONResponse(status_code=exc.status_code, content={\"erro\": exc.detail})\n\n@app.exception_handler(Exception)\nasync def erro_inesperado(req: Request, exc: Exception):\n    log.exception(\"falha em %s %s\", req.method, req.url.path)     # detalhe fica no log\n    return JSONResponse(status_code=500, content={\"erro\": \"erro interno\"})\n\n@app.get(\"/tarefas/{id}\")\ndef uma(id: int):\n    raise HTTPException(status_code=404, detail=\"tarefa não encontrada\")\n\n# 404 -> {\"erro\": \"tarefa não encontrada\"}\n# 500 -> {\"erro\": \"erro interno\"}, e o rastro completo no log do servidor",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "O errorhandler pega por código ou por tipo de exceção, e devolve JSON no formato da casa.",
+          "codigo": "import logging\nfrom flask import Flask, jsonify\nfrom werkzeug.exceptions import HTTPException\n\napp = Flask(__name__)\nlog = logging.getLogger(\"api\")\n\n@app.errorhandler(HTTPException)\ndef erro_conhecido(exc):\n    return jsonify(erro=exc.description), exc.code\n\n@app.errorhandler(Exception)\ndef erro_inesperado(exc):\n    log.exception(\"falha na requisição\")           # detalhe fica no log\n    return jsonify(erro=\"erro interno\"), 500\n\n@app.get(\"/tarefas/<int:id>\")\ndef uma(id):\n    from flask import abort\n    abort(404, description=\"tarefa não encontrada\")\n\n# 404 -> {\"erro\": \"tarefa não encontrada\"}\n# 500 -> {\"erro\": \"erro interno\"}",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "No Express, o tratador de erro é o último middleware e tem quatro parâmetros. É a assinatura que o define.",
+          "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\napp.get(\"/tarefas/:id\", (req, res) => {\n  res.status(404).json({ erro: \"tarefa não encontrada\" });\n});\n\n// rota que não existe: 404 no formato da casa, e não a página de erro do Express\napp.use((req, res) => {\n  res.status(404).json({ erro: \"rota não encontrada\" });\n});\n\n// quatro parâmetros: é assim que o Express sabe que este é o tratador de erro\napp.use((erro, req, res, proximo) => {\n  console.error(\"falha em\", req.method, req.path, erro);   // detalhe no log\n  res.status(500).json({ erro: \"erro interno\" });\n});\n\napp.listen(3000);",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O corpo do erro, e o que nunca vai nele",
+        "linhas": [
+          "Um formato só pra toda a API: um campo com a mensagem e, na validação, a lista dos campos com problema. Quem consome trata uma vez e pronto.",
+          "Nunca vai na resposta: rastro de erro, consulta SQL, caminho de arquivo, versão de biblioteca, nome de servidor interno. Tudo isso é presente pra quem está testando a sua API.",
+          "Mensagem de erro é interface: ela precisa dizer o que fazer. Campo obrigatório ausente é melhor que erro de validação, e erro de validação é melhor que Erro."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Uma exceção inesperada estourou no meio da rota. O que a API responde?",
+          "opcoes": [
+            "500 com mensagem genérica, e o rastro completo no log do servidor",
+            "500 com o rastro completo no corpo, pra ajudar quem chamou",
+            "200, com o erro escrito no corpo"
+          ],
+          "correta": 0,
+          "porque": "O rastro ajuda você, no log. Na resposta, ele ajuda principalmente quem está procurando brecha."
+        },
+        {
+          "pergunta": "Por que padronizar o corpo dos erros da API?",
+          "opcoes": [
+            "Pra economizar bytes na resposta",
+            "Porque é exigência do HTTP",
+            "Porque quem consome escreve um tratamento só, em vez de um jeito diferente pra cada rota"
+          ],
+          "correta": 2,
+          "porque": "Formato imprevisível é o que faz integração virar gambiarra do outro lado."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Padronize os erros da sua API: um formato único para 400, 404 e 500, com tratador central, e faça uma rota quebrar de propósito para conferir que o rastro aparece no log e não na resposta. Anote no Caderno o formato que você escolheu.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "import logging\nfrom fastapi import FastAPI, HTTPException, Request\nfrom fastapi.exceptions import RequestValidationError\nfrom fastapi.responses import JSONResponse\n\napp = FastAPI()\nlog = logging.getLogger(\"api\")\n\n# formato da casa: {\"erro\": \"...\"} e, na validação, {\"erro\": \"...\", \"campos\": [...]}\n\n@app.exception_handler(HTTPException)\nasync def conhecido(req: Request, exc: HTTPException):\n    return JSONResponse(status_code=exc.status_code, content={\"erro\": exc.detail})\n\n@app.exception_handler(RequestValidationError)\nasync def invalido(req: Request, exc: RequestValidationError):\n    campos = [{\"campo\": \".\".join(str(p) for p in e[\"loc\"][1:]), \"problema\": e[\"msg\"]} for e in exc.errors()]\n    return JSONResponse(status_code=400, content={\"erro\": \"dados inválidos\", \"campos\": campos})\n\n@app.exception_handler(Exception)\nasync def inesperado(req: Request, exc: Exception):\n    log.exception(\"falha em %s %s\", req.method, req.url.path)\n    return JSONResponse(status_code=500, content={\"erro\": \"erro interno\"})\n\n@app.get(\"/quebra\")\ndef quebra():\n    return 1 / 0        # de propósito, pra ver o tratador trabalhando\n\n# GET /quebra  ->  500 {\"erro\": \"erro interno\"}\n# e no log do servidor, o rastro inteiro, com o arquivo e a linha.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "import logging\nfrom flask import Flask, jsonify\nfrom werkzeug.exceptions import HTTPException\n\napp = Flask(__name__)\nlog = logging.getLogger(\"api\")\n\n# formato da casa: {\"erro\": \"...\"} e, na validação, {\"erro\": \"...\", \"campos\": [...]}\n\n@app.errorhandler(HTTPException)\ndef conhecido(exc):\n    return jsonify(erro=exc.description), exc.code\n\n@app.errorhandler(Exception)\ndef inesperado(exc):\n    log.exception(\"falha na requisição\")\n    return jsonify(erro=\"erro interno\"), 500\n\n@app.get(\"/quebra\")\ndef quebra():\n    return 1 / 0        # de propósito\n\n# GET /quebra  ->  500 {\"erro\": \"erro interno\"}\n# com --debug ligado o Flask mostra o rastro na tela: é ótimo pra desenvolver\n# e é justamente o que não pode ir pra produção.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\n// formato da casa: { erro: \"...\" } e, na validação, { erro: \"...\", campos: [...] }\n\napp.get(\"/tarefas/:id\", (req, res) => {\n  res.status(404).json({ erro: \"tarefa não encontrada\" });\n});\n\napp.get(\"/quebra\", () => {\n  throw new Error(\"quebrei de propósito\");\n});\n\napp.use((req, res) => res.status(404).json({ erro: \"rota não encontrada\" }));\n\napp.use((erro, req, res, proximo) => {\n  if (erro instanceof SyntaxError) {\n    return res.status(400).json({ erro: \"corpo inválido\", campos: [\"JSON malformado\"] });\n  }\n  console.error(\"falha em\", req.method, req.path, erro);\n  res.status(500).json({ erro: \"erro interno\" });\n});\n\napp.listen(3000);\n\n// GET /quebra  ->  500 { \"erro\": \"erro interno\" }\n// e o rastro completo no terminal do servidor.\n// no Express 5, erro em rota assíncrona também cai aqui sozinho.",
+            "linguagem": "javascript"
+          }
+        }
+      }
+    },
+    {
+      "id": "backend2a5",
+      "titulo": "Organizar o projeto",
+      "minutos": 14,
+      "resumo": "Um arquivo só funciona até o dia em que não funciona mais. Separar por responsabilidade é o que segura o crescimento.",
+      "ideia": [
+        "Três camadas resolvem quase tudo: a rota fala HTTP, a regra decide, e o repositório guarda e busca. Cada uma só conhece a de baixo.",
+        "O teste do desenho: trocar o banco não deveria mexer nas rotas, e trocar de framework não deveria mexer na regra."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "APIRouter separa as rotas por assunto. Cada arquivo tem um papel:",
+          "codigo": "# tarefas/repositorio.py  (guarda e busca)\nTAREFAS = []\n\ndef listar():\n    return TAREFAS\n\ndef salvar(tarefa):\n    tarefa[\"id\"] = len(TAREFAS) + 1\n    TAREFAS.append(tarefa)\n    return tarefa\n\n\n# tarefas/servico.py  (a regra)\nfrom . import repositorio\n\ndef criar(titulo, feita=False):\n    titulo = titulo.strip()\n    if any(t[\"titulo\"].lower() == titulo.lower() for t in repositorio.listar()):\n        raise ValueError(\"já existe uma tarefa com esse título\")\n    return repositorio.salvar({\"titulo\": titulo, \"feita\": feita})\n\n\n# tarefas/rotas.py  (só HTTP)\nfrom fastapi import APIRouter, HTTPException\nfrom pydantic import BaseModel, Field\nfrom . import servico\n\nrotas = APIRouter(prefix=\"/tarefas\", tags=[\"tarefas\"])\n\nclass NovaTarefa(BaseModel):\n    titulo: str = Field(min_length=3, max_length=120)\n    feita: bool = False\n\n@rotas.post(\"\", status_code=201)\ndef criar(nova: NovaTarefa):\n    try:\n        return servico.criar(nova.titulo, nova.feita)\n    except ValueError as erro:\n        raise HTTPException(status_code=409, detail=str(erro))\n\n\n# main.py\nfrom fastapi import FastAPI\nfrom tarefas.rotas import rotas\n\napp = FastAPI()\napp.include_router(rotas)",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "Blueprint faz o mesmo papel: um grupo de rotas que o app registra.",
+          "codigo": "# tarefas/repositorio.py  (guarda e busca)\nTAREFAS = []\n\ndef listar():\n    return TAREFAS\n\ndef salvar(tarefa):\n    tarefa[\"id\"] = len(TAREFAS) + 1\n    TAREFAS.append(tarefa)\n    return tarefa\n\n\n# tarefas/servico.py  (a regra)\nfrom . import repositorio\n\ndef criar(titulo, feita=False):\n    titulo = titulo.strip()\n    if any(t[\"titulo\"].lower() == titulo.lower() for t in repositorio.listar()):\n        raise ValueError(\"já existe uma tarefa com esse título\")\n    return repositorio.salvar({\"titulo\": titulo, \"feita\": feita})\n\n\n# tarefas/rotas.py  (só HTTP)\nfrom flask import Blueprint, request\nfrom . import servico\n\nrotas = Blueprint(\"tarefas\", __name__, url_prefix=\"/tarefas\")\n\n@rotas.post(\"\")\ndef criar():\n    dado = request.get_json(silent=True) or {}\n    titulo = dado.get(\"titulo\", \"\")\n    if not isinstance(titulo, str) or len(titulo.strip()) < 3:\n        return {\"erro\": \"dados inválidos\", \"campos\": [\"titulo\"]}, 400\n    try:\n        return servico.criar(titulo, bool(dado.get(\"feita\", False))), 201\n    except ValueError as erro:\n        return {\"erro\": str(erro)}, 409\n\n\n# main.py\nfrom flask import Flask\nfrom tarefas.rotas import rotas\n\napp = Flask(__name__)\napp.register_blueprint(rotas)",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "Router é o equivalente: um arquivo de rotas que o main monta num caminho.",
+          "codigo": "// tarefas/repositorio.js  (guarda e busca)\nconst TAREFAS = [];\n\nconst listar = () => TAREFAS;\n\nfunction salvar(tarefa) {\n  tarefa.id = TAREFAS.length + 1;\n  TAREFAS.push(tarefa);\n  return tarefa;\n}\n\nmodule.exports = { listar, salvar };\n\n\n// tarefas/servico.js  (a regra)\nconst repositorio = require(\"./repositorio\");\n\nfunction criar(titulo, feita = false) {\n  const limpo = titulo.trim();\n  if (repositorio.listar().some((t) => t.titulo.toLowerCase() === limpo.toLowerCase())) {\n    throw new Error(\"já existe uma tarefa com esse título\");\n  }\n  return repositorio.salvar({ titulo: limpo, feita });\n}\n\nmodule.exports = { criar };\n\n\n// tarefas/rotas.js  (só HTTP)\nconst { Router } = require(\"express\");\nconst servico = require(\"./servico\");\n\nconst rotas = Router();\n\nrotas.post(\"/\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 3) {\n    return res.status(400).json({ erro: \"dados inválidos\", campos: [\"titulo\"] });\n  }\n  try {\n    res.status(201).json(servico.criar(titulo, req.body.feita ?? false));\n  } catch (erro) {\n    res.status(409).json({ erro: erro.message });\n  }\n});\n\nmodule.exports = rotas;\n\n\n// main.js\nconst express = require(\"express\");\nconst tarefas = require(\"./tarefas/rotas\");\n\nconst app = express();\napp.use(express.json());\napp.use(\"/tarefas\", tarefas);\napp.listen(3000);",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "Quando separar, e quando não",
+        "linhas": [
+          "Com duas rotas, um arquivo está ótimo. Separe quando o arquivo passar de umas duzentas linhas, quando duas rotas repetirem a mesma regra, ou quando você começar a rolar a tela pra achar as coisas.",
+          "A regra de negócio não importa em qual framework roda: o serviço acima não sabe o que é requisição, resposta nem status. É isso que permite testá-lo sem subir servidor.",
+          "409 é o status de conflito: o pedido está certo, mas bate com o estado atual (título repetido, e-mail já cadastrado). Não é 400, e muito menos 500."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual camada deve conhecer o conceito de status HTTP?",
+          "opcoes": [
+            "Só a de rotas",
+            "A de regra de negócio, pra decidir o que responder",
+            "Todas, pra ficar mais rápido"
+          ],
+          "correta": 0,
+          "porque": "Regra que fala em 404 e 201 fica presa ao HTTP. A mesma regra precisa servir pra uma tela, um teste ou uma tarefa agendada."
+        },
+        {
+          "pergunta": "Quando faz sentido quebrar o arquivo único em camadas?",
+          "opcoes": [
+            "Sempre, desde a primeira rota",
+            "Quando o arquivo cresce, quando a regra se repete ou quando achar as coisas começa a custar tempo",
+            "Nunca: arquivo único é mais simples"
+          ],
+          "correta": 1,
+          "porque": "Separar cedo demais é burocracia; tarde demais é retrabalho. O sinal é prático, não teórico."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Separe a sua API em três camadas: rotas, regra e repositório. Passe a regra de não aceitar título repetido para a camada de regra e faça a rota devolver 409 nesse caso. Depois escreva no Caderno qual arquivo você teria que mexer para trocar a lista em memória por um banco de dados.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "# a resposta do Caderno vem primeiro, porque é o ponto da aula:\n#\n# pra trocar a lista em memória por banco, eu mexo em UM arquivo:\n# tarefas/repositorio.py. As funções listar() e salvar() passam a falar\n# com o banco, e nem a regra nem as rotas ficam sabendo.\n# é esse o teste de que a separação valeu.\n\n# tarefas/servico.py\nfrom . import repositorio\n\nclass TituloRepetido(Exception):\n    pass\n\ndef criar(titulo, feita=False):\n    titulo = titulo.strip()\n    if any(t[\"titulo\"].lower() == titulo.lower() for t in repositorio.listar()):\n        raise TituloRepetido(\"já existe uma tarefa com esse título\")\n    return repositorio.salvar({\"titulo\": titulo, \"feita\": feita})\n\n\n# tarefas/rotas.py\nfrom fastapi import APIRouter, HTTPException\nfrom pydantic import BaseModel, Field\nfrom . import servico\n\nrotas = APIRouter(prefix=\"/tarefas\")\n\nclass NovaTarefa(BaseModel):\n    titulo: str = Field(min_length=3, max_length=120)\n    feita: bool = False\n\n@rotas.post(\"\", status_code=201)\ndef criar(nova: NovaTarefa):\n    try:\n        return servico.criar(nova.titulo, nova.feita)\n    except servico.TituloRepetido as erro:\n        raise HTTPException(status_code=409, detail=str(erro))\n\n# uma exceção própria, em vez de ValueError, deixa a rota traduzir\n# cada caso pro status certo sem adivinhar.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "# a resposta do Caderno vem primeiro, porque é o ponto da aula:\n#\n# pra trocar a lista em memória por banco, eu mexo em UM arquivo:\n# tarefas/repositorio.py. As funções listar() e salvar() passam a falar\n# com o banco, e nem a regra nem as rotas ficam sabendo.\n\n# tarefas/servico.py\nfrom . import repositorio\n\nclass TituloRepetido(Exception):\n    pass\n\ndef criar(titulo, feita=False):\n    titulo = titulo.strip()\n    if any(t[\"titulo\"].lower() == titulo.lower() for t in repositorio.listar()):\n        raise TituloRepetido(\"já existe uma tarefa com esse título\")\n    return repositorio.salvar({\"titulo\": titulo, \"feita\": feita})\n\n\n# tarefas/rotas.py\nfrom flask import Blueprint, request\nfrom . import servico\n\nrotas = Blueprint(\"tarefas\", __name__, url_prefix=\"/tarefas\")\n\n@rotas.post(\"\")\ndef criar():\n    dado = request.get_json(silent=True) or {}\n    titulo = dado.get(\"titulo\", \"\")\n    if not isinstance(titulo, str) or len(titulo.strip()) < 3:\n        return {\"erro\": \"dados inválidos\", \"campos\": [\"titulo\"]}, 400\n    try:\n        return servico.criar(titulo, bool(dado.get(\"feita\", False))), 201\n    except servico.TituloRepetido as erro:\n        return {\"erro\": str(erro)}, 409",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "// a resposta do Caderno vem primeiro, porque é o ponto da aula:\n//\n// pra trocar a lista em memória por banco, eu mexo em UM arquivo:\n// tarefas/repositorio.js. As funções listar() e salvar() passam a falar\n// com o banco, e nem a regra nem as rotas ficam sabendo.\n\n// tarefas/servico.js\nconst repositorio = require(\"./repositorio\");\n\nclass TituloRepetido extends Error {}\n\nfunction criar(titulo, feita = false) {\n  const limpo = titulo.trim();\n  if (repositorio.listar().some((t) => t.titulo.toLowerCase() === limpo.toLowerCase())) {\n    throw new TituloRepetido(\"já existe uma tarefa com esse título\");\n  }\n  return repositorio.salvar({ titulo: limpo, feita });\n}\n\nmodule.exports = { criar, TituloRepetido };\n\n\n// tarefas/rotas.js\nconst { Router } = require(\"express\");\nconst servico = require(\"./servico\");\n\nconst rotas = Router();\n\nrotas.post(\"/\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 3) {\n    return res.status(400).json({ erro: \"dados inválidos\", campos: [\"titulo\"] });\n  }\n  try {\n    res.status(201).json(servico.criar(titulo, req.body.feita ?? false));\n  } catch (erro) {\n    if (erro instanceof servico.TituloRepetido) return res.status(409).json({ erro: erro.message });\n    throw erro;                     // o resto sobe pro tratador central\n  }\n});\n\nmodule.exports = rotas;",
+            "linguagem": "javascript"
+          }
+        }
+      }
     }
   ]
 }

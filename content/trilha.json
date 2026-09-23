@@ -171,14 +171,14 @@
       "ordem": 3,
       "nome": "Como uma API funciona",
       "foco": "backend",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Cliente, servidor e HTTP. O vocabulário que todo o resto usa."
     },
     {
       "id": "backend2",
       "ordem": 4,
       "nome": "Construindo uma API REST",
       "foco": "backend",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Rotas, validação e erros, com o código nas três stacks."
     },
     {
       "id": "backend3",
@@ -210,6 +210,26 @@
     "Abra o terminal e rode 3 comandos que você já conhece.",
     "Refaça o desafio da última aula sem olhar a solução.",
     "Escolha 1 palavra que você viu e não entendeu. Procure o significado."
+  ],
+  "stacks": [
+    {
+      "id": "fastapi",
+      "nome": "FastAPI",
+      "linguagem": "python",
+      "descricao": "Python. Valida os dados sozinho e gera a documentação da API. É o padrão novo do mercado Python."
+    },
+    {
+      "id": "flask",
+      "nome": "Flask",
+      "linguagem": "python",
+      "descricao": "Python. Minúsculo e explícito: você escreve o que precisa e entende cada linha. Ótimo pra aprender."
+    },
+    {
+      "id": "express",
+      "nome": "Express",
+      "linguagem": "javascript",
+      "descricao": "JavaScript no servidor, com Node. A mesma linguagem do navegador dos dois lados."
+    }
   ],
   "focos": [
     {

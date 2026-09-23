@@ -11,7 +11,7 @@ const DIAS = 60;
 // hash fixo para comparar quando o e-mail não existe, evitando vazar isso pelo tempo de resposta
 const HASH_FALSO = "$2b$10$CwTycUXWue0Thq9StjUM0uJ8DvY4V0i7Xr7e0f5N9y2b8s6qE0m1a";
 
-export type UsuarioSessao = { id: string; email: string; foco: string | null };
+export type UsuarioSessao = { id: string; email: string; foco: string | null; stack: string | null };
 
 const Email = z.string().trim().toLowerCase().email("E-mail inválido").max(200);
 const Senha = z.string().min(8, "A senha precisa de pelo menos 8 caracteres").max(200);
@@ -22,7 +22,7 @@ export const usuarioAtual = cache(async (): Promise<UsuarioSessao | null> => {
   if (!token) return null;
   const sessao = await db.sessaoLogin.findUnique({ where: { token }, include: { usuario: true } });
   if (!sessao || sessao.expiraEm < new Date()) return null;
-  return { id: sessao.usuario.id, email: sessao.usuario.email, foco: sessao.usuario.foco };
+  return { id: sessao.usuario.id, email: sessao.usuario.email, foco: sessao.usuario.foco, stack: sessao.usuario.stack };
 });
 
 /** Para actions e rotas: exige login, senão lança. */

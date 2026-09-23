@@ -35,6 +35,7 @@ for (const arq of listar(pasta)) {
 
 const trilha = ler("trilha.json");
 const idsFocos = trilha.focos.map((f) => f.id);
+const idsStacks = trilha.stacks.map((s) => s.id);
 const modulos = trilha.modulos.map((m) => ({ ...m, aulas: ler(`aulas/${m.id}.json`).aulas }));
 const escrita = (a) => Array.isArray(a.ideia) && a.ideia.length > 0;
 const focosDoItem = (f) => (f === undefined ? ["base"] : Array.isArray(f) ? f : [f]);
@@ -87,9 +88,11 @@ for (const m of modulos) {
       if (a.resumo || a.exemplo || a.quiz || a.desafio) avisos.push(`${onde}: tem campos mas não tem ideia, então não conta como escrita`);
       return;
     }
-    for (const campo of ["resumo", "exemplo", "desafio"]) {
+    for (const campo of ["resumo", "desafio"]) {
       if (!a[campo]) erros.push(`${onde}: aula escrita sem ${campo}`);
     }
+    if (!a.exemplo && !a.exemplos) erros.push(`${onde}: aula escrita sem exemplo`);
+    if (a.exemplo && a.exemplos) erros.push(`${onde}: tem exemplo e exemplos; use um dos dois`);
     if (!a.quiz?.length) erros.push(`${onde}: aula escrita sem quiz`);
     if (a.resumo?.length > 160) avisos.push(`${onde}: resumo com ${a.resumo.length} caracteres (a ideia é uma frase)`);
     if (a.ideia.length > 3) avisos.push(`${onde}: ideia com ${a.ideia.length} linhas (o padrão é 2, no máximo 3)`);
@@ -97,14 +100,33 @@ for (const m of modulos) {
       if (l.length > 240) avisos.push(`${onde}: linha ${j + 1} da ideia com ${l.length} caracteres`);
     });
     if (a.exemplo && !a.exemplo.codigo?.trim()) erros.push(`${onde}: exemplo sem código`);
-    for (const ling of [a.exemplo?.linguagem, a.desafio?.linguagem]) {
+
+    // aula com código por stack: uma por stack existente, e todas presentes
+    const porStack = { exemplos: a.exemplos, solucoes: a.desafio?.solucoes };
+    for (const [campo, mapa] of Object.entries(porStack)) {
+      if (!mapa) continue;
+      for (const id of Object.keys(mapa)) {
+        if (!idsStacks.includes(id)) erros.push(`${onde}: ${campo} traz a stack "${id}", que não existe`);
+        if (!mapa[id].codigo?.trim()) erros.push(`${onde}: ${campo}.${id} sem código`);
+      }
+      for (const id of idsStacks) {
+        if (!mapa[id]) erros.push(`${onde}: falta a stack "${id}" em ${campo}`);
+      }
+    }
+
+    const linguagens = [
+      a.exemplo?.linguagem, a.desafio?.linguagem,
+      ...Object.values(a.exemplos ?? {}).map((t) => t.linguagem),
+      ...Object.values(a.desafio?.solucoes ?? {}).map((s) => s.linguagem),
+    ];
+    for (const ling of linguagens) {
       if (ling && !LINGUAGENS.has(ling)) avisos.push(`${onde}: linguagem "${ling}" desconhecida`);
     }
     a.quiz?.forEach((q, j) => {
       if (q.opcoes.length > 4) avisos.push(`${onde}: quiz ${j + 1} com ${q.opcoes.length} opções`);
       if (!q.porque?.trim()) erros.push(`${onde}: quiz ${j + 1} sem porque`);
     });
-    if (a.desafio && (!a.desafio.pergunta?.trim() || !a.desafio.solucao?.trim())) erros.push(`${onde}: desafio incompleto`);
+    if (a.desafio && (!a.desafio.pergunta?.trim() || !(a.desafio.solucao?.trim() || a.desafio.solucoes))) erros.push(`${onde}: desafio incompleto`);
     conferirRefs(onde, a, [m.foco]);
   });
 }

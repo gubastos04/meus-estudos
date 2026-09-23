@@ -11,7 +11,7 @@ import { db } from "@/lib/db";
 import { requisitarUsuario } from "@/lib/auth";
 import { cifrar } from "@/lib/cripto";
 import { lerPrototipo, resumir } from "@/lib/prototipo";
-import { focoValido } from "@/lib/conteudo";
+import { focoValido, stackValida } from "@/lib/conteudo";
 import type { Erro, Nota, Preferencias, Progresso } from "@/lib/modelo";
 
 const Dia = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -24,6 +24,7 @@ const Prefs = z.object({
   energia: z.enum(["baixa", "media", "alta"]).optional(),
   tema: z.enum(["escuro", "claro"]).optional(),
   fonte: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional(),
+  stack: z.string().min(1).max(32).optional(),
 });
 
 export async function salvarPreferencias(prefs: Partial<Preferencias>) {
@@ -35,6 +36,7 @@ export async function salvarPreferencias(prefs: Partial<Preferencias>) {
       ...(p.energia && { energia: p.energia }),
       ...(p.tema && { tema: p.tema }),
       ...(p.fonte !== undefined && { fonte: p.fonte }),
+      ...(p.stack && stackValida(p.stack) && { stack: p.stack }),
     },
   });
 }
@@ -184,6 +186,13 @@ export async function removerChaveIA() {
 export async function escolherFoco(foco: string): Promise<{ ok: true } | { ok: false; erro: string }> {
   if (!focoValido(foco)) return { ok: false, erro: "Esse foco não existe." };
   await db.usuario.update({ where: { id: await uid() }, data: { foco } });
+  return { ok: true };
+}
+
+/** Stack do foco back-end. A troca no meio de uma aula passa por salvarPreferencias. */
+export async function escolherStack(stack: string): Promise<{ ok: true } | { ok: false; erro: string }> {
+  if (!stackValida(stack)) return { ok: false, erro: "Essa stack não existe." };
+  await db.usuario.update({ where: { id: await uid() }, data: { stack } });
   return { ok: true };
 }
 
