@@ -1,16 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { connection } from "next/server";
-import { Fraunces, Karla, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { usuarioAtual } from "@/lib/auth";
 import { preferencias } from "@/lib/progresso-servidor";
 import { ESCALA } from "@/lib/constantes";
 
-// Fraunces: serif de display, dá a personalidade de caderno. Karla: texto e UI.
-// JetBrains Mono: números e código, a "voz de livro-caixa".
-const fraunces = Fraunces({ variable: "--font-fraunces", subsets: ["latin"], style: ["normal", "italic"], display: "swap" });
-const karla = Karla({ variable: "--font-karla", subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
-const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500", "600"], display: "swap" });
+// "Técnico calmo": IBM Plex Mono é a voz de display (títulos, dados, rótulos) —
+// assume que isto é sobre programar. IBM Plex Sans carrega texto e UI.
+const plexMono = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"], weight: ["400", "500", "600"], display: "swap" });
+const plexSans = IBM_Plex_Sans({ variable: "--font-plex-sans", subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "Meus Estudos", template: "%s · Meus Estudos" },
@@ -19,8 +18,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f8fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#121721" },
+    { media: "(prefers-color-scheme: light)", color: "#f2f5f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#141a16" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -37,7 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="pt-BR"
       data-tema={prefs.tema}
       style={{ "--esc": ESCALA[prefs.fonte] } as React.CSSProperties}
-      className={`${fraunces.variable} ${karla.variable} ${jetbrains.variable}`}
+      className={`${plexMono.variable} ${plexSans.variable}`}
     >
       <body>{children}</body>
     </html>

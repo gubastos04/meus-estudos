@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════
-   Meus Estudos — "Estúdio" (premium, frio)
-   Base slate neutra, profundidade por elevação sutil, acento
-   indigo/violeta vivo que troca por foco. Acento = ativo/atenção,
-   verde = feito, vermelho = alerta real. Cores em OKLCH.
+   Meus Estudos — "Técnico calmo"
+   Papel claro esverdeado de dia, carvão verde de noite. Voz de
+   display em mono (IBM Plex Mono): isto é sobre programar. Acento
+   musgo = ativo/atenção, verde-grama = feito, vermelho = alerta.
+   Cantos retos, borda primeiro. Cores em OKLCH.
    Nomes --amber* são aliases de --acento* (compat. retroativa).
    ══════════════════════════════════════════════════════════════ */
 
@@ -12,21 +13,21 @@
   color-scheme: light;
   --esc: 1;
 
-  /* superfícies (dia) — slate frio */
-  --ink:    oklch(0.977 0.004 255);  /* fundo do app */
-  --panel:  oklch(1 0 0);            /* cartão elevado */
-  --panel2: oklch(0.958 0.006 255);  /* campo, inset */
-  --line:   oklch(0.912 0.008 255);  /* borda fina */
-  --text:   oklch(0.278 0.028 262);  /* slate escuro */
-  --dim:    oklch(0.515 0.034 258);  /* secundário — AA 4.5:1 em fundo/campo */
-  --code:   oklch(0.340 0.030 262);
+  /* superfícies (dia) — papel claro esverdeado */
+  --ink:    oklch(0.968 0.006 140);  /* fundo do app */
+  --panel:  oklch(0.992 0.004 140);  /* cartão elevado */
+  --panel2: oklch(0.945 0.008 145);  /* campo, inset */
+  --line:   oklch(0.880 0.012 150);  /* borda fina */
+  --text:   oklch(0.280 0.020 155);  /* tinta verde-grafite */
+  --dim:    oklch(0.475 0.020 150);  /* secundário — AA 4.5:1 */
+  --code:   oklch(0.340 0.020 155);
 
-  /* acento — indigo/violeta (padrão; trocado por foco) */
-  --acento:       oklch(0.540 0.196 274);
-  --acento-fundo: oklch(0.950 0.034 278);  /* tinta do herói */
-  --sobre-acento: oklch(0.990 0.010 278);  /* texto sobre acento cheio */
-  --done:   oklch(0.520 0.130 156);        /* verde — AA como texto pequeno */
-  --alert:  oklch(0.556 0.196 24);
+  /* acento — musgo (voz técnica calma) */
+  --acento:       oklch(0.475 0.090 165);
+  --acento-fundo: oklch(0.940 0.030 162);  /* tinta do herói */
+  --sobre-acento: oklch(0.985 0.015 160);  /* texto sobre acento cheio */
+  --done:   oklch(0.520 0.130 148);        /* verde-grama, distinto do acento */
+  --alert:  oklch(0.550 0.190 25);
 
   /* aliases retroativos (classes antigas usam --amber*) */
   --amber:       var(--acento);
@@ -39,18 +40,18 @@
   --f-min:   calc(12.5px * var(--esc));
   --f-h2:    calc(27px * var(--esc));
   --f-h3:    calc(18px * var(--esc));
-  --f-hero:  calc(34px * var(--esc));
+  --f-hero:  calc(30px * var(--esc));
   --f-code:  calc(13.5px * var(--esc));
 
   /* espaçamento (escala 4pt) */
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
   --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
 
-  /* raio */
-  --raio-sm: 8px;
-  --raio:    12px;
-  --raio-lg: 16px;
-  --raio-xl: 22px;
+  /* raio — cantos retos, engenhados */
+  --raio-sm: 3px;
+  --raio:    5px;
+  --raio-lg: 8px;
+  --raio-xl: 12px;
   --raio-full: 999px;
 
   /* elevação — sombra fria, sutil */
@@ -61,20 +62,20 @@
 
 :root[data-tema="escuro"] {
   color-scheme: dark;
-  /* superfícies (noite) — navy slate profundo */
-  --ink:    oklch(0.205 0.021 262);
-  --panel:  oklch(0.253 0.024 262);
-  --panel2: oklch(0.303 0.028 262);
-  --line:   oklch(0.372 0.030 262);
-  --text:   oklch(0.928 0.012 266);
-  --dim:    oklch(0.688 0.024 262);
-  --code:   oklch(0.860 0.020 266);
+  /* superfícies (noite) — carvão verde profundo */
+  --ink:    oklch(0.210 0.012 160);
+  --panel:  oklch(0.255 0.014 160);
+  --panel2: oklch(0.300 0.016 160);
+  --line:   oklch(0.370 0.018 160);
+  --text:   oklch(0.920 0.012 150);
+  --dim:    oklch(0.685 0.020 155);
+  --code:   oklch(0.850 0.020 150);
 
-  --acento:       oklch(0.706 0.162 278);
-  --acento-fundo: oklch(0.322 0.060 276);
-  --sobre-acento: oklch(0.205 0.030 276);
-  --done:   oklch(0.752 0.130 158);
-  --alert:  oklch(0.712 0.160 28);
+  --acento:       oklch(0.720 0.110 165);
+  --acento-fundo: oklch(0.310 0.050 162);
+  --sobre-acento: oklch(0.200 0.030 162);
+  --done:   oklch(0.750 0.130 145);
+  --alert:  oklch(0.710 0.160 28);
 
   --sombra-1: 0 1px 2px oklch(0 0 0 / 0.30);
   --sombra-2: 0 6px 16px oklch(0 0 0 / 0.40);
@@ -104,9 +105,9 @@
   --color-done: var(--done);
   --color-alert: var(--alert);
 
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-karla), system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-display: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
@@ -189,7 +190,7 @@ button:disabled { cursor: not-allowed; }
     }
     .app .topo { display: none; }
     .app .nav { display: none; }
-    .wrap { max-width: 1000px; padding: 36px 44px 64px; }
+    .wrap { max-width: 1000px; padding: 32px 44px 44px; }
 
     /* sub-abas: largura natural à esquerda, não esticadas na largura toda */
     .wrap .abas { gap: 6px; }
@@ -200,7 +201,9 @@ button:disabled { cursor: not-allowed; }
   .pagina-t { font-family: var(--font-display); font-size: var(--f-h2); font-weight: 600; letter-spacing: -0.02em; margin: 0 0 4px; }
   .pagina-sub { color: var(--dim); font-size: var(--f-ui); margin: 0 0 24px; line-height: 1.55; }
 
-  .dash-secao { font-family: var(--font-mono); font-size: var(--f-min); font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin: 30px 0 12px; }
+  .dash-secao { font-family: var(--font-mono); font-size: var(--f-min); font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin: 22px 0 10px; }
+  /* assinatura técnica: rótulos de seção prefixados com // */
+  .side-secao::before, .dash-secao::before { content: "// "; color: var(--acento); }
 
   /* número-herói + lista de estatísticas (hierarquia, não grade de cards) */
   .stat-hero { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; padding: 4px 0 20px; margin-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -268,7 +271,7 @@ button:disabled { cursor: not-allowed; }
   /* Agora: o herói. Fundo com tom âmbar e o título da próxima aula grande em serif. */
   .agora {
     background: var(--acento-fundo); border: 1px solid color-mix(in oklch, var(--acento) 32%, transparent);
-    border-radius: var(--raio-lg); padding: 26px 24px; margin-bottom: 26px;
+    border-radius: var(--raio-lg); padding: 22px 24px; margin-bottom: 18px;
   }
   .agora .onde { font-family: var(--font-mono); font-size: var(--f-min); color: var(--amber); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
   .agora .titulo { font-family: var(--font-display); font-size: var(--f-hero); line-height: 1.08; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 16px; }
@@ -529,7 +532,7 @@ button:disabled { cursor: not-allowed; }
 @layer components {
   .auth { min-height: 100dvh; display: grid; grid-template-columns: 1fr; }
   .auth-brand { display: none; }
-  .auth-form-wrap { display: flex; align-items: center; justify-content: center; padding: var(--s-6) var(--s-5); }
+  .auth-form-wrap { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: var(--s-6) var(--s-5); }
   .auth-cartao {
     width: 100%; max-width: 400px; background: var(--panel);
     border: 1px solid var(--line); border-radius: var(--raio-lg);
@@ -553,6 +556,7 @@ button:disabled { cursor: not-allowed; }
   @media (min-width: 860px) {
     .auth { grid-template-columns: 1.05fr 1fr; }
     .auth-brand {
+      min-height: 100dvh;
       display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-7);
       padding: var(--s-8) var(--s-7); color: var(--sobre-acento);
       background:
