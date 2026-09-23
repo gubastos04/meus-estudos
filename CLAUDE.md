@@ -8,6 +8,7 @@ App de estudo de uma pessoa só. A especificação completa está em `docs/espec
 
 - Código, nomes de arquivo, variáveis e texto de interface em português do Brasil. Sem emoji na interface, sem "Parabéns!", sem mensagem motivacional.
 - `content/*.json` só entra pelas funções de `lib/conteudo.ts`. Nunca importe JSON num componente.
+- Aula nova segue o contrato de `docs/plano-conteudo.md` (resumo de uma frase, ideia em 2 linhas, exemplo com `linguagem` e código que roda, quiz com porquê, desafio com solução). Conteúdo de apoio aceita `foco` em lista (`["web", "backend"]`). Aula escrita nunca muda de id.
 - Progresso do usuário: só pelo hook `useProgresso()` de `lib/progresso.tsx`. Telas não guardam progresso em estado local. Toda ação nova = um `case` no reducer de `lib/progresso.tsx` + uma server action em `lib/acoes.ts` (valida entrada com Zod) + leitura em `lib/progresso-servidor.ts`.
 - O `dia` de qualquer registro vem do cliente (`hoje()` de `lib/datas.ts`), nunca do servidor: o servidor pode estar em UTC.
 - Banco: `prisma/schema.prisma` fica em `postgresql` (produção Neon, é o que a Vercel usa). Local roda SQLite: `npm run dev` executa o `predev` (`scripts/dev-local.mjs`), que deriva um schema SQLite do versionado, gera o client e sincroniza `prisma/dev.db` — automático e offline. Não troque o `provider` do schema versionado. Mudou o schema? O `npm run dev` re-sincroniza o dev.db sozinho; em produção, `npx prisma db push` na Neon + redeploy.
@@ -27,6 +28,8 @@ npm run lint && npm run build
 ```
 
 O build valida todo o `/content` com Zod. Conteúdo malformado tem que quebrar o build.
+
+Mexeu em `/content`? Rode também `npm run conteudo:checar` (estrutura, travessão, citações, placar por foco) e `npm run conteudo:rodar` (executa o código das aulas e a solução de treino, demanda e prova prática; bash e o resto são conferidos à mão). O `npm run build` falha com EPERM se o `npm run dev` estiver rodando: pare o dev antes.
 
 ## Fases
 

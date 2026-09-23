@@ -12,7 +12,8 @@
       ],
       "exemplo": {
         "nota": "Pra conferir, abra o terminal:",
-        "codigo": "python --version\n# deve aparecer algo como: Python 3.12.4\n\n# se não aparecer, tente:\npython3 --version"
+        "codigo": "python --version\n# deve aparecer algo como: Python 3.12.4\n\n# se não aparecer, tente:\npython3 --version",
+        "linguagem": "bash"
       },
       "mais": {
         "titulo": "O que é o PATH",
@@ -49,7 +50,8 @@
       ],
       "exemplo": {
         "nota": "O bug clássico e a correção:",
-        "codigo": "idade = input(\"sua idade: \")\nprint(idade + 1)     # ERRO\n\nidade = int(input(\"sua idade: \"))\nprint(idade + 1)     # certo"
+        "codigo": "idade = input(\"sua idade: \")\nprint(idade + 1)     # ERRO\n\nidade = int(input(\"sua idade: \"))\nprint(idade + 1)     # certo",
+        "linguagem": "python"
       },
       "quiz": [
         {
@@ -78,7 +80,8 @@
       ],
       "exemplo": {
         "nota": "O mesmo símbolo, resultados diferentes:",
-        "codigo": "\"2\" + \"2\"      # \"22\"\n2 + 2          # 4\n\"2\" * 3        # \"222\"\n2 * 3          # 6\n\nlen(\"senha123\")   # 8"
+        "codigo": "\"2\" + \"2\"      # \"22\"\n2 + 2          # 4\n\"2\" * 3        # \"222\"\n2 * 3          # 6\n\nlen(\"senha123\")   # 8",
+        "linguagem": "python"
       },
       "quiz": [
         {
@@ -108,7 +111,8 @@
       ],
       "exemplo": {
         "nota": "Validador de senha, versão 1:",
-        "codigo": "senha = input(\"senha: \")\n\nif len(senha) >= 12:\n    print(\"senha forte\")\nelif len(senha) >= 8:\n    print(\"senha ok\")\nelse:\n    print(\"senha fraca\")"
+        "codigo": "senha = input(\"senha: \")\n\nif len(senha) >= 12:\n    print(\"senha forte\")\nelif len(senha) >= 8:\n    print(\"senha ok\")\nelse:\n    print(\"senha fraca\")",
+        "linguagem": "python"
       },
       "quiz": [
         {
@@ -138,7 +142,8 @@
       ],
       "exemplo": {
         "nota": "Tela de login com 3 tentativas:",
-        "codigo": "correta = \"gato123\"\ntentativas = 0\n\nwhile tentativas < 3:\n    senha = input(\"senha: \")\n    if senha == correta:\n        print(\"entrou\")\n        break\n    tentativas = tentativas + 1\n    print(f\"errou. restam {3 - tentativas}\")"
+        "codigo": "correta = \"gato123\"\ntentativas = 0\n\nwhile tentativas < 3:\n    senha = input(\"senha: \")\n    if senha == correta:\n        print(\"entrou\")\n        break\n    tentativas = tentativas + 1\n    print(f\"errou. restam {3 - tentativas}\")",
+        "linguagem": "python"
       },
       "mais": {
         "titulo": "Quando usar cada um",
@@ -175,7 +180,8 @@
       ],
       "exemplo": {
         "nota": "O mesmo dado, dos dois jeitos:",
-        "codigo": "# lista\nusuario = [\"ana\", \"ana@mail.com\", True]\nusuario[1]          # ana@mail.com\n\n# dicionário\nusuario = {\n    \"nome\": \"ana\",\n    \"email\": \"ana@mail.com\",\n    \"ativo\": True\n}\nusuario[\"email\"]    # ana@mail.com"
+        "codigo": "# lista\nusuario = [\"ana\", \"ana@mail.com\", True]\nusuario[1]          # ana@mail.com\n\n# dicionário\nusuario = {\n    \"nome\": \"ana\",\n    \"email\": \"ana@mail.com\",\n    \"ativo\": True\n}\nusuario[\"email\"]    # ana@mail.com",
+        "linguagem": "python"
       },
       "quiz": [
         {
@@ -205,7 +211,8 @@
       ],
       "exemplo": {
         "nota": "O validador virando função:",
-        "codigo": "def forca_da_senha(senha):\n    if senha in [\"123456\", \"senha\", \"admin\"]:\n        return \"proibida\"\n    if len(senha) >= 12:\n        return \"forte\"\n    if len(senha) >= 8:\n        return \"ok\"\n    return \"fraca\"\n\nprint(forca_da_senha(\"gato\"))   # fraca"
+        "codigo": "def forca_da_senha(senha):\n    if senha in [\"123456\", \"senha\", \"admin\"]:\n        return \"proibida\"\n    if len(senha) >= 12:\n        return \"forte\"\n    if len(senha) >= 8:\n        return \"ok\"\n    return \"fraca\"\n\nprint(forca_da_senha(\"gato\"))   # fraca",
+        "linguagem": "python"
       },
       "mais": {
         "titulo": "print ou return?",
@@ -242,7 +249,8 @@
       ],
       "exemplo": {
         "nota": "O que o programa deve produzir:",
-        "codigo": "123456        -> proibida\nGato#2026x    -> forte\nadmin         -> proibida\nsenhalonga123 -> ok"
+        "codigo": "123456        -> proibida\nGato#2026x    -> forte\nadmin         -> proibida\nsenhalonga123 -> ok",
+        "linguagem": "texto"
       },
       "quiz": [
         {
@@ -258,7 +266,8 @@
       ],
       "desafio": {
         "pergunta": "Implemente. Dica: any(c.isupper() for c in senha) diz se tem alguma maiúscula.",
-        "solucao": "PROIBIDAS = [\"123456\", \"admin\", \"senha\", \"qwerty\"]\nSIMBOLOS = \"!@#$%&*?-_\"\n\ndef auditar(senha):\n    if senha.lower() in PROIBIDAS:\n        return \"proibida\"\n\n    maiuscula = any(c.isupper() for c in senha)\n    numero    = any(c.isdigit() for c in senha)\n    simbolo   = any(c in SIMBOLOS for c in senha)\n    pontos = sum([maiuscula, numero, simbolo])\n\n    if len(senha) >= 12 and pontos == 3:\n        return \"forte\"\n    if len(senha) >= 8 and pontos >= 2:\n        return \"ok\"\n    return \"fraca\"\n\nfor s in [\"123456\", \"Gato#2026x\", \"admin\", \"senhalonga123\"]:\n    print(f\"{s:15} -> {auditar(s)}\")"
+        "solucao": "PROIBIDAS = [\"123456\", \"admin\", \"senha\", \"qwerty\"]\nSIMBOLOS = \"!@#$%&*?-_\"\n\ndef auditar(senha):\n    if senha.lower() in PROIBIDAS:\n        return \"proibida\"\n\n    maiuscula = any(c.isupper() for c in senha)\n    numero    = any(c.isdigit() for c in senha)\n    simbolo   = any(c in SIMBOLOS for c in senha)\n    pontos = sum([maiuscula, numero, simbolo])\n\n    if len(senha) >= 12 and pontos == 3:\n        return \"forte\"\n    if len(senha) >= 8 and pontos >= 2:\n        return \"ok\"\n    return \"fraca\"\n\nfor s in [\"123456\", \"Gato#2026x\", \"admin\", \"senhalonga123\"]:\n    print(f\"{s:15} -> {auditar(s)}\")",
+        "linguagem": "python"
       }
     }
   ]

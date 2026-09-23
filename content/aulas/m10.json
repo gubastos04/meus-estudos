@@ -4,27 +4,252 @@
     {
       "id": "m10a1",
       "titulo": "Complexidade sem sofrimento (Big O)",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Quantas contas o seu código faz quando a entrada cresce. É isso que Big O mede, e nada mais.",
+      "ideia": [
+        "O(n) é fazer uma passada pelos dados. O(n²) é comparar todo mundo com todo mundo. A diferença some com 10 itens e explode com 100 mil.",
+        "Big O ignora constante e detalhe de máquina de propósito: ele responde como o custo cresce, não quantos segundos leva."
+      ],
+      "exemplo": {
+        "nota": "A mesma pergunta, dois jeitos. Repare no tempo quando a entrada quadruplica:",
+        "codigo": "import time\n\ndef tem_repetido_lento(itens):      # O(n²): compara todos com todos\n    for i in range(len(itens)):\n        for j in range(i + 1, len(itens)):\n            if itens[i] == itens[j]:\n                return True\n    return False\n\ndef tem_repetido_rapido(itens):     # O(n): guarda o que já viu\n    vistos = set()\n    for item in itens:\n        if item in vistos:\n            return True\n        vistos.add(item)\n    return False\n\nfor tamanho in (1000, 4000):\n    dados = list(range(tamanho))    # pior caso: nenhum repetido\n    for funcao in (tem_repetido_lento, tem_repetido_rapido):\n        inicio = time.perf_counter()\n        funcao(dados)\n        print(tamanho, funcao.__name__, round(time.perf_counter() - inicio, 4), \"s\")\n\n# aqui deu mais ou menos isto:\n# 1000 tem_repetido_lento   0.0575 s\n# 1000 tem_repetido_rapido  0.0002 s\n# 4000 tem_repetido_lento   1.0957 s    entrada 4x maior, tempo 19x maior\n# 4000 tem_repetido_rapido  0.0006 s    entrada 4x maior, tempo 3x maior",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "A tabela que resolve o dia a dia",
+        "linhas": [
+          "O(1) não depende do tamanho: pegar item de dicionário. O(log n) corta pela metade a cada passo: busca binária. O(n) é uma passada. O(n log n) é ordenação. O(n²) é laço dentro de laço.",
+          "Em segurança isso vira defesa e vira ataque. Ler um log de 5 milhões de linhas com um algoritmo O(n²) não termina nunca. E um sistema que fica O(n²) com entrada escolhida a dedo pode ser derrubado com uma requisição bem montada.",
+          "Existe até um nome pra isso em expressão regular: ReDoS, quando uma busca inocente trava com um texto de 30 caracteres. A defesa é limitar tamanho de entrada e desconfiar de expressão com muitos coringas aninhados."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Uma função é O(n²). Se a entrada dobra, o tempo tende a:",
+          "opcoes": [
+            "Dobrar",
+            "Ficar quatro vezes maior",
+            "Continuar igual"
+          ],
+          "correta": 1,
+          "porque": "Dobrar n multiplica n² por quatro. Foi isso que o exemplo mostrou no relógio."
+        },
+        {
+          "pergunta": "Para que serve o Big O, na prática?",
+          "opcoes": [
+            "Dizer quantos segundos o código leva",
+            "Comparar hardware",
+            "Dizer como o custo cresce quando a entrada cresce"
+          ],
+          "correta": 2,
+          "porque": "Segundos dependem da máquina e do dia. O crescimento é propriedade do algoritmo, e é ele que decide se aguenta produção."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva duas funções que descubram quais itens aparecem nas duas listas, uma comparando item a item e outra usando conjunto, e meça as duas com listas de mil e de quatro mil itens. Anote no Caderno qual é qual em Big O e a partir de que tamanho a diferença passou a incomodar.",
+        "solucao": "import time\n\ndef comuns_lento(a, b):        # O(n * m): pra cada item, varre a outra lista\n    saida = []\n    for x in a:\n        for y in b:\n            if x == y:\n                saida.append(x)\n                break\n    return saida\n\ndef comuns_rapido(a, b):       # O(n + m): conjunto responde na hora\n    conjunto = set(b)\n    return [x for x in a if x in conjunto]\n\nfor tamanho in (1000, 4000):\n    a = list(range(tamanho))\n    b = list(range(tamanho, tamanho * 2))    # pior caso: nada em comum\n    for funcao in (comuns_lento, comuns_rapido):\n        inicio = time.perf_counter()\n        funcao(a, b)\n        print(tamanho, funcao.__name__, round(time.perf_counter() - inicio, 4), \"s\")\n\n# comuns_lento  é O(n * m), que com listas do mesmo tamanho vira O(n²)\n# comuns_rapido é O(n + m), porque montar o conjunto é uma passada\n#               e cada consulta nele é O(1)\n#\n# com mil itens os dois parecem instantâneos.\n# com quatro mil, o lento já dá pra sentir, e com quarenta mil ele\n# não termina enquanto você espera. É sempre assim: o problema de\n# O(n²) não aparece no teste pequeno, aparece em produção.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m10a2",
       "titulo": "Busca linear e busca binária",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Procurar item por item, ou cortar a lista ao meio a cada tentativa. A segunda exige ordem e paga muito.",
+      "ideia": [
+        "A busca linear olha um por um: no pior caso, a lista inteira. Funciona em qualquer lista e não pede nada.",
+        "A busca binária começa no meio e descarta metade a cada passo. Exige lista ordenada e resolve um milhão de itens em vinte comparações."
+      ],
+      "exemplo": {
+        "nota": "As duas lado a lado, com a conta das comparações:",
+        "codigo": "def busca_linear(lista, alvo):\n    for i, item in enumerate(lista):\n        if item == alvo:\n            return i\n    return -1\n\ndef busca_binaria(lista, alvo):\n    inicio, fim, passos = 0, len(lista) - 1, 0\n    while inicio <= fim:\n        passos += 1\n        meio = (inicio + fim) // 2\n        if lista[meio] == alvo:\n            print(\"achou em\", passos, \"passos\")\n            return meio\n        if lista[meio] < alvo:\n            inicio = meio + 1      # o alvo está na metade de cima\n        else:\n            fim = meio - 1         # está na de baixo\n    print(\"não achou em\", passos, \"passos\")\n    return -1\n\nordenada = list(range(1_000_000))\n\nprint(busca_binaria(ordenada, 999_999))   # achou em 20 passos\nprint(busca_binaria(ordenada, -1))        # não achou em 19 passos\n\n# a linear precisaria de 1.000.000 comparações no mesmo pior caso.\n# 2 elevado a 20 é 1.048.576: por isso 20 passos bastam.\n\nimport bisect\nposicao = bisect.bisect_left(ordenada, 999_999)   # a mesma busca, pronta\nprint(posicao, ordenada[posicao])",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "Quando vale ordenar",
+        "linhas": [
+          "Ordenar custa O(n log n). Se você vai buscar uma vez só, a busca linear sai na frente. Se vai buscar milhares de vezes na mesma lista, ordene uma vez e ganhe sempre.",
+          "É exatamente a conta do projeto Verificador de senha vazada: um arquivo com milhões de hashes, consultado várias vezes. Ordenado, cada consulta é instantânea.",
+          "Cuidado com o erro clássico: busca binária em lista desordenada não avisa nada, só devolve resposta errada. Ordem é pré-requisito, não detalhe."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Quantas comparações a busca binária faz, no pior caso, numa lista ordenada de um milhão de itens?",
+          "opcoes": [
+            "Cerca de 20",
+            "Cerca de 1000",
+            "Um milhão"
+          ],
+          "correta": 0,
+          "porque": "Cada passo descarta metade. Vinte metades de um milhão chegam em um item: 2 elevado a 20 passa de um milhão."
+        },
+        {
+          "pergunta": "Você rodou uma busca binária numa lista que não estava ordenada. O que acontece?",
+          "opcoes": [
+            "O Python levanta um erro",
+            "Ela devolve resposta errada em silêncio",
+            "Ela vira busca linear automaticamente"
+          ],
+          "correta": 1,
+          "porque": "Ela confia na ordem pra decidir qual metade descartar. Sem ordem, descarta a metade que tinha o item."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte uma lista ordenada com cem mil senhas falsas, procure cinco senhas com busca linear e com busca binária, e meça o tempo das duas. Anote no Caderno quantos passos a binária precisou e por que o custo de ordenar valeu a pena.",
+        "solucao": "import time, bisect\n\nvazadas = sorted(f\"senha{n:06d}\" for n in range(100_000))\nprocurar = [\"senha000001\", \"senha050000\", \"senha099999\", \"minha-senha-boa\", \"123456\"]\n\ndef linear(lista, alvo):\n    for item in lista:\n        if item == alvo:\n            return True\n    return False\n\ndef binaria(lista, alvo):\n    i = bisect.bisect_left(lista, alvo)\n    return i < len(lista) and lista[i] == alvo\n\nfor nome, funcao in ((\"linear\", linear), (\"binaria\", binaria)):\n    inicio = time.perf_counter()\n    achadas = [alvo for alvo in procurar if funcao(vazadas, alvo)]\n    print(nome, round(time.perf_counter() - inicio, 5), \"s\", achadas)\n\n# passos da binária em 100.000 itens: 17 no pior caso (2^17 = 131.072)\n#\n# por que ordenar valeu:\n# a ordenação acontece uma vez, quando o arquivo é carregado.\n# depois disso, cada consulta é quase de graça, e um verificador de senha\n# é consultado o tempo todo.\n# se fosse uma consulta só na vida, a linear teria sido mais barata.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m10a3",
       "titulo": "Pilha, fila e quando usar cada uma",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Pilha: o último a entrar sai primeiro. Fila: o primeiro a entrar sai primeiro. Toda a diferença está em qual ponta você mexe.",
+      "ideia": [
+        "Pilha é desfazer, histórico do navegador e chamada de função, aquela da aula 9.4. Fila é o que precisa ser atendido na ordem em que chegou.",
+        "Em Python, lista serve de pilha com append e pop. Pra fila, use deque: tirar do começo de uma lista comum é caro."
+      ],
+      "exemplo": {
+        "nota": "As duas em ação, com um uso de verdade da pilha: conferir se os parênteses fecham.",
+        "codigo": "from collections import deque\n\n# pilha: o último a entrar é o primeiro a sair\npilha = []\npilha.append(\"abriu o site\")\npilha.append(\"abriu o produto\")\npilha.append(\"abriu o carrinho\")\nprint(pilha.pop())     # abriu o carrinho   (o botão voltar)\nprint(pilha.pop())     # abriu o produto\n\n# fila: o primeiro a entrar é o primeiro a sair\nfila = deque()\nfila.append(\"alerta 1\")\nfila.append(\"alerta 2\")\nfila.append(\"alerta 3\")\nprint(fila.popleft())  # alerta 1   (o mais antigo primeiro)\n\n# pilha resolvendo um problema real\ndef fecha_certo(texto):\n    pares = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    pilha = []\n    for c in texto:\n        if c in \"([{\":\n            pilha.append(c)\n        elif c in pares:\n            if not pilha or pilha.pop() != pares[c]:\n                return False\n    return not pilha\n\nprint(fecha_certo(\"usuario = {'id': [1, 2]}\"))   # True\nprint(fecha_certo(\"usuario = {'id': [1, 2}]\"))   # False",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "Por que isso aparece em segurança",
+        "linhas": [
+          "A pilha de chamadas é a mesma da aula 9.4: cada função empilha um quadro e desempilha ao voltar. Rastro de erro (stack trace) é essa pilha impressa, e é por isso que ela nunca deve aparecer na tela de quem acessa.",
+          "Fila é a espinha de qualquer processamento de evento: log chegando, alerta pra tratar, e-mail pra enviar. Fila que cresce mais rápido do que esvazia é o sinal mais claro de sistema em apuros.",
+          "pop(0) numa lista comum é O(n), porque o Python precisa deslocar tudo. deque foi feita pra mexer nas duas pontas em O(1). Trocar lista por deque já resolveu muito gargalo."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual estrutura descreve o botão voltar do navegador?",
+          "opcoes": [
+            "Pilha: o último lugar visitado é o primeiro pra onde você volta",
+            "Fila: o primeiro lugar visitado é o primeiro pra onde você volta",
+            "Nenhuma das duas"
+          ],
+          "correta": 0,
+          "porque": "É o mesmo desenho do desfazer e da pilha de chamadas de função."
+        },
+        {
+          "pergunta": "Por que usar deque em vez de lista pra fazer fila?",
+          "opcoes": [
+            "Porque deque ordena sozinha",
+            "Porque tirar do começo de uma lista comum obriga a deslocar todos os outros itens",
+            "Porque lista não aceita append"
+          ],
+          "correta": 1,
+          "porque": "Com poucos itens ninguém nota. Com cem mil eventos por minuto, é a diferença entre atender e travar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um processador de alertas que use fila pra atender na ordem de chegada e pilha pra guardar os últimos cinco atendidos, permitindo desfazer o último. Mostre o estado dos dois depois de processar seis alertas e desfazer dois. Anote no Caderno onde você usaria cada estrutura no seu projeto.",
+        "solucao": "from collections import deque\n\nfila = deque([\n    \"10.0.0.9 forca bruta\",\n    \"10.0.0.7 varredura\",\n    \"upload suspeito\",\n    \"login fora do horario\",\n    \"certificado vencendo\",\n    \"disco em 95%\",\n])\n\natendidos = []      # pilha: o último atendido é o primeiro a desfazer\n\nwhile fila:\n    alerta = fila.popleft()          # sempre o mais antigo\n    atendidos.append(alerta)\n    if len(atendidos) > 5:\n        atendidos.pop(0)             # guarda só os cinco últimos\n\nprint(\"fila:\", list(fila))           # fila: []\nprint(\"atendidos:\", len(atendidos))  # atendidos: 5\n\n# desfazendo os dois últimos: eles voltam pro começo da fila\nfor _ in range(2):\n    voltou = atendidos.pop()\n    fila.appendleft(voltou)\n    print(\"desfeito:\", voltou)\n# desfeito: disco em 95%\n# desfeito: certificado vencendo\n\nprint(\"fila agora:\", list(fila))\n# fila agora: ['certificado vencendo', 'disco em 95%']\n\n# onde eu usaria:\n# fila  -> tudo que chega e precisa ser tratado na ordem: log, alerta, e-mail\n# pilha -> histórico, desfazer, e navegação em profundidade (achar arquivo\n#          dentro de pasta dentro de pasta)",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m10a4",
       "titulo": "Tabela hash: o truque dos dicionários",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "Dicionário e conjunto acham qualquer item quase na hora, sem procurar. O truque é calcular onde ele deveria estar.",
+      "ideia": [
+        "A tabela hash passa a chave por uma função e usa o resultado como endereço. Não procura: calcula. Por isso é O(1), com lista ou sem lista.",
+        "É a estrutura mais usada em análise de log: contar quantas vezes cada IP, cada usuário e cada caminho apareceu."
+      ],
+      "exemplo": {
+        "nota": "O relatório da aula 3.6, agora em Python. É o mesmo raciocínio, em dez linhas:",
+        "codigo": "from collections import Counter\nimport time\n\nlinhas = \"\"\"10.0.0.5 GET / 200\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 200\n10.0.0.7 GET /.env 404\n10.0.0.7 GET /admin 403\n10.0.0.5 GET /produtos 200\"\"\".splitlines()\n\nips = [linha.split()[0] for linha in linhas]\nprint(Counter(ips).most_common(3))\n# [('10.0.0.9', 5), ('10.0.0.5', 2), ('10.0.0.7', 2)]\n\nfalhas = Counter(l.split()[0] for l in linhas if l.endswith(\"401\"))\nprint(falhas)\n# Counter({'10.0.0.9': 4})\n\n# por que dicionário e conjunto são tão rápidos\nlista = list(range(200_000))\nconjunto = set(lista)\n\nfor nome, colecao in ((\"lista\", lista), (\"conjunto\", conjunto)):\n    inicio = time.perf_counter()\n    for _ in range(100):\n        199_999 in colecao\n    print(nome, round(time.perf_counter() - inicio, 5), \"s\")\n# lista percorre até o fim; conjunto calcula o endereço e olha uma vez.",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "O preço e os limites",
+        "linhas": [
+          "Duas chaves podem cair no mesmo endereço, o que se chama colisão. A estrutura resolve sozinha, e é por isso que O(1) é o caso normal, não uma garantia.",
+          "Chave de dicionário precisa ser imutável: texto, número, tupla. Lista não serve, porque mudaria de lugar depois de guardada.",
+          "O hash daqui não é o hash de senha da aula 6.4. Este é feito pra ser rápido e distribuir bem; aquele, pra ser lento e resistir a ataque. Mesmo nome, propósitos opostos."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que procurar num conjunto é muito mais rápido que numa lista grande?",
+          "opcoes": [
+            "Porque o conjunto está ordenado",
+            "Porque o conjunto calcula o endereço da chave em vez de percorrer os itens",
+            "Porque o conjunto guarda menos dados"
+          ],
+          "correta": 1,
+          "porque": "A lista compara um por um, O(n). A tabela hash vai direto, O(1) no caso normal."
+        },
+        {
+          "pergunta": "Por que uma lista não pode ser chave de dicionário?",
+          "opcoes": [
+            "Porque lista ocupa muita memória",
+            "Porque só texto pode ser chave",
+            "Porque ela pode mudar depois de guardada, e o endereço calculado deixaria de bater"
+          ],
+          "correta": 2,
+          "porque": "Chave precisa ser imutável. Se precisar de vários valores numa chave, use tupla."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um analisador que receba as linhas de um log e devolva três relatórios: requisições por IP, falhas de login por IP e caminhos que deram 403 ou 404, tudo com dicionário. Compare no Caderno com os comandos que você usou na aula 3.6 e diga o que ficou melhor em cada abordagem.",
+        "solucao": "from collections import Counter, defaultdict\n\nLINHAS = \"\"\"10.0.0.5 GET / 200\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 401\n10.0.0.9 POST /login 200\n10.0.0.7 GET /.env 404\n10.0.0.7 GET /wp-login.php 404\n10.0.0.7 GET /admin 403\n10.0.0.5 GET /produtos 200\n10.0.0.3 POST /login 200\"\"\".splitlines()\n\ndef analisar(linhas):\n    por_ip = Counter()\n    falhas = Counter()\n    negados = defaultdict(list)\n\n    for linha in linhas:\n        ip, metodo, caminho, status = linha.split()\n        por_ip[ip] += 1\n        if status == \"401\":\n            falhas[ip] += 1\n        if status in (\"403\", \"404\"):\n            negados[caminho].append(ip)\n\n    return por_ip, falhas, negados\n\npor_ip, falhas, negados = analisar(LINHAS)\n\nprint(\"por IP:  \", por_ip.most_common())\nprint(\"falhas:  \", dict(falhas))\nprint(\"negados: \", dict(negados))\n# por IP:   [('10.0.0.9', 5), ('10.0.0.7', 3), ('10.0.0.5', 2), ('10.0.0.3', 1)]\n# falhas:   {'10.0.0.9': 4}\n# negados:  {'/.env': ['10.0.0.7'], '/wp-login.php': ['10.0.0.7'], '/admin': ['10.0.0.7']}\n\n# comparando com a aula 3.6:\n# terminal  -> imbatível pra olhar rápido, sem escrever programa nenhum.\n#              cut, sort, uniq -c resolvem em uma linha.\n# Python    -> quando a resposta vira rotina: dá pra guardar, testar, cruzar\n#              três relatórios de uma vez e mandar alerta.\n# na prática se usa os dois: terminal pra investigar, Python pra automatizar.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m10a5",
       "titulo": "Árvores e grafos, o básico útil",
-      "minutos": 20
+      "minutos": 20,
+      "resumo": "Árvore é hierarquia: pasta dentro de pasta. Grafo é ligação: quem alcança quem.",
+      "ideia": [
+        "Árvore tem raiz e filhos, sem voltar pra trás. Sistema de arquivos, HTML da aula 5.1 e organograma são árvores.",
+        "Grafo é qualquer coisa ligada a qualquer coisa. Rede de computadores é grafo, e a pergunta de segurança é sempre a mesma: da internet, quantos saltos até o banco de dados?"
+      ],
+      "exemplo": {
+        "nota": "Um grafo da rede e a busca em largura, que acha o caminho mais curto:",
+        "codigo": "from collections import deque\n\nrede = {\n    \"internet\":  [\"web\"],\n    \"web\":       [\"app\"],\n    \"app\":       [\"banco\", \"fila\"],\n    \"fila\":      [\"relatorio\"],\n    \"relatorio\": [\"banco\"],\n    \"banco\":     [],\n}\n\ndef caminho_mais_curto(grafo, origem, destino):\n    fila = deque([[origem]])\n    vistos = {origem}\n    while fila:\n        caminho = fila.popleft()\n        atual = caminho[-1]\n        if atual == destino:\n            return caminho\n        for vizinho in grafo.get(atual, []):\n            if vizinho not in vistos:\n                vistos.add(vizinho)\n                fila.append(caminho + [vizinho])\n    return None\n\nprint(caminho_mais_curto(rede, \"internet\", \"banco\"))\n# ['internet', 'web', 'app', 'banco']\n\nprint(caminho_mais_curto(rede, \"internet\", \"relatorio\"))\n# ['internet', 'web', 'app', 'fila', 'relatorio']\n\n# a fila é a mesma deque da aula anterior. Trocando a fila por uma pilha,\n# a mesma função vira busca em profundidade, que acha um caminho\n# qualquer, não necessariamente o mais curto.",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "Onde isso aparece de verdade",
+        "linhas": [
+          "Caminho mais curto da internet até o banco é o desenho do risco: três saltos quer dizer que uma falha no servidor web já encosta no dado. Segmentar a rede é aumentar essa distância de propósito.",
+          "Grafo também descreve dependência de biblioteca, e aí o assunto é a cadeia de suprimentos, número 3 do Top 10 de 2025: a sua aplicação depende de dez pacotes, que dependem de trezentos.",
+          "Árvore aparece toda hora: pasta, DOM, JSON, organização de permissão. Percorrer em profundidade é o padrão quando você quer descer até o fim de cada ramo."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual a diferença entre árvore e grafo?",
+          "opcoes": [
+            "Árvore é hierarquia sem ciclo; grafo liga qualquer nó a qualquer nó, inclusive em ciclo",
+            "Árvore é mais rápida",
+            "Grafo só existe em matemática"
+          ],
+          "correta": 0,
+          "porque": "Toda árvore é um grafo, com a regra extra de não voltar. Por isso em grafo você precisa marcar o que já visitou."
+        },
+        {
+          "pergunta": "A busca em largura achou o caminho internet, web, app, banco. O que isso diz sobre a rede?",
+          "opcoes": [
+            "Que o banco está seguro, porque não fica exposto direto",
+            "Que uma falha no servidor web coloca o atacante a dois saltos do banco de dados",
+            "Nada: caminho curto não tem relação com risco"
+          ],
+          "correta": 1,
+          "porque": "Esse desenho é o mapa de movimento lateral. Menos saltos até o dado quer dizer menos coisa pra dar errado antes do estrago."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte o grafo da rede que você mapeou na aula 4.6, com o roteador, a sua máquina e os aparelhos que respondiam, e calcule o caminho da internet até cada um. Anote no Caderno qual aparelho está mais exposto e uma mudança que aumentaria a distância dele.",
+        "solucao": "from collections import deque\n\nminha_rede = {\n    \"internet\":   [\"roteador\"],\n    \"roteador\":   [\"notebook\", \"celular\", \"tv\", \"impressora\"],\n    \"notebook\":   [\"nas\"],\n    \"tv\":         [],\n    \"celular\":    [],\n    \"impressora\": [],\n    \"nas\":        [],\n}\n\ndef distancias(grafo, origem):\n    fila = deque([(origem, 0)])\n    vistos = {origem: 0}\n    while fila:\n        atual, passos = fila.popleft()\n        for vizinho in grafo.get(atual, []):\n            if vizinho not in vistos:\n                vistos[vizinho] = passos + 1\n                fila.append((vizinho, passos + 1))\n    return vistos\n\nfor aparelho, saltos in sorted(distancias(minha_rede, \"internet\").items(), key=lambda x: x[1]):\n    print(saltos, aparelho)\n# 0 internet\n# 1 roteador\n# 2 notebook\n# 2 celular\n# 2 tv\n# 2 impressora\n# 3 nas\n\n# conclusão do Caderno:\n# o roteador é o mais exposto: um salto da internet, e é ele que decide\n# tudo o que entra. Painel com senha padrão ali derruba a rede inteira.\n#\n# o que aumenta a distância:\n# - trocar a senha do painel e desligar administração pela internet\n# - pôr tv e impressora numa rede de convidados, separada do notebook\n#   e do NAS. Assim a tv deixa de ter caminho até o meu dado.",
+        "linguagem": "python"
+      }
     }
   ]
 }

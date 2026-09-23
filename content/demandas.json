@@ -151,5 +151,169 @@
     "solucao": "def normalizar_email(email):\n    if not email or \"@\" not in email:\n        return None\n\n    email = email.strip().lower()\n    usuario, _, dominio = email.partition(\"@\")\n\n    if not usuario or \".\" not in dominio:\n        return None\n\n    if dominio == \"gmail.com\":\n        usuario = usuario.split(\"+\")[0]\n\n    return f\"{usuario}@{dominio}\"",
     "aprendizado": "Normalizar entrada antes de comparar evita duplicata, e é a mesma técnica que evita bypass de filtro em segurança.",
     "foco": "seguranca"
+  },
+  {
+    "id": "d7",
+    "nivel": 1,
+    "titulo": "Quais certificados vencem primeiro?",
+    "de": "Rafa, infraestrutura",
+    "canal": "E-mail",
+    "prazo": "até sexta",
+    "depois": "HTTPS e TLS (aula 4.4)",
+    "mensagem": "oi, tudo bem?\n\ntenho uma planilha com os domínios da empresa e a data de validade do certificado de cada um. no mês passado um venceu e o site caiu, e ninguém percebeu antes do cliente ligar.\n\nme faz um script que receba essa lista e diga quais vencem nos próximos 30 dias, do mais urgente pro menos.\n\ncada item vem assim: (\"loja.exemplo.com\", \"2026-10-02\")",
+    "criterios": [
+      "Recebe a lista de pares domínio e data, e a data de hoje",
+      "Considera só os que vencem dentro do prazo pedido",
+      "Devolve do mais urgente pro menos urgente",
+      "O prazo de 30 dias é um parâmetro, não um número fixo no meio do código"
+    ],
+    "reviravolta": {
+      "texto": "perfeito\n\nsó que agora vi que tem domínio que já venceu e não apareceu na sua lista. esses eu preciso ver primeiro, marcados de um jeito que não dê pra ignorar",
+      "criterios": [
+        "Inclui também os que já venceram",
+        "Marca os vencidos de forma diferente dos que ainda vão vencer",
+        "Os vencidos aparecem antes de todos os outros"
+      ]
+    },
+    "solucao": "from datetime import date\n\ndef vencendo(certificados, hoje, dias=30):\n    saida = []\n    for dominio, validade in certificados:\n        faltam = (date.fromisoformat(validade) - hoje).days\n        if faltam <= dias:\n            estado = \"VENCIDO\" if faltam < 0 else f\"vence em {faltam} dias\"\n            saida.append((faltam, dominio, estado))\n    # faltam negativo ordena primeiro, então vencido vem na frente\n    return [(dominio, estado) for _, dominio, estado in sorted(saida)]\n\nCERTIFICADOS = [\n    (\"loja.exemplo.com\", \"2026-10-02\"),\n    (\"api.exemplo.com\", \"2026-09-18\"),\n    (\"blog.exemplo.com\", \"2027-03-01\"),\n    (\"painel.exemplo.com\", \"2026-09-30\"),\n]\n\nfor item in vencendo(CERTIFICADOS, date(2026, 9, 23)):\n    print(item)\n# ('api.exemplo.com', 'VENCIDO')\n# ('painel.exemplo.com', 'vence em 7 dias')\n# ('loja.exemplo.com', 'vence em 9 dias')\n\n# o blog não aparece: vence só em março.",
+    "aprendizado": "Data virou número de dias, e aí ordenar resolveu sozinho o problema de prioridade. Guardar o número negativo em vez de um campo separado pra vencido é o truque que deixou o sorted fazer o trabalho.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "d8",
+    "nivel": 1,
+    "titulo": "Esses acessos são de dentro ou de fora?",
+    "de": "Rafa, infraestrutura",
+    "canal": "Slack",
+    "prazo": "hoje ainda",
+    "depois": "Mapear a própria rede (aula 4.6)",
+    "mensagem": "fala\n\ntô com uma lista de IPs que acessaram o painel interno no fim de semana e preciso saber quais são da nossa rede e quais vieram de fora\n\nnossa faixa é 192.168.0.0/24\n\nse vier alguém de fora nessa lista já é assunto pra hoje",
+    "criterios": [
+      "Recebe a lista de IPs e a faixa da rede",
+      "Devolve duas listas separadas, internos e externos",
+      "Mantém a ordem original dentro de cada lista",
+      "A faixa é um parâmetro, não está escrita dentro da função"
+    ],
+    "reviravolta": {
+      "texto": "boa\n\nesqueci de avisar: quem trabalha de casa entra pela VPN, que usa a faixa 10.8.0.0/24. esses também são de dentro\n\nvai que amanhã aparece uma terceira faixa, deixa preparado",
+      "criterios": [
+        "Aceita várias faixas de uma vez",
+        "IP que estiver em qualquer uma das faixas conta como interno",
+        "Continua funcionando com uma faixa só"
+      ]
+    },
+    "solucao": "def numero(ip):\n    a, b, c, d = (int(x) for x in ip.split(\".\"))\n    return (a << 24) | (b << 16) | (c << 8) | d\n\ndef na_faixa(ip, rede):\n    base, bits = rede.split(\"/\")\n    mascara = (0xFFFFFFFF << (32 - int(bits))) & 0xFFFFFFFF\n    return numero(ip) & mascara == numero(base) & mascara\n\ndef separar(ips, redes):\n    internos, externos = [], []\n    for ip in ips:\n        destino = internos if any(na_faixa(ip, rede) for rede in redes) else externos\n        destino.append(ip)\n    return internos, externos\n\nIPS = [\"192.168.0.14\", \"200.1.2.3\", \"10.8.0.6\", \"192.168.0.99\", \"45.33.32.156\"]\n\nprint(separar(IPS, [\"192.168.0.0/24\"]))\n# (['192.168.0.14', '192.168.0.99'], ['200.1.2.3', '10.8.0.6', '45.33.32.156'])\n\nprint(separar(IPS, [\"192.168.0.0/24\", \"10.8.0.0/24\"]))\n# (['192.168.0.14', '10.8.0.6', '192.168.0.99'], ['200.1.2.3', '45.33.32.156'])\n\n# o na_faixa é o mesmo do treino: aqui ele só ganhou um chefe.\n# 45.33.32.156 continuou de fora nas duas versões, e é ele que o Rafa quer ver.",
+    "aprendizado": "Receber uma lista de faixas desde o começo custou a mesma linha e aguentou a reviravolta sem reescrever nada. Parâmetro em vez de valor fixo é o que faz código sobreviver ao segundo pedido.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "d9",
+    "nivel": 2,
+    "titulo": "A busca quebra quando o nome tem apóstrofo",
+    "de": "Dani, produto",
+    "canal": "Ticket",
+    "numero": "#4172",
+    "prazo": "essa semana",
+    "depois": "Consulta parametrizada (aula 8.5)",
+    "mensagem": "oi! dois problemas na busca de clientes:\n\n1) cliente chamado Ana O'Brien dá erro 500 quando alguém procura pelo sobrenome\n2) a tela trava quando a busca devolve muita gente\n\na tabela é clientes(id, nome, email). a busca tem que achar por nome ou por e-mail, e a tela deixa escolher a ordem entre nome e mais recentes.",
+    "criterios": [
+      "Procura por pedaço do nome ou do e-mail",
+      "Nome com apóstrofo funciona e não derruba nada",
+      "Nenhuma consulta é montada grudando texto que veio de fora",
+      "A ordem escolhida na tela sai de uma lista de permitidos"
+    ],
+    "reviravolta": {
+      "texto": "ótimo, o erro sumiu\n\nagora a parte da tela travando: precisa devolver de 20 em 20, com a página que o front pedir",
+      "criterios": [
+        "Aceita página e quantidade por página",
+        "Página e quantidade também vão por parâmetro, não grudadas na consulta",
+        "Pedir uma página que não existe devolve lista vazia, sem erro"
+      ]
+    },
+    "solucao": "import sqlite3\n\nORDENS = {\"nome\": \"nome\", \"recentes\": \"id DESC\"}   # lista de permitidos\n\ndef buscar(con, termo, ordem=\"nome\", pagina=1, por_pagina=20):\n    coluna = ORDENS.get(ordem, \"nome\")     # veio algo estranho? cai no padrão\n    return con.execute(\n        f\"\"\"SELECT id, nome FROM clientes\n             WHERE nome LIKE ? OR email LIKE ?\n             ORDER BY {coluna}\n             LIMIT ? OFFSET ?\"\"\",\n        (f\"%{termo}%\", f\"%{termo}%\", por_pagina, (pagina - 1) * por_pagina),\n    ).fetchall()\n\ncon = sqlite3.connect(\":memory:\")\ncon.execute(\"CREATE TABLE clientes (id INTEGER PRIMARY KEY, nome TEXT, email TEXT)\")\ncon.executemany(\"INSERT INTO clientes (nome, email) VALUES (?, ?)\", [\n    (\"Ana O'Brien\", \"ana@exemplo.com\"), (\"Bruno Lima\", \"bruno@exemplo.com\"),\n    (\"Ana Paula\", \"anapaula@exemplo.com\"), (\"Carla Souza\", \"carla@exemplo.com\"),\n])\ncon.commit()\n\nprint(buscar(con, \"O'Brien\"))                    # [(1, \"Ana O'Brien\")]\nprint(buscar(con, \"ana\", por_pagina=1))          # [(1, \"Ana O'Brien\")]\nprint(buscar(con, \"ana\", por_pagina=1, pagina=2))  # [(3, 'Ana Paula')]\nprint(buscar(con, \"ana\", por_pagina=1, pagina=9))  # []\nprint(buscar(con, \"x' OR '1'='1\"))               # []\n\n# o apóstrofo do O'Brien era o mesmo problema da injeção, só que sem má intenção.\n# quem conserta um, conserta o outro: o valor vai pelo ?, e pronto.",
+    "aprendizado": "O bug do apóstrofo e a SQL Injection são a mesma falha vista de dois ângulos. Nome de coluna não entra por parâmetro, então ele sai de um dicionário seu: essas são as duas únicas regras.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "d10",
+    "nivel": 2,
+    "titulo": "Alguém baixou muita coisa de madrugada",
+    "de": "Marcos, seu gestor",
+    "canal": "Slack",
+    "prazo": "pra ontem",
+    "depois": "Ler e filtrar logs em massa (aula 11.2)",
+    "mensagem": "preciso de uma ajuda discreta\n\no jurídico pediu o log de download do servidor de arquivos. quero saber quem baixou muita coisa fora do horário de trabalho, digamos 3 ou mais downloads entre 18h e 8h\n\nlinha do log:\n2026-09-21 03:12:00 | joana | contratos.zip\n\nsó me dá os nomes e a contagem, ordenado do maior. não tira conclusão, só me traz o número.",
+    "criterios": [
+      "Lê as linhas no formato data, usuário e arquivo",
+      "Considera só o que ficou fora do horário comercial",
+      "Conta por usuário e devolve do maior pro menor",
+      "O limite e o horário são parâmetros"
+    ],
+    "reviravolta": {
+      "texto": "opa, a conta de backup apareceu no topo. ela roda de madrugada mesmo, todo dia\n\ntira as contas de serviço da conta. e o fim de semana inteiro também conta como fora do horário, mesmo de dia",
+      "criterios": [
+        "Recebe uma lista de contas de serviço e ignora todas",
+        "Sábado e domingo contam como fora do horário em qualquer hora",
+        "O resultado continua ordenado do maior pro menor"
+      ]
+    },
+    "solucao": "from datetime import datetime\n\ndef fora_de_hora(linhas, limite=3, inicio=8, fim=18, servicos=()):\n    contagem = {}\n    for linha in linhas:\n        quando, usuario, _arquivo = [parte.strip() for parte in linha.split(\"|\")]\n        if usuario in servicos:\n            continue\n\n        momento = datetime.fromisoformat(quando)\n        fim_de_semana = momento.weekday() >= 5\n        if fim_de_semana or momento.hour < inicio or momento.hour >= fim:\n            contagem[usuario] = contagem.get(usuario, 0) + 1\n\n    return sorted(((u, n) for u, n in contagem.items() if n >= limite), key=lambda par: -par[1])\n\nLOG = [\n    \"2026-09-21 03:12:00 | joana | contratos.zip\",\n    \"2026-09-21 03:14:00 | joana | clientes.csv\",\n    \"2026-09-21 03:20:00 | joana | folha.xlsx\",\n    \"2026-09-21 10:00:00 | joana | manual.pdf\",\n    \"2026-09-21 02:00:00 | backup | tudo.tar.gz\",\n    \"2026-09-21 02:05:00 | backup | tudo2.tar.gz\",\n    \"2026-09-21 02:10:00 | backup | tudo3.tar.gz\",\n    \"2026-09-19 22:00:00 | pedro | relatorio.pdf\",\n]\n\nprint(fora_de_hora(LOG))\n# [('joana', 3), ('backup', 3)]\n\nprint(fora_de_hora(LOG, servicos={\"backup\"}))\n# [('joana', 3)]\n\n# o download das 10h da joana não entrou na conta, e o pedro ficou de fora\n# porque teve só um. O número não acusa ninguém: ele diz onde olhar.",
+    "aprendizado": "Contar é fácil; o difícil é decidir o que não conta. Conta de serviço e fim de semana mudaram o resultado inteiro, e essa é a diferença entre um alerta útil e um alerta que todo mundo aprende a ignorar.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "d11",
+    "nivel": 3,
+    "titulo": "Sessão que não morre nunca",
+    "de": "Léo, suporte",
+    "canal": "Ticket",
+    "numero": "#4210",
+    "prazo": "essa sprint",
+    "depois": "Autenticação, autorização e sessão (aula 6.3)",
+    "mensagem": "achei uma coisa estranha testando o sistema\n\nfiz login num computador emprestado semana passada, troquei minha senha depois, e hoje abri o navegador de lá e ainda tava logado\n\nisso me pareceu errado. dá pra fazer a sessão expirar e cair quando a senha muda?",
+    "criterios": [
+      "Gera o identificador de sessão com secrets, nunca com random",
+      "Guarda no servidor o hash do token, não o token em si",
+      "A sessão expira sozinha depois do prazo",
+      "Validar uma sessão vencida devolve nada e limpa o registro"
+    ],
+    "reviravolta": {
+      "texto": "boa, o prazo funcionou\n\nfalta a segunda parte do ticket: quando eu troco a senha, todas as sessões daquele usuário têm que cair na hora, inclusive as de outros aparelhos",
+      "criterios": [
+        "Uma função derruba todas as sessões de um usuário",
+        "Depois dela, qualquer token antigo daquele usuário deixa de valer",
+        "Sessões de outros usuários continuam funcionando"
+      ]
+    },
+    "solucao": "import hashlib, secrets\nfrom datetime import datetime, timedelta\n\ndef abrir_sessao(sessoes, usuario, agora, horas=12):\n    bruto = secrets.token_urlsafe(32)                       # só o usuário recebe isto\n    chave = hashlib.sha256(bruto.encode()).hexdigest()      # só isto fica guardado\n    sessoes[chave] = {\"usuario\": usuario, \"expira\": agora + timedelta(hours=horas)}\n    return bruto\n\ndef de_quem(sessoes, bruto, agora):\n    chave = hashlib.sha256(bruto.encode()).hexdigest()\n    dados = sessoes.get(chave)\n    if not dados or dados[\"expira\"] <= agora:\n        sessoes.pop(chave, None)        # vencida sai do caminho\n        return None\n    return dados[\"usuario\"]\n\ndef derrubar_sessoes(sessoes, usuario):\n    for chave in [c for c, dados in sessoes.items() if dados[\"usuario\"] == usuario]:\n        del sessoes[chave]\n\nsessoes = {}\nagora = datetime(2026, 9, 23, 8, 0)\n\ntoken = abrir_sessao(sessoes, \"ana\", agora)\nprint(de_quem(sessoes, token, agora))                        # ana\nprint(de_quem(sessoes, token, agora + timedelta(hours=13)))  # None, venceu\n\ntoken = abrir_sessao(sessoes, \"ana\", agora)\nderrubar_sessoes(sessoes, \"ana\")          # foi o que a troca de senha dispara\nprint(de_quem(sessoes, token, agora))     # None\n\n# guardar o hash do token é a mesma ideia da senha (aula 6.4):\n# quem roubar a tabela de sessões não sai logando como os outros.",
+    "aprendizado": "Token de sessão vale o mesmo que senha enquanto estiver vivo, então ele se guarda hasheado e morre em três situações: prazo, logout e troca de senha. A última é a que quase todo sistema esquece.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "d12",
+    "nivel": 3,
+    "titulo": "O relatório trava o servidor toda segunda",
+    "de": "Marcos, seu gestor",
+    "canal": "E-mail",
+    "prazo": "antes da próxima segunda",
+    "depois": "Complexidade sem sofrimento (aula 10.1)",
+    "mensagem": "bom dia\n\naquele relatório de usuários ativos leva quase 40 minutos e trava o sistema pra todo mundo enquanto roda. quando eram 500 usuários era instantâneo, agora são 20 mil.\n\no código cruza a lista de usuários com a lista de quem acessou no mês. me diz quem está ativo.\n\nnão quero reescrever o sistema, quero o relatório rápido.",
+    "criterios": [
+      "Devolve a lista de usuários que aparecem nos acessos",
+      "Não usa laço dentro de laço nem busca repetida em lista",
+      "O resultado é igual ao da versão antiga",
+      "Mede o tempo antes e depois, pra provar a melhora"
+    ],
+    "reviravolta": {
+      "texto": "ficou instantâneo, obrigado\n\nagora que ficou rápido, aproveita e me manda também quem NUNCA acessou. o RH quer avisar essas pessoas antes de cancelar as contas",
+      "criterios": [
+        "Devolve as duas listas na mesma passada",
+        "Quem nunca acessou sai na ordem original da lista de usuários",
+        "O tempo continua praticamente o mesmo de antes"
+      ]
+    },
+    "solucao": "import time\n\ndef ativos_lento(usuarios, acessos):        # O(n * m): varre a lista inteira pra cada usuário\n    return [u for u in usuarios if u in acessos]\n\ndef resumo(usuarios, acessos):              # O(n + m): conjunto responde na hora\n    com_acesso = set(acessos)\n    ativos, nunca = [], []\n    for usuario in usuarios:\n        (ativos if usuario in com_acesso else nunca).append(usuario)\n    return ativos, nunca\n\nusuarios = [f\"usuario{n}\" for n in range(20_000)]\nacessos = [f\"usuario{n}\" for n in range(0, 20_000, 2)]   # metade acessou\n\ninicio = time.perf_counter()\nativos_lento(usuarios, acessos)\nprint(\"com lista:   \", round(time.perf_counter() - inicio, 3), \"s\")\n\ninicio = time.perf_counter()\nativos, nunca = resumo(usuarios, acessos)\nprint(\"com conjunto:\", round(time.perf_counter() - inicio, 3), \"s\")\nprint(len(ativos), \"ativos e\", len(nunca), \"que nunca acessaram\")\n\n# aqui deu 2,186 s contra 0,005 s. A conta é a mesma, o que mudou foi\n# onde a pergunta 'esse item existe?' é feita: em lista é uma varredura,\n# em conjunto é um cálculo (aula 10.4).",
+    "aprendizado": "Uma linha, set(acessos), derrubou quarenta minutos. O padrão se repete a vida toda: quando aparecer o item em lista dentro de um laço, troque a lista por conjunto e meça de novo.",
+    "foco": "seguranca"
   }
 ]

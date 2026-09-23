@@ -9,6 +9,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "conteudo:checar": "node scripts/checar-conteudo.mjs",
+    "conteudo:rodar": "node scripts/rodar-exemplos.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

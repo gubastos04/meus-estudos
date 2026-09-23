@@ -4,32 +4,302 @@
     {
       "id": "m4a1",
       "titulo": "IP, porta e o que é um serviço",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "O IP diz qual máquina. A porta diz qual programa dentro dela. Serviço é o programa esperando na porta.",
+      "ideia": [
+        "Endereço IP é o número da máquina na rede. A porta é o número da sala dentro do prédio: um programa por porta, de 1 a 65535.",
+        "Quem cuida de segurança começa olhando o que está em escuta. Cada porta aberta é uma entrada que alguém precisa defender."
+      ],
+      "exemplo": {
+        "nota": "No Linux, ss -tln lista o que está ouvindo na máquina. O -t é TCP, o -l é em escuta e o -n mostra número em vez de nome:",
+        "codigo": "ip addr show | grep \"inet \"   # os IPs desta máquina\nss -tln                       # portas TCP em escuta\n\n# State   Recv-Q  Send-Q   Local Address:Port   Peer Address:Port\n# LISTEN  0       4096       127.0.0.1:631           0.0.0.0:*\n# LISTEN  0       511          0.0.0.0:80            0.0.0.0:*\n# LISTEN  0       128          0.0.0.0:22            0.0.0.0:*\n\n# 127.0.0.1:631 só aceita conexão da própria máquina\n# 0.0.0.0:80 aceita de qualquer endereço que conseguir chegar",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "As portas que você vai encontrar sempre",
+        "linhas": [
+          "22 é SSH, 80 é HTTP, 443 é HTTPS, 53 é DNS, 3306 é MySQL, 5432 é PostgreSQL, 3389 é área de trabalho remota do Windows.",
+          "Abaixo de 1024 só root consegue abrir. Por isso um servidor web sobe como root pra pegar a porta 80 e logo em seguida troca pra um usuário comum: menor privilégio, como na aula 3.5.",
+          "Nada obriga um serviço a usar a porta de costume. SSH na 2222 não é segurança, é só um endereço diferente."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Num servidor exposto na internet, o ss -tln mostra 0.0.0.0:5432 em LISTEN. O que isso quer dizer?",
+          "opcoes": [
+            "O PostgreSQL está aceitando conexão de qualquer endereço que alcançar a máquina",
+            "O banco está desligado",
+            "O banco só aceita conexão da própria máquina"
+          ],
+          "correta": 0,
+          "porque": "0.0.0.0 quer dizer qualquer endereço. Banco de dados deveria escutar em 127.0.0.1 ou ficar atrás do firewall, não aberto pro mundo."
+        },
+        {
+          "pergunta": "Duas máquinas diferentes podem usar a porta 443 ao mesmo tempo?",
+          "opcoes": [
+            "Não, cada porta é única na internet inteira",
+            "Sim: a porta só precisa ser única dentro de cada máquina",
+            "Só se as duas estiverem na mesma rede"
+          ],
+          "correta": 1,
+          "porque": "Quem identifica a máquina é o IP. A porta identifica o programa dentro dela, então a 443 se repete em todo servidor web do planeta."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Liste as portas em escuta na sua máquina e escolha uma pra investigar: descubra qual programa abriu e se ela está em 127.0.0.1 ou em 0.0.0.0. Anote no Caderno o que encontrou e se aquilo precisa mesmo estar aberto.",
+        "solucao": "ss -tlnp        # o -p mostra o programa, mas só os que são seus\nsudo ss -tlnp   # com sudo aparece o dono de todos\n\n# LISTEN 0 511 0.0.0.0:80 0.0.0.0:* users:((\"nginx\",pid=812,fd=6))\n#                                            ^ o programa   ^ o número do processo\n\n# No Windows, sem WSL, o mesmo no PowerShell:\n# Get-NetTCPConnection -State Listen | Select-Object LocalAddress, LocalPort, OwningProcess\n# Get-Process -Id 812\n\n# a pergunta que importa: esse serviço precisa aceitar a rede inteira\n# ou bastava 127.0.0.1?",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m4a2",
       "titulo": "DNS: do nome até o número",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "DNS é a agenda da internet: você digita o nome, ele devolve o número que a máquina precisa pra conectar.",
+      "ideia": [
+        "A máquina só sabe falar com IP. Antes de qualquer conexão, ela pergunta pro DNS qual é o endereço daquele nome.",
+        "A resposta fica guardada em cache pelo tempo do TTL. Por isso mudança de site demora a valer pra todo mundo."
+      ],
+      "exemplo": {
+        "nota": "No Ubuntu, dig e nslookup vêm no pacote dnsutils:",
+        "codigo": "sudo apt install -y dnsutils\n\ndig example.com +short\n# 104.20.23.154\n# 172.66.147.243\n# (o IP muda com o tempo, não decore)\n\ndig example.com\n# ;; ANSWER SECTION:\n# example.com.   300   IN   A   104.20.23.154\n#                ^^^ TTL: segundos que essa resposta pode ficar em cache\n\nnslookup example.com   # resposta mais curta, e existe também no Windows",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O arquivo hosts fura a fila",
+        "linhas": [
+          "Antes de perguntar pro DNS, o sistema olha um arquivo local: /etc/hosts no Linux, C:\\Windows\\System32\\drivers\\etc\\hosts no Windows.",
+          "Isso é ótimo pra laboratório: você aponta um nome pro 127.0.0.1 e testa como se fosse o site de verdade. E é péssimo quando um programa malicioso escreve ali pra te mandar pro servidor dele.",
+          "A consulta de DNS comum viaja sem criptografia. Quem controla a rede vê os nomes que você procurou, mesmo que os sites sejam todos https."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você trocou o servidor do seu site e atualizou o IP no DNS. Parte das pessoas continua caindo no servidor antigo. Por quê?",
+          "opcoes": [
+            "O DNS antigo foi invadido",
+            "A resposta anterior ainda está em cache, e só expira quando o TTL acabar",
+            "Um mesmo nome nunca pode mudar de IP"
+          ],
+          "correta": 1,
+          "porque": "Cache é o motivo de mexer no TTL pra baixo dias antes de uma migração planejada."
+        },
+        {
+          "pergunta": "Alguém edita o arquivo hosts da sua máquina e aponta o nome do seu banco pra outro IP. O que acontece?",
+          "opcoes": [
+            "Nada: o DNS corrige o endereço errado",
+            "O site simplesmente deixa de abrir",
+            "O navegador vai pro servidor do atacante mesmo você digitando o endereço certo"
+          ],
+          "correta": 2,
+          "porque": "O hosts é consultado antes do DNS e ganha a disputa. Por isso ele é alvo clássico de programa malicioso."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Descubra o IP de um site que você usa, o TTL da resposta e qual servidor DNS a sua máquina está usando. Anote no Caderno e explique com as suas palavras por que o mesmo nome pode devolver IPs diferentes pra pessoas diferentes.",
+        "solucao": "dig meusite.com.br\n# ;; ANSWER SECTION:\n# meusite.com.br.  300  IN  A  203.0.113.10\n# 300 segundos = 5 minutos de cache\n\ncat /etc/resolv.conf                     # os servidores que a máquina consulta\nresolvectl status | grep \"DNS Server\"    # no Ubuntu com systemd\n\n# No Windows, no PowerShell:\n# Resolve-DnsName meusite.com.br\n# Get-DnsClientServerAddress\n\n# por que IPs diferentes: CDN e balanceamento de carga.\n# o DNS responde o servidor mais perto de quem perguntou,\n# então cada região recebe um endereço diferente pro mesmo nome.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m4a3",
       "titulo": "HTTP por dentro: requisição e resposta",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Toda página é um pedido de texto e uma resposta de texto. Ler os dois é o básico de segurança web.",
+      "ideia": [
+        "A requisição tem três partes: a linha do pedido (GET /), os cabeçalhos e, às vezes, um corpo. A resposta tem status, cabeçalhos e corpo.",
+        "HTTP não lembra de nada entre um pedido e outro. Quem sustenta o login é o cookie, reenviado pelo navegador a cada requisição."
+      ],
+      "exemplo": {
+        "nota": "O curl -v mostra a conversa inteira. O sinal > é o que sai da sua máquina, o < é o que volta:",
+        "codigo": "curl -v http://example.com\n\n# > GET / HTTP/1.1\n# > Host: example.com\n# > User-Agent: curl/8.17.0\n# > Accept: */*\n# >\n# < HTTP/1.1 200 OK\n# < Date: Wed, 23 Sep 2026 06:16:37 GMT\n# < Content-Type: text/html\n# < Server: cloudflare\n\ncurl -sI https://example.com   # só os cabeçalhos da resposta\ncurl -s -o /dev/null -w \"%{http_code}\\n\" https://example.com   # só o status",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "401 e 403 não são a mesma coisa",
+        "linhas": [
+          "200 deu certo. 301 e 302 mandam pra outro endereço. 404 não existe. 500 o servidor quebrou.",
+          "401 é você não provou quem é. 403 é eu sei quem você é e você não pode. A diferença entre os dois é exatamente a diferença entre autenticação e autorização.",
+          "Um 500 mostrando o erro completo na tela entrega caminho de arquivo, versão de biblioteca e às vezes senha de banco. Em produção, mensagem genérica na tela e detalhe no log."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O HTTP não guarda estado, mas o site sabe que você está logado. Como?",
+          "opcoes": [
+            "O servidor reconhece o seu IP",
+            "O navegador reenvia o cookie de sessão em toda requisição",
+            "O HTTP guarda estado, sim"
+          ],
+          "correta": 1,
+          "porque": "Por isso o cookie de sessão vale tanto quanto a senha: quem rouba o cookie entra sem precisar dela."
+        },
+        {
+          "pergunta": "Logado como usuário comum, você pede /admin e recebe 403. O que isso quer dizer?",
+          "opcoes": [
+            "O servidor sabe quem você é e decidiu que você não tem permissão",
+            "A página não existe",
+            "Você precisa fazer login"
+          ],
+          "correta": 0,
+          "porque": "Falta de login daria 401. O 403 é autorização negada, e vale como pista: a página existe."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Use o curl num site e responda: qual o status, qual servidor respondeu e quais cabeçalhos de segurança ele manda. Procure por Strict-Transport-Security, Content-Security-Policy e X-Content-Type-Options, e anote no Caderno quais faltam.",
+        "solucao": "curl -sI https://example.com\n# HTTP/1.1 200 OK\n# Content-Type: text/html\n# Server: cloudflare\n\n# filtrando só os cabeçalhos de segurança\ncurl -sI https://example.com | grep -iE \"strict-transport|content-security|x-content-type\"\n# (não veio nenhum dos três)\n\n# o que cada um faz:\n# Strict-Transport-Security  o navegador passa a recusar http nesse domínio\n# Content-Security-Policy    limita de onde a página pode carregar script\n# X-Content-Type-Options     impede o navegador de adivinhar o tipo do arquivo\n\n# nenhum deles protege o servidor. Todos protegem quem usa o site.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m4a4",
       "titulo": "HTTPS e TLS sem matemática",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "HTTPS é HTTP dentro de um túnel. O certificado diz com quem você está falando e a criptografia esconde o resto.",
+      "ideia": [
+        "No começo da conexão, cliente e servidor combinam uma chave que só os dois conhecem. Dali pra frente tudo viaja embaralhado, inclusive senha e cookie.",
+        "O certificado do servidor é assinado por uma autoridade em que o seu sistema já confia. É isso que impede alguém no meio do caminho de se passar pelo site."
+      ],
+      "exemplo": {
+        "nota": "Dá pra ler o certificado pela linha de comando, sem abrir navegador:",
+        "codigo": "echo | openssl s_client -connect example.com:443 -servername example.com 2>/dev/null \\\n  | openssl x509 -noout -subject -issuer -dates\n\n# subject=CN=example.com\n# issuer=C=US, O=SSL Corporation, CN=Cloudflare TLS Issuing ECC CA 3\n# notBefore=Jul 29 22:10:08 2026 GMT\n# notAfter=Oct 27 22:17:21 2026 GMT\n\n# subject: pra qual domínio o certificado vale\n# issuer: quem assinou\n# notAfter: quando vence",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O que o cadeado não promete",
+        "linhas": [
+          "Certificado hoje é grátis e automático. Um site de golpe tira o dele em minutos e o cadeado aparece igual. Cadeado quer dizer ninguém no meio está lendo, não quer dizer site honesto.",
+          "O túnel protege o caminho, não as pontas. Se o servidor guarda a senha em texto puro, o HTTPS não salva nada.",
+          "Certificado vence. Esquecer a renovação é uma das causas mais bobas de site fora do ar."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Um site de golpe pode ter o cadeado do HTTPS?",
+          "opcoes": [
+            "Não, o cadeado só sai pra site verificado",
+            "Sim: o certificado prova o domínio, não a honestidade de quem está por trás dele",
+            "Só se ele invadir uma autoridade certificadora"
+          ],
+          "correta": 1,
+          "porque": "Pra emitir, a autoridade só confere que você controla aquele domínio. Golpista registra o domínio parecido e pega o certificado igual."
+        },
+        {
+          "pergunta": "Num Wi-Fi público, você acessa um site https. O que alguém capturando o tráfego consegue ver?",
+          "opcoes": [
+            "Tudo, inclusive a senha que você digitou",
+            "Absolutamente nada",
+            "Qual site você acessou e quanto tráfego houve, mas não o conteúdo"
+          ],
+          "correta": 2,
+          "porque": "A consulta de DNS e o nome do site no início do handshake costumam ir abertos. O conteúdo, esse vai cifrado."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escolha um site que você usa e descubra quem emitiu o certificado dele e se ele vence nos próximos sete dias. Depois clique no cadeado no navegador e confira se bate com o que o terminal mostrou.",
+        "solucao": "site=example.com\n\necho | openssl s_client -connect $site:443 -servername $site 2>/dev/null \\\n  | openssl x509 -noout -issuer -dates\n\n# vence em menos de 7 dias? 604800 segundos\necho | openssl s_client -connect $site:443 -servername $site 2>/dev/null \\\n  | openssl x509 -noout -checkend 604800\n# Certificate will not expire\n\n# no navegador: cadeado > a conexão é segura > certificado\n# emissor e validade têm que bater com o que saiu aqui.\n# se não baterem, alguém está no meio do caminho.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m4a5",
       "titulo": "Ver o tráfego: Wireshark básico",
-      "minutos": 20
+      "minutos": 20,
+      "resumo": "O Wireshark mostra o pacote cru que passa pela sua placa de rede. É a prova, não o palpite.",
+      "ideia": [
+        "O programa captura tudo que entra e sai da sua interface. Numa rede com switch, isso quer dizer o seu próprio tráfego, não o do vizinho.",
+        "O filtro de exibição é o que torna a captura legível: sem filtro, são milhares de pacotes por minuto."
+      ],
+      "exemplo": {
+        "nota": "Instale o Wireshark no Windows, clique duas vezes na interface do Wi-Fi e digite o filtro na barra de cima. Estes são os que você vai usar sempre:",
+        "codigo": "http                            só requisição e resposta HTTP\ndns                             só consulta de nome\ntcp.port == 80                  a porta do HTTP\nip.addr == 192.168.0.10         tudo que sai ou chega nesse endereço\nhttp.request.method == \"POST\"   envio de formulário\ntls.handshake.type == 1         o Client Hello, onde aparece o nome do site\n\nclique numa linha, botão direito, Follow > HTTP Stream\npedido e resposta aparecem inteiros, em texto",
+        "linguagem": "texto"
+      },
+      "mais": {
+        "titulo": "Capturar só o que é seu",
+        "linhas": [
+          "Capturar tráfego de rede que não é sua, sem autorização por escrito de quem manda nela, não se faz. Use a sua rede, o seu computador, o seu laboratório.",
+          "Instale no Windows, não no WSL: a placa de rede de verdade está lá. No Linux o Wireshark precisa de permissão pra capturar, pelo grupo wireshark.",
+          "Sem interface gráfica, o mesmo trabalho é do tshark, que vem junto: tshark -i 1 -f \"tcp port 80\"."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você capturou o seu próprio login num site https e não achou a senha em lugar nenhum. Por quê?",
+          "opcoes": [
+            "O Wireshark não captura formulário",
+            "O TLS cifra o conteúdo: sobra o handshake e o nome do site",
+            "A senha foi enviada por outra placa de rede"
+          ],
+          "correta": 1,
+          "porque": "Faça o mesmo teste em http e a senha aparece em texto puro. Essa é a diferença que o s do https faz."
+        },
+        {
+          "pergunta": "Qual filtro de exibição mostra só as consultas de nome?",
+          "opcoes": [
+            "dns",
+            "dns.request == true",
+            "udp port 53"
+          ],
+          "correta": 0,
+          "porque": "No filtro de exibição basta o nome do protocolo. O udp port 53 é sintaxe de filtro de captura, que é outra coisa e fica na tela de início."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Capture o acesso a http://example.com com o filtro http, ache a linha GET / e o cabeçalho Host, e use Follow > HTTP Stream pra ler a conversa inteira. Depois repita com https://example.com e anote no Caderno o que você deixa de ver.",
+        "solucao": "1. Wireshark > interface do Wi-Fi > filtro: http\n2. no navegador, abra http://example.com\n3. clique na linha GET / HTTP/1.1\n\n   Hypertext Transfer Protocol\n     GET / HTTP/1.1\n     Host: example.com\n     User-Agent: Mozilla/5.0 ...\n\n4. botão direito > Follow > HTTP Stream\n   pedido e resposta inteiros, em texto puro\n\nagora em https, com o filtro tls.handshake.type == 1\n   Client Hello > Server Name: example.com\n   o resto da conversa vira Application Data, bytes sem sentido\n\nconclusão pro Caderno:\nem http dá pra ler tudo, inclusive senha de formulário.\nem https sobra o nome do site, o horário e o tamanho do tráfego.",
+        "linguagem": "texto"
+      }
     },
     {
       "id": "m4a6",
       "titulo": "Projeto: mapear a sua própria rede",
-      "minutos": 25
+      "minutos": 25,
+      "resumo": "Levantar o mapa da sua rede: quem está nela, o que a sua máquina expõe e o que dá pra fechar hoje.",
+      "ideia": [
+        "Antes de defender qualquer coisa, você precisa saber o que existe. Inventário é o primeiro passo de segurança de verdade, e quase ninguém faz.",
+        "Tudo aqui acontece dentro da sua rede, nos seus aparelhos. Varredura em rede alheia, mesmo sem quebrar nada, você não faz sem autorização por escrito."
+      ],
+      "exemplo": {
+        "nota": "Comece descobrindo onde você está. No Ubuntu do WSL:",
+        "codigo": "ip addr show | grep \"inet \"   # seu endereço e a máscara\nip route | grep default       # o gateway, quase sempre o roteador\nss -tln                       # o que a sua máquina está ouvindo\n\n# A rede de verdade está no Windows. No PowerShell:\n# ipconfig\n# arp -a                              vizinhos que já responderam\n# Get-NetTCPConnection -State Listen | Select-Object LocalAddress, LocalPort, OwningProcess\n\n# uma máscara /24 (255.255.255.0) quer dizer que a sua faixa é\n# 192.168.0.1 até 192.168.0.254: 254 endereços possíveis",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "nmap, e onde é permitido usar",
+        "linhas": [
+          "O nmap descobre quem responde numa faixa e quais portas estão abertas. nmap -sn 192.168.0.0/24 só procura aparelhos vivos. nmap -sT --top-ports 20 192.168.0.1 testa as portas mais comuns de um endereço.",
+          "Use na sua rede e nos seus aparelhos. Rede de café, faculdade, trabalho ou vizinho exige autorização por escrito de quem responde por ela. Pra treinar sem risco existe o scanme.nmap.org, que o próprio projeto Nmap autoriza.",
+          "No Windows, instale o Nmap junto com o Npcap. No WSL 2 a rede é virtualizada e o resultado da varredura sai enganoso."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você quer treinar nmap. Onde pode?",
+          "opcoes": [
+            "Na rede do café, desde que não quebre nada",
+            "Em qualquer rede: varredura não é invasão",
+            "Na sua própria rede ou num alvo que autoriza, como o scanme.nmap.org"
+          ],
+          "correta": 2,
+          "porque": "O que separa o profissional do invasor é o escopo autorizado, por escrito. Sem ele você não tem como provar que era teste."
+        },
+        {
+          "pergunta": "No ss -tln aparece 127.0.0.1:3306. Esse MySQL está exposto pra rede?",
+          "opcoes": [
+            "Sim, qualquer aparelho da rede alcança",
+            "Não: 127.0.0.1 só aceita conexão da própria máquina",
+            "Só se o firewall estiver desligado"
+          ],
+          "correta": 1,
+          "porque": "É a diferença de uma linha de configuração. O mesmo banco em 0.0.0.0:3306 estaria aberto pra quem chegasse na rede."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte no Caderno o mapa da sua rede: o seu endereço e a faixa, o IP do roteador, três aparelhos que responderam, as portas em escuta na sua máquina e, pra cada uma, se ela precisa mesmo estar aberta. Termine com uma ação de defesa que você consegue fazer hoje.",
+        "solucao": "# 1. onde eu estou\nip addr show | grep \"inet \"\n# inet 192.168.0.14/24 ...    endereço e máscara\nip route | grep default\n# default via 192.168.0.1     o roteador\n\n# 2. quem mais está na rede (no Windows, com o Nmap instalado)\n# arp -a\n# nmap -sn 192.168.0.0/24\n# Nmap scan report for 192.168.0.1   (roteador)\n# Nmap scan report for 192.168.0.14  (meu notebook)\n# Nmap scan report for 192.168.0.22  (celular)\n\n# 3. o que a minha máquina expõe\nss -tlnp\n\n# 4. mapa no Caderno\n# faixa      192.168.0.0/24\n# roteador   192.168.0.1     painel em http, senha trocada? conferir\n# notebook   192.168.0.14    22 em 0.0.0.0, 631 em 127.0.0.1\n# celular    192.168.0.22\n\n# 5. ação de defesa de hoje\n# o SSH em 0.0.0.0 não precisa aceitar a rede toda: prender em 127.0.0.1\n# ou limitar no firewall. E trocar a senha padrão do painel do roteador.",
+        "linguagem": "bash"
+      }
     }
   ]
 }

@@ -4,27 +4,252 @@
     {
       "id": "m12a1",
       "titulo": "O que é nuvem, na prática",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Nuvem é o computador de outra pessoa, alugado por hora e controlado por API. O que muda mesmo é quem responde pelo quê.",
+      "ideia": [
+        "O provedor cuida do prédio, da energia, do hardware e do serviço. Configuração, acesso, código e dado continuam seus, sempre.",
+        "Quase todo vazamento em nuvem é isso: não foi a nuvem que falhou, foi a parte que era do cliente e ninguém configurou."
+      ],
+      "exemplo": {
+        "nota": "O modelo de responsabilidade compartilhada, que é o mapa do que sobra pra você:",
+        "codigo": "o provedor cuida de          |  você cuida de\n-----------------------------|--------------------------------------\nprédio, energia, rede física |  quem pode acessar o quê\nhardware do servidor         |  a configuração de cada serviço\natualização da plataforma    |  o seu código e as suas dependências\ncópia da infraestrutura      |  o dado, por quanto tempo e onde\n\nIaaS  você aluga a máquina virtual   e cuida do sistema pra cima\nPaaS  você entrega o código          e cuida do código e da configuração\nSaaS  você usa o programa pronto     e cuida do acesso e do dado\n\nantes de publicar qualquer coisa, três perguntas:\n  1. o que está aberto pra internet, e precisava estar?\n  2. quem tem acesso de administrador, e tem segundo fator ligado?\n  3. que dado isso guarda, e por quanto tempo fica guardado?",
+        "linguagem": "texto"
+      },
+      "mais": {
+        "titulo": "Os tropeços que se repetem",
+        "linhas": [
+          "Armazenamento aberto por engano é o vazamento mais repetido da década: uma opção de permissão marcada errada e a pasta inteira fica pública, sem invasão nenhuma.",
+          "A conta raiz do provedor é a chave do reino: segundo fator obrigatório, uso só pro que exige, e cada pessoa com o próprio acesso, com o mínimo de permissão (aula 3.5).",
+          "Região importa: o dado mora num país e obedece à lei de lá. Aqui vale a LGPD, que cobra base legal pra tratar dado pessoal e resposta rápida quando vaza."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Um banco de dados na nuvem ficou acessível pela internet por causa de uma configuração errada e vazou. De quem é a responsabilidade?",
+          "opcoes": [
+            "Do provedor, que hospeda o serviço",
+            "De quem configurou: a configuração do serviço é a parte do cliente",
+            "De ninguém: nuvem é assim mesmo"
+          ],
+          "correta": 1,
+          "porque": "É exatamente o que o modelo de responsabilidade compartilhada define. E é a causa da maioria dos incidentes em nuvem."
+        },
+        {
+          "pergunta": "Qual a diferença entre IaaS e SaaS?",
+          "opcoes": [
+            "Em IaaS você aluga a máquina e cuida do sistema; em SaaS usa o programa pronto e cuida do acesso e do dado",
+            "IaaS é mais seguro que SaaS",
+            "SaaS é para empresas e IaaS para pessoas"
+          ],
+          "correta": 0,
+          "porque": "Quanto mais pronto o serviço, menos coisa você administra. O que nunca sai da sua mão é quem acessa e qual dado está lá."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escolha um serviço em nuvem que você usa, mesmo pessoal, e escreva no Caderno o que é responsabilidade sua ali. Depois faça uma verificação de verdade: confira se o segundo fator está ligado, quem mais tem acesso e o que está público sem precisar.",
+        "solucao": "exemplo: armazenamento de arquivos na nuvem\n\nresponsabilidade do provedor\n  servidor, disco, cópia da infraestrutura, atualização do serviço\n\nresponsabilidade minha\n  quem tem acesso a cada pasta\n  quais links públicos existem, e se ainda precisam existir\n  o que eu guardo ali (documento com CPF? foto de cartão?)\n  segundo fator da minha conta\n\na verificação, feita hoje\n  [ ] segundo fator ligado na conta principal\n  [ ] lista de links compartilhados revisada, links antigos revogados\n  [ ] aplicativos de terceiros com acesso à conta: removi os que não uso\n  [ ] pasta com documento pessoal: só eu, sem link público\n\no que eu achei e não esperava:\n  (anote aqui. quase sempre tem um link público de anos atrás,\n   ou um aplicativo antigo com permissão total.)\n\nessa mesma lista vale pro serviço da empresa, com uma diferença:\nlá existe registro de quem acessou o quê, e olhar esse registro\né parte do trabalho.",
+        "linguagem": "texto"
+      }
     },
     {
       "id": "m12a2",
       "titulo": "Docker: por que todo lab usa",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "Imagem é a receita, contêiner é ela rodando. Mesmo ambiente em qualquer máquina, descartável no fim.",
+      "ideia": [
+        "A imagem carrega sistema, bibliotecas e o seu código. Quem rodar aquela imagem tem exatamente o mesmo ambiente que você.",
+        "Por isso laboratório vem em contêiner: a Juice Shop da aula 7.1 sobe em uma linha e some no Ctrl+C, sem sujar a sua máquina."
+      ],
+      "exemplo": {
+        "nota": "Um Dockerfile pequeno e cuidadoso. Salve com esse nome, sem extensão:",
+        "codigo": "FROM python:3.12-slim\n\n# usuário comum dentro do contêiner: root aqui também é privilégio demais\nRUN useradd --create-home app\nWORKDIR /app\n\n# dependências primeiro: essa camada só refaz quando o arquivo muda\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nCOPY . .\nUSER app\n\nEXPOSE 8000\nCMD [\"python\", \"app.py\"]\n\n# docker build -t meu-lab .\n# docker run --rm -p 127.0.0.1:8000:8000 meu-lab\n#\n# --rm             apaga o contêiner ao sair\n# 127.0.0.1:8000   prende a porta na sua máquina, como na aula 7.1\n# docker ps        o que está rodando agora",
+        "linguagem": "dockerfile"
+      },
+      "mais": {
+        "titulo": "Três cuidados que quase ninguém tem",
+        "linhas": [
+          "latest não é versão: é o apelido do que estiver publicado hoje. Prenda a tag (python:3.12-slim) pra sua imagem de amanhã ser igual à de hoje.",
+          "Segredo não entra em imagem. Cada linha do Dockerfile vira uma camada, e docker history mostra tudo: apagar o arquivo na linha seguinte não apaga a camada anterior. Segredo entra na hora de rodar, por variável de ambiente.",
+          "Contêiner não é máquina virtual: ele divide o núcleo do sistema com a máquina. Rodar como root lá dentro, montar a pasta inteira do sistema ou usar a opção privilegiada apaga boa parte do isolamento."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que criar um usuário e usar USER app no Dockerfile?",
+          "opcoes": [
+            "Pra imagem ficar menor",
+            "Porque o contêiner divide o núcleo com a máquina, e processo comprometido rodando como root lá dentro é risco de verdade",
+            "Porque o Docker recusa imagens com root"
+          ],
+          "correta": 1,
+          "porque": "É o menor privilégio da aula 3.5, aplicado ao contêiner. Custa duas linhas e reduz muito o estrago possível."
+        },
+        {
+          "pergunta": "Você copiou um arquivo .env pra imagem e apagou na linha seguinte do Dockerfile. O segredo está protegido?",
+          "opcoes": [
+            "Não: a camada anterior continua na imagem, e docker history mostra",
+            "Sim, o arquivo não existe mais",
+            "Sim, se a imagem for privada"
+          ],
+          "correta": 0,
+          "porque": "Imagem é uma pilha de camadas, e cada uma fica guardada. Quem baixar a imagem desempilha e lê."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva o Dockerfile do laboratório que você montou no módulo 5, com usuário comum e tag presa, suba com a porta amarrada em 127.0.0.1 e confira com docker ps. Anote no Caderno o que mudaria pra esse contêiner poder ir pra internet um dia.",
+        "solucao": "FROM php:8.3-cli\n\nRUN useradd --create-home lab\nWORKDIR /app\nCOPY . .\nUSER lab\n\nEXPOSE 8000\nCMD [\"php\", \"-S\", \"0.0.0.0:8000\"]\n\n# 0.0.0.0 aqui é DENTRO do contêiner: quem decide a exposição de verdade\n# é o -p da linha de comando.\n#\n# docker build -t lab-login .\n# docker run --rm -p 127.0.0.1:8000:8000 lab-login\n# docker ps\n# CONTAINER ID   IMAGE       PORTS                      NAMES\n# a1b2c3d4e5f6   lab-login   127.0.0.1:8000->8000/tcp   quirky_hopper\n#\n# o que mudaria pra ir pra internet:\n#   1. corrigir as três falhas da aula 5.6. Laboratório vulnerável\n#      exposto não vira serviço, vira incidente.\n#   2. php -S sai de cena: servidor de verdade (nginx, php-fpm)\n#   3. https na frente, com certificado (aula 4.4)\n#   4. segredo por variável de ambiente, nunca na imagem\n#   5. a imagem escaneada e reconstruída quando sair correção do PHP",
+        "linguagem": "dockerfile"
+      }
     },
     {
       "id": "m12a3",
       "titulo": "Git e versionamento sem medo",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "Git guarda a história do projeto: o que mudou, quando e por quê. E ele não esquece.",
+      "ideia": [
+        "add escolhe o que entra no próximo commit, commit grava aquele estado com uma mensagem, e log mostra a linha do tempo.",
+        "Branch é uma linha paralela barata: você experimenta sem medo, e o que estava funcionando continua intacto."
+      ],
+      "exemplo": {
+        "nota": "O ciclo inteiro, do zero ao primeiro experimento:",
+        "codigo": "git init -b main meu-projeto\ncd meu-projeto\ngit config user.name \"Ana\"\ngit config user.email \"ana@exemplo.com\"\n\nprintf \"print('oi')\\n\" > app.py\n\ngit status --short\n# ?? app.py            ainda não rastreado\n\ngit add app.py\ngit commit -m \"primeira versão\"\n\ngit log --oneline\n# e311ff0 primeira versão\n\nprintf \"senha = '123456'\\n\" >> app.py\ngit diff\n# --- a/app.py\n# +++ b/app.py\n# @@ -1 +1,2 @@\n#  print('oi')\n# +senha = '123456'\n\ngit switch -c experimento    # nova linha do tempo, sem tocar na main\ngit branch\n# * experimento\n#   main",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O que evita dor depois",
+        "linhas": [
+          "O .gitignore é a primeira coisa do projeto, antes do primeiro commit: .env, venv, node_modules, banco local, chave. Depois que entrou no histórico, tirar dá trabalho.",
+          "Mensagem de commit é escrita pra quem vai investigar daqui a um ano, e essa pessoa pode ser você às duas da manhã. O que mudou e por quê valem mais que como.",
+          "git diff antes de todo git add é o hábito mais barato de revisão: você vê com os próprios olhos o que está prestes a gravar. Muita chave vazada passaria nesse pente."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual a diferença entre git add e git commit?",
+          "opcoes": [
+            "add envia pro servidor, commit salva local",
+            "add escolhe o que vai entrar; commit grava essa escolha no histórico com uma mensagem",
+            "São a mesma coisa, com nomes diferentes"
+          ],
+          "correta": 1,
+          "porque": "Esse passo no meio existe pra você commitar só uma parte do que mexeu. Enviar pro servidor é o push, um terceiro passo."
+        },
+        {
+          "pergunta": "Pra que serve criar um branch?",
+          "opcoes": [
+            "Pra fazer cópia de segurança do repositório",
+            "Pra apagar o histórico antigo",
+            "Pra trabalhar numa linha paralela sem mexer no que já funciona"
+          ],
+          "correta": 2,
+          "porque": "É o que permite experimentar à vontade. Deu errado, você apaga o branch e nada acontece com a main."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie um repositório pra ferramenta de recon da aula 11.5, com um .gitignore antes do primeiro commit, três commits com mensagens de verdade e um branch pra uma ideia nova. Anote no Caderno o que você colocou no .gitignore e por que cada linha está ali.",
+        "solucao": "git init -b main recon\ncd recon\n\n# 1. o .gitignore vem primeiro, sempre\ncat > .gitignore << 'FIM'\n.env                  # segredo: nunca entra\nvenv/                 # ambiente local, cada máquina faz o seu\n__pycache__/          # lixo do Python\n*.json                # relatórios de varredura: dado de alvo, fica fora\nescopo.txt            # lista de alvos: também não é pra publicar\nFIM\n\ngit add .gitignore\ngit commit -m \"ignora segredo, ambiente local e relatório de varredura\"\n\n# 2. a ferramenta\ngit add recon.py\ngit commit -m \"recon: resolve o nome e lista portas abertas do alvo\"\n\n# 3. a exigência de autorização\ngit add recon.py\ngit commit -m \"exige --autorizado e recusa alvo fora do escopo.txt\"\n\ngit log --oneline\n\n# 4. a ideia nova, sem arriscar o que funciona\ngit switch -c cabecalhos-http\n\n# por que cada linha do .gitignore:\n#   .env        chave de API. Commitou, vazou (próxima aula).\n#   venv/       são milhares de arquivos e ninguém precisa dos meus.\n#   *.json      o relatório tem IP, porta e banner de um alvo real.\n#               isso é dado de cliente, não de projeto.\n#   escopo.txt  a lista de alvos autorizados é informação sensível\n#               e muda a cada trabalho.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m12a4",
       "titulo": "Segredo no código: o vazamento mais bobo",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Chave escrita no código vai pro repositório, e do repositório não sai mais. A correção não é apagar: é trocar.",
+      "ideia": [
+        "Segredo entra pelo ambiente, não pelo código: o programa lê uma variável e para logo no começo se ela faltar.",
+        "Se a chave já foi commitada uma vez, ela está no histórico e pode estar em cópia de qualquer pessoa. Rotacione, não apague."
+      ],
+      "exemplo": {
+        "nota": "Um carregador de configuração que reclama cedo, quando o erro é barato:",
+        "codigo": "import os\n\ndef config(nome):\n    valor = os.environ.get(nome)\n    if not valor:\n        raise RuntimeError(f\"falta a variável {nome} no ambiente\")\n    return valor\n\n# normalmente isso vem do sistema, do .env ou do cofre do provedor\nos.environ[\"API_KEY\"] = \"chave-de-mentira-so-pra-demonstrar\"\n\nchave = config(\"API_KEY\")\nprint(\"carregou:\", chave[:6] + \"...\")     # nunca imprima a chave inteira\n\ntry:\n    config(\"SENHA_DO_BANCO\")\nexcept RuntimeError as erro:\n    print(\"parou cedo:\", erro)\n# parou cedo: falta a variável SENHA_DO_BANCO no ambiente\n\n# no terminal, antes de rodar:\n#   export API_KEY=\"a chave de verdade\"        Linux e macOS\n#   $env:API_KEY = \"a chave de verdade\"        PowerShell",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "O que fazer quando já vazou",
+        "linhas": [
+          "Rotacione a chave primeiro, antes de qualquer limpeza. Enquanto a chave velha funcionar, o histórico é só um detalhe: quem copiou já tem.",
+          "Depois olhe o log de uso da chave, procurando o que foi feito com ela. E só então limpe o histórico, sabendo que qualquer clone antigo continua com a cópia.",
+          "Prevenção: .env no .gitignore e um .env.exemplo versionado com os nomes das variáveis e valores falsos. E gitleaks, que procura padrão de chave no código e no histórico."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você descobriu que uma chave de API foi commitada mês passado e já removeu o arquivo. Está resolvido?",
+          "opcoes": [
+            "Sim, o arquivo não existe mais",
+            "Não: a chave está no histórico e possivelmente em cópias. O primeiro passo é trocar a chave",
+            "Sim, se o repositório for privado"
+          ],
+          "correta": 1,
+          "porque": "Tratar como vazada é a única postura segura. Repositório privado já virou público por engano vezes demais."
+        },
+        {
+          "pergunta": "Por que o programa deve falhar logo no começo quando falta uma variável de ambiente?",
+          "opcoes": [
+            "Porque fica mais rápido",
+            "Porque assim o erro aparece na hora de subir, e não no meio de uma operação com o usuário esperando",
+            "Porque o Python exige"
+          ],
+          "correta": 1,
+          "porque": "Configuração faltando é erro de implantação. Quanto mais cedo aparece, mais barato é."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Procure segredo no histórico de um repositório seu com git log -S e escreva um .env.exemplo com os nomes das variáveis e valores falsos. Anote no Caderno o que você encontrou e qual seria a ordem das ações se fosse uma chave de verdade.",
+        "solucao": "# procurando no histórico inteiro por um trecho de texto\ngit log -p -S \"API_KEY\" --oneline\ngit log -p -S \"senha\" --oneline\ngit log --all --oneline -- .env      # o .env chegou a entrar alguma vez?\n\n# o que aparece quando existiu:\n# 60cf114 tira a chave do código\n# -API_KEY = \"sk-do-projeto-123\"        <- ainda está aqui\n# +API_KEY = os.environ[\"API_KEY\"]\n# d12786b config\n# +API_KEY = \"sk-do-projeto-123\"        <- e aqui também\n#\n# o arquivo atual está limpo. O histórico, não. É esse o ponto.\n\n# o .env.exemplo, que VAI pro repositório\ncat > .env.exemplo << 'FIM'\n# copie pra .env e preencha. O .env não entra no git.\nAPI_KEY=coloque-a-sua-chave-aqui\nBANCO_URL=postgresql://usuario:senha@localhost:5432/meubanco\nFIM\n\ngit add .env.exemplo\ngit commit -m \"documenta as variáveis necessárias, sem valor de verdade\"\n\n# se fosse chave de verdade, nesta ordem:\n#   1. gerar chave nova e trocar em produção\n#   2. revogar a antiga\n#   3. olhar o log de uso da chave antiga, procurando o que fizeram com ela\n#   4. avisar quem precisa saber\n#   5. só então limpar histórico, sabendo que clone antigo ainda tem\n#   6. ligar uma verificação automática pra não repetir (próxima aula)",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m12a5",
       "titulo": "Esteira com verificação automática",
-      "minutos": 20
+      "minutos": 20,
+      "resumo": "Máquina conferindo o chato a cada envio: teste, dependência com falha conhecida e segredo no código.",
+      "ideia": [
+        "Esteira é um arquivo que diz o que rodar a cada push. Quem esquece é a pessoa, e a máquina não esquece.",
+        "Três verificações dão o maior retorno pelo esforço: os testes, as dependências com falha conhecida e a varredura de segredo."
+      ],
+      "exemplo": {
+        "nota": "No GitHub, salve em .github/workflows/verificacao.yml:",
+        "codigo": "name: verificação\non: [push, pull_request]\n\npermissions:\n  contents: read          # o mínimo que o trabalho precisa\n\njobs:\n  checar:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n        with:\n          fetch-depth: 0        # o gitleaks precisa do histórico inteiro\n\n      - uses: actions/setup-python@v7\n        with:\n          python-version: \"3.12\"\n\n      - name: instalar\n        run: pip install -r requirements.txt\n\n      - name: testes\n        run: python -m pytest -q\n\n      - name: dependências com falha conhecida\n        run: |\n          pip install pip-audit\n          pip-audit\n\n      - name: segredo no código e no histórico\n        uses: gitleaks/gitleaks-action@v2",
+        "linguagem": "yaml"
+      },
+      "mais": {
+        "titulo": "Detalhes que fazem diferença",
+        "linhas": [
+          "Segredo da esteira fica no cofre do provedor e entra como variável, nunca escrito no arquivo do workflow. O arquivo é público em repositório público.",
+          "Dê a permissão mínima ao trabalho (contents: read) e prenda a versão das ações. Quem quer mesmo ser rigoroso prende pelo identificador do commit, não pela tag: é a cadeia de suprimentos, número 3 do Top 10 de 2025.",
+          "O gitleaks-action é livre em repositório pessoal e pede licença pra conta de organização. O gitleaks também roda como programa comum, na sua máquina, antes do push."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que rodar auditoria de dependência na esteira, e não só quando lembrar?",
+          "opcoes": [
+            "Porque falha nova aparece em biblioteca antiga sem você mexer em nada, e a esteira avisa no mesmo dia",
+            "Porque é mais rápido que rodar na sua máquina",
+            "Porque o GitHub obriga"
+          ],
+          "correta": 0,
+          "porque": "O seu código parado continua envelhecendo. Log4Shell pegou muita gente que não tinha tocado no projeto havia meses."
+        },
+        {
+          "pergunta": "Onde guardar o token que a esteira precisa pra publicar?",
+          "opcoes": [
+            "No arquivo do workflow, que fica junto do código",
+            "Num comentário do código, que ninguém lê",
+            "No cofre de segredos do provedor, entrando como variável na hora de rodar"
+          ],
+          "correta": 2,
+          "porque": "O arquivo do workflow é código versionado, e vale a mesma regra da aula 12.4: segredo entra pelo ambiente."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Adicione uma esteira ao seu repositório com teste, auditoria de dependência e varredura de segredo. Depois faça ela falhar de propósito, com um segredo falso num branch de teste, e confirme que a verificação pegou. Anote no Caderno quanto tempo levou entre o push e o aviso.",
+        "solucao": "name: verificação\non: [push, pull_request]\n\npermissions:\n  contents: read\n\njobs:\n  checar:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n        with:\n          fetch-depth: 0\n\n      - uses: actions/setup-python@v7\n        with:\n          python-version: \"3.12\"\n\n      - name: testes\n        run: |\n          pip install -r requirements.txt\n          python -m pytest -q\n\n      - name: dependências\n        run: |\n          pip install pip-audit\n          pip-audit\n\n      - name: segredo\n        uses: gitleaks/gitleaks-action@v2\n\n# o teste da armadilha, num branch só pra isso:\n#   git switch -c teste-da-esteira\n#   printf 'AWS_SECRET_ACCESS_KEY=\"AKIAIOSFODNN7EXAMPLE\"\\n' > vazamento.txt\n#   git add vazamento.txt && git commit -m \"testando a esteira\"\n#   git push -u origin teste-da-esteira\n#\n# o gitleaks reconhece o padrão e o trabalho fica vermelho.\n# apague o branch depois: git push origin --delete teste-da-esteira\n#\n# no Caderno, anote o tempo entre o push e o aviso.\n# se passar de cinco minutos, ninguém espera: a pessoa segue trabalhando\n# e o aviso chega quando o assunto já é outro. Esteira lenta é esteira\n# ignorada, e verificação ignorada não protege nada.",
+        "linguagem": "yaml"
+      }
     }
   ]
 }

@@ -496,5 +496,137 @@
     "area": "Segurança",
     "definicao": "Lei brasileira de proteção de dados pessoais. Define o que pode ser coletado, por quê e por quanto tempo.",
     "foco": "seguranca"
+  },
+  {
+    "termo": "TTL",
+    "area": "Rede",
+    "definicao": "Quanto tempo uma resposta de DNS pode ficar guardada em cache antes de ser perguntada de novo.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "SNI",
+    "area": "Rede",
+    "definicao": "O nome do site que o navegador anuncia no começo da conexão https, antes da criptografia começar. Quem observa a rede consegue ler.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Varredura de portas",
+    "area": "Rede",
+    "definicao": "Tentar conectar em várias portas de um alvo pra descobrir o que responde. Só em alvo próprio ou autorizado.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "HSTS",
+    "area": "Web",
+    "definicao": "Cabeçalho que manda o navegador nunca mais falar http com aquele domínio, só https.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Content-Security-Policy",
+    "area": "Web",
+    "definicao": "Cabeçalho que diz de onde a página pode carregar script e quem pode colocá-la dentro de um quadro. Camada extra contra XSS e clickjacking.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Clickjacking",
+    "area": "Web",
+    "definicao": "Carregar o site da vítima num quadro transparente por cima de outra coisa, pra ela clicar onde não pretendia.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Travessia de diretório",
+    "area": "Web",
+    "definicao": "Usar .. num nome de arquivo pra sair da pasta permitida e ler o que não era pra ler.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "CVSS",
+    "area": "Segurança",
+    "definicao": "Nota de 0 a 10 que mede a gravidade técnica de uma falha. Não é o seu risco: risco depende do seu contexto.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Enumeração de usuário",
+    "area": "Segurança",
+    "definicao": "Descobrir quais contas existem porque o sistema responde diferente pra usuário inexistente e pra senha errada.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Fixação de sessão",
+    "area": "Segurança",
+    "definicao": "Ataque em que o identificador de sessão não muda no login, então quem o plantou antes continua dentro depois.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Divulgação responsável",
+    "area": "Segurança",
+    "definicao": "Avisar quem pode corrigir, dar prazo e não tocar no dado. É o que separa pesquisa de invasão.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Escopo",
+    "area": "Segurança",
+    "definicao": "A lista, por escrito, do que você está autorizado a testar. Fora dela não se toca.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Hash lento",
+    "area": "Segurança",
+    "definicao": "Algoritmo feito de propósito pra demorar, como bcrypt, scrypt e Argon2. É com ele que senha se guarda.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Lista de permitidos",
+    "area": "Segurança",
+    "definicao": "Aceitar só o que está numa lista conhecida, em vez de tentar bloquear o que é ruim. A lista de proibidos sempre esquece um caso.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Responsabilidade compartilhada",
+    "area": "Segurança",
+    "definicao": "Na nuvem, o provedor cuida da infraestrutura e você cuida da configuração, do acesso e do dado.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Consulta parametrizada",
+    "area": "Banco",
+    "definicao": "Mandar o comando SQL e os valores por caminhos separados, com ? no lugar do valor. É a defesa real contra SQL Injection.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Chave primária",
+    "area": "Banco",
+    "definicao": "A coluna que identifica cada linha da tabela sem repetir.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Chave estrangeira",
+    "area": "Banco",
+    "definicao": "Coluna que aponta pra chave primária de outra tabela, e impede que o dado aponte pro vazio.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Tabela hash",
+    "area": "Código",
+    "definicao": "Estrutura por trás de dicionário e conjunto: calcula onde a chave deveria estar em vez de procurar item por item.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Contêiner",
+    "area": "Sistema",
+    "definicao": "Processo isolado rodando a partir de uma imagem, com as próprias bibliotecas, mas dividindo o núcleo do sistema com a máquina.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Imagem",
+    "area": "Sistema",
+    "definicao": "A receita empacotada de um contêiner, em camadas. O que entra numa camada fica lá, inclusive segredo copiado por engano.",
+    "foco": "seguranca"
+  },
+  {
+    "termo": "Esteira",
+    "area": "Sistema",
+    "definicao": "A sequência de verificações que roda sozinha a cada envio de código: teste, dependência vulnerável, varredura de segredo.",
+    "foco": "seguranca"
   }
 ]

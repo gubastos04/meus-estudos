@@ -4,22 +4,202 @@
     {
       "id": "m9a1",
       "titulo": "CPU, memória e o ciclo de execução",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "A CPU faz uma coisa só, muito rápido: buscar a próxima instrução, entender e executar.",
+      "ideia": [
+        "Buscar, decodificar, executar, repetir. Bilhões de vezes por segundo, sempre uma instrução por vez em cada núcleo.",
+        "Programa e dado moram na mesma memória. É por isso que existe a classe de falha em que um dado bem colocado acaba sendo executado como instrução."
+      ],
+      "exemplo": {
+        "nota": "O Python mostra o que a sua função vira antes de rodar. Salve com qualquer nome que não seja dis.py:",
+        "codigo": "import dis\n\ndef soma(a, b):\n    return a + b\n\ndis.dis(soma)\n\n# a saída é mais ou menos assim:\n#   LOAD_FAST     a, b     buscar os dois valores\n#   BINARY_OP     +        executar a soma\n#   RETURN_VALUE           devolver o resultado\n#\n# os nomes mudam de uma versão do Python pra outra. A ideia não:\n# a sua linha virou uma fila de instruções pequenas, e algo executa\n# uma de cada vez.",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "A hierarquia da memória",
+        "linhas": [
+          "Registrador é dentro da CPU e é imediato. Cache é logo ali. RAM é rápida e some quando desliga. Disco é lento e permanente. Cada degrau é ordens de grandeza mais lento que o anterior.",
+          "Isso importa em segurança: a senha que o programa descriptografou está em texto puro na RAM enquanto ele roda. Quem consegue ler a memória do processo lê o segredo, sem quebrar criptografia nenhuma.",
+          "E RAM não esquece na hora: dado pode sobrar na memória depois do uso, e ir parar no arquivo de troca do disco. Por isso ferramenta de cofre tenta limpar a memória assim que termina."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que a CPU faz, no fundo?",
+          "opcoes": [
+            "Guarda os arquivos do sistema",
+            "Busca a próxima instrução, decodifica e executa, uma por vez em cada núcleo",
+            "Desenha a tela"
+          ],
+          "correta": 1,
+          "porque": "Tudo que o computador faz é isso repetido bilhões de vezes. O resto é organização em volta."
+        },
+        {
+          "pergunta": "Um programa descriptografou um arquivo e está mostrando na tela. Onde o conteúdo em texto puro está nesse momento?",
+          "opcoes": [
+            "Só na tela",
+            "Em lugar nenhum: ele fica cifrado o tempo todo",
+            "Na memória RAM do processo, legível por quem conseguir ler essa memória"
+          ],
+          "correta": 2,
+          "porque": "Pra usar o dado, o programa precisa dele aberto. É por isso que acesso de administrador na máquina vale mais que a senha do arquivo."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Desmonte duas funções que fazem a mesma coisa de jeitos diferentes, uma com laço e outra com uma função pronta do Python, e compare o número de instruções. Anote no Caderno o que isso sugere sobre desempenho e por que medir tempo ainda é necessário.",
+        "solucao": "import dis, time\n\ndef com_laco(numeros):\n    total = 0\n    for n in numeros:\n        total += n\n    return total\n\ndef com_sum(numeros):\n    return sum(numeros)\n\nprint(\"--- com laço ---\")\ndis.dis(com_laco)\nprint(\"--- com sum ---\")\ndis.dis(com_sum)\n\n# contando o tempo de verdade\nnumeros = list(range(1_000_000))\n\nfor funcao in (com_laco, com_sum):\n    inicio = time.perf_counter()\n    funcao(numeros)\n    print(funcao.__name__, round(time.perf_counter() - inicio, 4), \"s\")\n\n# o que isso sugere:\n# a versão com laço tem várias instruções repetindo a cada volta.\n# a com sum entrega o trabalho pra um código já compilado, em C.\n#\n# por que medir ainda é preciso:\n# contar instrução do bytecode não diz quanto cada uma custa, nem o que\n# acontece no cache e na memória. Palpite de desempenho erra muito;\n# relógio na mão, não.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m9a2",
       "titulo": "Binário, hexadecimal e bytes",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "No fundo é tudo byte. Hexadecimal é só um jeito curto de ler byte sem enlouquecer.",
+      "ideia": [
+        "Um byte são 8 bits, de 0 a 255. Em hexadecimal isso cabe em dois dígitos, de 00 a ff, e por isso toda ferramenta mostra memória em hexa.",
+        "Texto também é byte: uma tabela decide qual número vira qual letra. Em UTF-8, letra com acento ocupa mais de um byte."
+      ],
+      "exemplo": {
+        "nota": "Os mesmos números, em três roupas:",
+        "codigo": "print(bin(5), hex(255), int(\"ff\", 16))\n# 0b101 0xff 255\n\nprint(\"A\".encode(\"utf-8\"))    # b'A'         1 byte\nprint(\"ã\".encode(\"utf-8\"))    # b'\\xc3\\xa3'   2 bytes\n\ndados = bytes([0x48, 0x65, 0x6c, 0x6c, 0x6f])\nprint(dados)          # b'Hello'\nprint(dados.decode()) # Hello\nprint(dados.hex())    # 48656c6c6f\n\n# os primeiros bytes de um arquivo dizem o que ele é de verdade\npng = bytes([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])\nopen(\"foto.png\", \"wb\").write(png)\n\nprimeiros = open(\"foto.png\", \"rb\").read(8)\nprint(primeiros.hex())            # 89504e470d0a1a0a\nprint(primeiros[1:4])             # b'PNG'",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "A extensão não prova nada",
+        "linhas": [
+          "Todo formato começa com uma assinatura: PNG é 89 50 4e 47, PDF é 25 50 44 46 (%PDF), ZIP é 50 4b (PK). Trocar o nome do arquivo não muda um byte disso.",
+          "Por isso validar upload por extensão é inútil: o servidor precisa olhar o conteúdo, e ainda assim não deve confiar. Arquivo enviado por terceiro se guarda fora da pasta do site e nunca com permissão de execução.",
+          "No terminal, xxd arquivo | head -2 mostra os bytes e o texto ao lado. É o primeiro comando de qualquer análise de arquivo suspeito."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Quanto vale 0xff em decimal, e por que esse número aparece tanto?",
+          "opcoes": [
+            "255, que é o maior valor que cabe num byte",
+            "16, porque hexa é base 16",
+            "100, é só uma convenção"
+          ],
+          "correta": 0,
+          "porque": "Dois dígitos hexa cobrem exatamente um byte, de 00 a ff. Por isso memória, cor e endereço aparecem sempre assim."
+        },
+        {
+          "pergunta": "Alguém envia um arquivo chamado foto.png que começa com os bytes 25 50 44 46. O que você tem em mãos?",
+          "opcoes": [
+            "Uma imagem PNG corrompida",
+            "Um PDF com nome de imagem: o conteúdo é que manda",
+            "Um arquivo vazio"
+          ],
+          "correta": 1,
+          "porque": "25 50 44 46 é %PDF. Validação de upload que só olha a extensão aceita qualquer coisa disfarçada."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um programa que leia os primeiros bytes de um arquivo e diga se ele é PNG, PDF ou ZIP, comparando com as assinaturas. Teste com um arquivo que você renomeou de propósito e anote no Caderno por que a extensão não serve como validação.",
+        "solucao": "ASSINATURAS = {\n    b\"\\x89PNG\\r\\n\\x1a\\n\": \"PNG\",\n    b\"%PDF\": \"PDF\",\n    b\"PK\\x03\\x04\": \"ZIP (ou docx, xlsx, jar, que são zip por dentro)\",\n}\n\ndef tipo_de(caminho):\n    with open(caminho, \"rb\") as f:\n        inicio = f.read(8)\n    for assinatura, nome in ASSINATURAS.items():\n        if inicio.startswith(assinatura):\n            return nome\n    return f\"desconhecido ({inicio.hex()})\"\n\n# criando os arquivos de teste\nopen(\"imagem.png\", \"wb\").write(b\"\\x89PNG\\r\\n\\x1a\\n resto da imagem\")\nopen(\"documento.png\", \"wb\").write(b\"%PDF-1.7 resto do documento\")   # nome mente\n\nprint(\"imagem.png    ->\", tipo_de(\"imagem.png\"))\nprint(\"documento.png ->\", tipo_de(\"documento.png\"))\n# imagem.png    -> PNG\n# documento.png -> PDF\n\n# por que a extensão não valida:\n# ela é só parte do nome, escolhida por quem enviou. Os bytes são o arquivo.\n# e nem a assinatura basta: dá pra colar bytes de PNG na frente de outra coisa.\n# upload seguro = guardar fora da pasta servida, renomear, nunca executar,\n# e servir com o tipo certo no cabeçalho.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m9a3",
       "titulo": "Processo, thread e memória",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Processo é um programa rodando, com memória só dele. Thread é uma linha de execução dentro desse processo.",
+      "ideia": [
+        "Cada processo tem um número (PID), um dono e um espaço de memória isolado. Um não enxerga a memória do outro, e é o sistema que garante isso.",
+        "Threads dividem a mesma memória do processo. Rápido de conversar, fácil de dar problema, e é por isso que erro de concorrência é tão comum."
+      ],
+      "exemplo": {
+        "nota": "No Linux, cada processo aparece como uma pasta em /proc. Olhe o seu próprio:",
+        "codigo": "ps aux | head -5        # todos os processos: dono, PID, memória, comando\n\ncat /proc/self/status | grep -E \"Name|Pid|VmRSS\"\n# Name:   cat\n# Pid:    4213\n# VmRSS:  1536 kB          memória de verdade em uso\n\ncat /proc/self/cmdline | tr '\\0' ' '\n# a linha de comando completa deste processo\n\nps -eo pid,user,rss,comm --sort=-rss | head -5   # quem mais come memória\n\n# e o detalhe que pega muita gente:\nps aux | grep senha\n# a linha de comando de QUALQUER processo é visível pra todos os usuários\n# da máquina. Senha passada como argumento não é segredo.",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Isolamento, e onde ele acaba",
+        "linhas": [
+          "O sistema impede um processo de ler a memória do outro. Mas o root passa por cima disso: com privilégio de administrador dá pra ler a memória de qualquer processo, e é assim que ferramenta de perícia recupera chave e senha.",
+          "As variáveis de ambiente do processo ficam em /proc/PID/environ. Segredo em variável de ambiente está protegido do repositório (aula 12.4), não do administrador da máquina.",
+          "Por isso senha nunca vai como argumento de linha de comando: use arquivo com permissão 600, variável de ambiente ou entrada pelo teclado. O argumento aparece pra todo mundo no ps."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual a diferença entre processo e thread?",
+          "opcoes": [
+            "Thread é um processo mais lento",
+            "Processo tem memória própria e isolada; threads vivem dentro de um processo e compartilham a mesma memória",
+            "São a mesma coisa em sistemas modernos"
+          ],
+          "correta": 1,
+          "porque": "Compartilhar memória é o que torna thread rápida e traz o problema de dois pedaços de código mexendo no mesmo dado ao mesmo tempo."
+        },
+        {
+          "pergunta": "Por que não rodar um programa passando a senha como argumento, tipo backup --senha=1234?",
+          "opcoes": [
+            "Porque a linha de comando fica visível no ps pra qualquer usuário da máquina",
+            "Porque argumento tem limite de tamanho",
+            "Porque a senha fica mais lenta de processar"
+          ],
+          "correta": 0,
+          "porque": "E também vai parar no histórico do shell. Segredo entra por arquivo protegido, variável de ambiente ou digitado na hora."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Liste os cinco processos que mais usam memória na sua máquina, escolha um e descubra o dono, o PID e a linha de comando completa. Depois procure por alguma linha de comando que mostre informação que não deveria estar ali e anote no Caderno o que encontrou.",
+        "solucao": "# os cinco que mais usam memória de verdade (RSS em KB)\nps -eo pid,user,rss,comm --sort=-rss | head -6\n\n# escolha um PID e investigue\nPID=1234\nps -o pid,user,etime,comm -p $PID     # dono e há quanto tempo roda\ncat /proc/$PID/cmdline | tr '\\0' ' '  # a linha de comando inteira\nls -l /proc/$PID/cwd                  # de qual pasta ele foi iniciado\n\n# procurando segredo exposto na linha de comando\nps aux | grep -iE \"pass|senha|token|key\" | grep -v grep\n\n# o que costuma aparecer:\n# script de backup com --password, cliente de banco com -p1234,\n# curl com token no parâmetro da URL.\n# tudo isso é legível por qualquer usuário da máquina, e a URL ainda\n# vai parar no log do servidor do outro lado (aula 5.4).\n#\n# no Windows, o equivalente no PowerShell:\n# Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 5\n# Get-CimInstance Win32_Process | Select-Object ProcessId, CommandLine",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m9a4",
       "titulo": "Stack e heap: a origem do overflow",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "A memória do processo tem duas áreas com regras diferentes. Escrever além do limite de uma delas é a falha mais antiga do mundo.",
+      "ideia": [
+        "A pilha guarda as chamadas de função: cada chamada empilha os parâmetros, as variáveis locais e o endereço de volta. Quando a função termina, desempilha.",
+        "O heap é o espaço solto, pedido e devolvido pelo programa. Em linguagem sem checagem de limite, escrever mais do que cabe num espaço passa por cima do que estava do lado."
+      ],
+      "exemplo": {
+        "nota": "O caso clássico, em C. Os dois fazem a mesma coisa; só um pergunta quanto cabe:",
+        "codigo": "#include <stdio.h>\n#include <string.h>\n\nvoid fragil(char *entrada) {\n    char nome[16];            // 16 bytes na pilha, e olhe lá\n    strcpy(nome, entrada);    // copia até acabar o texto. Não olha o tamanho.\n    printf(\"Olá, %s\\n\", nome);\n}\n\nvoid firme(char *entrada) {\n    char nome[16];\n    snprintf(nome, sizeof nome, \"%s\", entrada);   // no máximo 16, sempre\n    printf(\"Olá, %s\\n\", nome);\n}\n\n// com uma entrada de 200 caracteres, o strcpy escreve 200 bytes\n// num espaço de 16. Os outros 184 vão por cima do que estava depois\n// na pilha, inclusive do endereço de volta da função.",
+        "linguagem": "c"
+      },
+      "mais": {
+        "titulo": "Por que isso ainda existe, e o que segura",
+        "linhas": [
+          "Sobrescrever o endereço de volta permite desviar a execução. Contra isso vieram três defesas: canário (um valor sentinela conferido antes de voltar), ASLR (endereços sorteados a cada execução) e NX (área de dado marcada como não executável).",
+          "Nenhuma dessas defesas conserta o erro: elas encarecem a exploração. O que conserta é checar o limite, ou usar linguagem que checa sozinha.",
+          "Python, Go, Rust, Java e C# recusam escrever fora do espaço e levantam erro. É por isso que órgãos de segurança recomendam linguagem com memória segura pra código novo. C e C++ seguem necessários, e ali a disciplina é obrigatória."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que é a pilha (stack) de um programa?",
+          "opcoes": [
+            "Um arquivo temporário no disco",
+            "A área onde ficam as imagens carregadas",
+            "A área que guarda as chamadas de função, com variáveis locais e o endereço de volta"
+          ],
+          "correta": 2,
+          "porque": "Cada chamada empilha um quadro e cada retorno desempilha. É por isso que recursão sem fim estoura a pilha."
+        },
+        {
+          "pergunta": "Por que Python não sofre desse tipo de falha na mesma medida?",
+          "opcoes": [
+            "Porque ele confere o limite e levanta erro em vez de escrever fora do espaço",
+            "Porque ele não usa memória",
+            "Porque ele é interpretado, e interpretador não tem pilha"
+          ],
+          "correta": 0,
+          "porque": "A checagem é feita pra você. O custo é um pouco de desempenho, e a troca vale na maioria dos casos."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Em Python, escreva uma função que copie itens pra uma lista de tamanho fixo e tente copiar mais do que cabe. Mostre o erro que aparece e, ao lado, escreva no Caderno o que teria acontecido na mesma situação em C sem checagem.",
+        "solucao": "def copiar(destino, itens):\n    for i, item in enumerate(itens):\n        destino[i] = item      # aqui o Python confere o limite\n    return destino\n\ncaixa = [None] * 4\nprint(copiar(caixa, [1, 2, 3, 4]))\n# [1, 2, 3, 4]\n\ntry:\n    copiar(caixa, [1, 2, 3, 4, 5, 6])\nexcept IndexError as erro:\n    print(\"parou:\", erro)\n# parou: list assignment index out of range\n\n# a pilha também tem limite, e dá pra ver:\ndef fundo(n=0):\n    return fundo(n + 1)\n\ntry:\n    fundo()\nexcept RecursionError:\n    print(\"a pilha acabou antes da recursão\")\n\n# o que teria acontecido em C sem checagem:\n# nada de erro. Os itens 5 e 6 seriam escritos logo depois da caixa,\n# por cima do que estivesse ali: outra variável, um ponteiro, ou o\n# endereço de volta da função.\n# o programa continuaria rodando com a memória adulterada, e o efeito\n# apareceria em outro lugar, muito depois. É por isso que essa família\n# de erro é tão difícil de achar e tão explorada.",
+        "linguagem": "python"
+      }
     }
   ]
 }

@@ -150,5 +150,231 @@
     "solucao": "def primeiro_unico(texto):\n    contagem = {}\n    for c in texto:\n        contagem[c] = contagem.get(c, 0) + 1\n\n    for c in texto:                  # 2ª passada preserva a ordem\n        if contagem[c] == 1:\n            return c\n    return None",
     "custo": "O(n) tempo, O(k) memória",
     "foco": "base"
+  },
+  {
+    "id": "t9",
+    "titulo": "Mascarar e-mail no log",
+    "nivel": "Fácil",
+    "tempo": 15,
+    "enunciado": "Escreva mascarar_email(email) que esconda o usuário do endereço, deixando só a primeira letra, e mantenha o domínio inteiro. Texto que não for e-mail volta como veio.",
+    "exemplos": [
+      {
+        "entra": "\"ana@exemplo.com\"",
+        "sai": "\"a**@exemplo.com\""
+      },
+      {
+        "entra": "\"a@x.com\"",
+        "sai": "\"*@x.com\""
+      },
+      {
+        "entra": "\"sem arroba\"",
+        "sai": "\"sem arroba\""
+      }
+    ],
+    "dica": "split(\"@\", 1) separa em duas partes e não se perde com endereço estranho. Com um caractere só antes do arroba, esconda ele também: guardar a única letra não esconde nada.",
+    "solucao": "def mascarar_email(email):\n    if \"@\" not in email:\n        return email\n    usuario, dominio = email.split(\"@\", 1)\n    if len(usuario) <= 1:\n        return \"*\" * len(usuario) + \"@\" + dominio\n    return usuario[0] + \"*\" * (len(usuario) - 1) + \"@\" + dominio\n\nprint(mascarar_email(\"ana@exemplo.com\"))   # a**@exemplo.com\nprint(mascarar_email(\"a@x.com\"))           # *@x.com\nprint(mascarar_email(\"sem arroba\"))        # sem arroba",
+    "custo": "O(n) no tamanho do texto. O cuidado de verdade vem antes: esse e-mail precisava mesmo estar no log?",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t10",
+    "titulo": "O domínio de verdade do link",
+    "nivel": "Fácil",
+    "tempo": 20,
+    "enunciado": "Escreva dominio_real(url) que devolva o domínio que realmente responde pelo endereço, aquele que fica logo antes da primeira barra. Trate porta, parâmetro, o truque do arroba e sufixo composto como com.br.",
+    "exemplos": [
+      {
+        "entra": "\"https://banco-seguro.com.verificacao-cliente.net/login\"",
+        "sai": "\"verificacao-cliente.net\""
+      },
+      {
+        "entra": "\"https://banco.com@site-falso.net/\"",
+        "sai": "\"site-falso.net\""
+      },
+      {
+        "entra": "\"https://meubanco.com.br/entrar\"",
+        "sai": "\"meubanco.com.br\""
+      }
+    ],
+    "dica": "O que vem antes de um arroba no endereço é enfeite: o host é o que está depois dele. Depois é só ler da direita pra esquerda.",
+    "solucao": "SUFIXOS_COMPOSTOS = {\"com.br\", \"net.br\", \"org.br\", \"gov.br\", \"co.uk\"}\n\ndef dominio_real(url):\n    host = url.split(\"://\", 1)[-1].split(\"/\", 1)[0]\n    host = host.split(\"?\", 1)[0].split(\"@\")[-1].split(\":\")[0].rstrip(\".\").lower()\n\n    partes = host.split(\".\")\n    if len(partes) < 2:\n        return host\n\n    dois = \".\".join(partes[-2:])\n    if dois in SUFIXOS_COMPOSTOS and len(partes) >= 3:\n        return \".\".join(partes[-3:])\n    return dois\n\nprint(dominio_real(\"https://banco-seguro.com.verificacao-cliente.net/login\"))\n# verificacao-cliente.net\nprint(dominio_real(\"https://banco.com@site-falso.net/\"))\n# site-falso.net\nprint(dominio_real(\"https://meubanco.com.br/entrar\"))\n# meubanco.com.br",
+    "custo": "O(n). A lista de sufixos composta de verdade se chama Public Suffix List e tem milhares de entradas; a daqui cobre o dia a dia. Esta é a conta que você faz de cabeça toda vez que recebe um link suspeito.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t11",
+    "titulo": "O IP está na minha faixa?",
+    "nivel": "Médio",
+    "tempo": 20,
+    "enunciado": "Escreva na_faixa(ip, rede) que diga se o endereço pertence à rede, no formato 192.168.0.0/24. Faça a conta na mão, sem biblioteca de rede.",
+    "exemplos": [
+      {
+        "entra": "\"192.168.0.14\", \"192.168.0.0/24\"",
+        "sai": "True"
+      },
+      {
+        "entra": "\"10.0.0.5\", \"192.168.0.0/24\"",
+        "sai": "False"
+      },
+      {
+        "entra": "\"192.168.1.9\", \"192.168.0.0/23\"",
+        "sai": "True"
+      }
+    ],
+    "dica": "Transforme o IP num número de 32 bits. A máscara /24 é 24 uns seguidos de 8 zeros: aplique nos dois e compare o que sobrou.",
+    "solucao": "def numero(ip):\n    a, b, c, d = (int(x) for x in ip.split(\".\"))\n    return (a << 24) | (b << 16) | (c << 8) | d\n\ndef na_faixa(ip, rede):\n    base, bits = rede.split(\"/\")\n    mascara = (0xFFFFFFFF << (32 - int(bits))) & 0xFFFFFFFF\n    return numero(ip) & mascara == numero(base) & mascara\n\nprint(na_faixa(\"192.168.0.14\", \"192.168.0.0/24\"))   # True\nprint(na_faixa(\"10.0.0.5\", \"192.168.0.0/24\"))       # False\nprint(na_faixa(\"192.168.1.9\", \"192.168.0.0/23\"))    # True\n\n# /23 pega duas faixas de 256: a 192.168.0.x e a 192.168.1.x",
+    "custo": "O(1). Em produção se usa o ipaddress, que já vem com o Python: ip_address(ip) in ip_network(rede). Fazer na mão uma vez é o que faz a máscara deixar de ser decoração.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t12",
+    "titulo": "Respostas por família",
+    "nivel": "Fácil",
+    "tempo": 15,
+    "enunciado": "Escreva por_familia(status) que receba uma lista de códigos HTTP e devolva quantos houve de cada família: 2xx, 3xx, 4xx e 5xx.",
+    "exemplos": [
+      {
+        "entra": "[200, 200, 301, 404, 404, 500]",
+        "sai": "{'2xx': 2, '3xx': 1, '4xx': 2, '5xx': 1}"
+      },
+      {
+        "entra": "[]",
+        "sai": "{}"
+      }
+    ],
+    "dica": "A família é o código dividido por 100. Divisão inteira, com duas barras.",
+    "solucao": "def por_familia(status):\n    contagem = {}\n    for codigo in status:\n        chave = f\"{codigo // 100}xx\"\n        contagem[chave] = contagem.get(chave, 0) + 1\n    return contagem\n\nprint(por_familia([200, 200, 301, 404, 404, 500]))\n# {'2xx': 2, '3xx': 1, '4xx': 2, '5xx': 1}\nprint(por_familia([]))\n# {}",
+    "custo": "O(n), uma passada. É o primeiro gráfico de qualquer painel: um salto no 5xx é incidente, um salto no 4xx costuma ser alguém procurando o que não existe.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t13",
+    "titulo": "Só o que o servidor aceita",
+    "nivel": "Médio",
+    "tempo": 20,
+    "enunciado": "Escreva filtrar(dados, permitidos) que receba o que veio do formulário e devolva duas coisas: só os campos permitidos e a lista ordenada dos recusados, pra registrar no log.",
+    "exemplos": [
+      {
+        "entra": "{\"produto\": \"Teclado\", \"qtd\": \"2\", \"preco\": \"0.01\"}, {\"produto\", \"qtd\"}",
+        "sai": "({'produto': 'Teclado', 'qtd': '2'}, ['preco'])"
+      }
+    ],
+    "dica": "Conjunto responde na hora se a chave está na lista, e a diferença entre dois conjuntos te dá os recusados de graça.",
+    "solucao": "def filtrar(dados, permitidos):\n    aceitos = {campo: valor for campo, valor in dados.items() if campo in permitidos}\n    recusados = sorted(set(dados) - set(permitidos))\n    return aceitos, recusados\n\nveio_do_formulario = {\"produto\": \"Teclado\", \"qtd\": \"2\", \"preco\": \"0.01\"}\nprint(filtrar(veio_do_formulario, {\"produto\", \"qtd\"}))\n# ({'produto': 'Teclado', 'qtd': '2'}, ['preco'])\n\n# o preço recusado não é erro do usuário: é tentativa, e por isso vai pro log.",
+    "custo": "O(n). Lista de permitidos não esquece caso, ao contrário da lista de proibidos. E o campo recusado é informação: ele conta o que alguém tentou.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t14",
+    "titulo": "Senha que presta, sorteada direito",
+    "nivel": "Médio",
+    "tempo": 20,
+    "enunciado": "Escreva gerar_senha(tamanho=16) usando secrets, garantindo pelo menos uma minúscula, uma maiúscula, um dígito e um símbolo. Recuse tamanho menor que 8.",
+    "exemplos": [
+      {
+        "entra": "gerar_senha(16)",
+        "sai": "16 caracteres, com os quatro tipos presentes"
+      },
+      {
+        "entra": "gerar_senha(4)",
+        "sai": "ValueError"
+      }
+    ],
+    "dica": "Sorteie a senha inteira e confira se os quatro grupos apareceram. Faltou algum, sorteie de novo: é mais simples e mais seguro que encaixar caractere em posição fixa.",
+    "solucao": "import secrets, string\n\ndef gerar_senha(tamanho=16):\n    if tamanho < 8:\n        raise ValueError(\"use pelo menos 8 caracteres\")\n\n    grupos = [string.ascii_lowercase, string.ascii_uppercase, string.digits, \"!@#$%&*?\"]\n    alfabeto = \"\".join(grupos)\n\n    while True:\n        senha = \"\".join(secrets.choice(alfabeto) for _ in range(tamanho))\n        if all(any(c in grupo for c in senha) for grupo in grupos):\n            return senha\n\nsenha = gerar_senha(16)\nprint(len(senha), any(c.isdigit() for c in senha), any(c.isupper() for c in senha))\n# 16 True True\n\ntry:\n    gerar_senha(4)\nexcept ValueError as erro:\n    print(\"recusou:\", erro)",
+    "custo": "O(tamanho) por tentativa, e repetir é raro. O ponto aqui não é a conta: é usar secrets, e não random. O random é previsível, e quem vê algumas saídas prevê as próximas.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t15",
+    "titulo": "Esse arquivo é o mesmo?",
+    "nivel": "Médio",
+    "tempo": 20,
+    "enunciado": "Escreva impressao(caminho) que devolva o sha256 do arquivo lendo em blocos, e confere(caminho, esperado) que compare com o valor esperado sem tropeçar em espaço ou maiúscula.",
+    "exemplos": [
+      {
+        "entra": "arquivo com o texto oi",
+        "sai": "\"87f633634cc4b02f628685651f0a29b7bfa22a0bd841f725c6772dd00a58d489\""
+      },
+      {
+        "entra": "confere(arquivo, hash certo)",
+        "sai": "True"
+      }
+    ],
+    "dica": "Ler em blocos é o que permite conferir arquivo de 4 GB sem estourar a memória. O hashlib aceita update em pedaços.",
+    "solucao": "import hashlib, hmac\n\ndef impressao(caminho, bloco=65536):\n    h = hashlib.sha256()\n    with open(caminho, \"rb\") as arquivo:\n        while pedaco := arquivo.read(bloco):\n            h.update(pedaco)\n    return h.hexdigest()\n\ndef confere(caminho, esperado):\n    return hmac.compare_digest(impressao(caminho), esperado.strip().lower())\n\nopen(\"nota.txt\", \"w\", encoding=\"utf-8\").write(\"oi\")\n\nprint(impressao(\"nota.txt\"))\n# 87f633634cc4b02f628685651f0a29b7bfa22a0bd841f725c6772dd00a58d489\nprint(confere(\"nota.txt\", impressao(\"nota.txt\")))   # True\nprint(confere(\"nota.txt\", \"0\" * 64))                # False",
+    "custo": "O(n) no tamanho do arquivo, com memória constante. compare_digest compara em tempo fixo, sem entregar pelo relógio quantos caracteres bateram.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t16",
+    "titulo": "Essa versão está vulnerável?",
+    "nivel": "Difícil",
+    "tempo": 20,
+    "enunciado": "Escreva vulneravel(instalada, corrigida) que diga se a versão instalada é anterior à que corrigiu a falha. Compare como número, nunca como texto.",
+    "exemplos": [
+      {
+        "entra": "\"2.4.7\", \"2.4.49\"",
+        "sai": "True"
+      },
+      {
+        "entra": "\"2.4.50\", \"2.4.49\"",
+        "sai": "False"
+      },
+      {
+        "entra": "\"1.10.0\", \"1.9.0\"",
+        "sai": "False"
+      }
+    ],
+    "dica": "Transforme \"2.4.7\" em (2, 4, 7). Tupla o Python compara sozinho, item por item, e aí 10 é maior que 9 de novo.",
+    "solucao": "def versao(texto):\n    return tuple(int(parte) for parte in texto.split(\".\"))\n\ndef vulneravel(instalada, corrigida):\n    return versao(instalada) < versao(corrigida)\n\nprint(vulneravel(\"2.4.7\", \"2.4.49\"))    # True\nprint(vulneravel(\"2.4.50\", \"2.4.49\"))   # False\nprint(vulneravel(\"1.10.0\", \"1.9.0\"))    # False\n\n# a armadilha, pra ver com os próprios olhos:\nprint(\"1.10.0\" < \"1.9.0\")               # True, e está errado\n# como texto, o 1 de 10 vem antes do 9. Como número, não.",
+    "custo": "O(n) nas partes da versão. Versão de pacote de verdade tem sufixo (2.4.7-1ubuntu1) e aí o certo é a biblioteca packaging. Esse erro de comparar como texto já deixou servidor vulnerável achando que estava corrigido.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t17",
+    "titulo": "Não deixe subir de pasta",
+    "nivel": "Difícil",
+    "tempo": 25,
+    "enunciado": "Escreva caminho_seguro(base, pedido) que devolva o caminho absoluto do arquivo quando ele estiver dentro da pasta base, e None quando o pedido tentar escapar dela.",
+    "exemplos": [
+      {
+        "entra": "\"uploads\", \"foto.png\"",
+        "sai": "o caminho absoluto de uploads/foto.png"
+      },
+      {
+        "entra": "\"uploads\", \"../../etc/passwd\"",
+        "sai": "None"
+      },
+      {
+        "entra": "\"uploads\", \"/etc/passwd\"",
+        "sai": "None"
+      }
+    ],
+    "dica": "Resolva os dois caminhos antes de comparar. Comparar texto não enxerga .. nem link simbólico, e é exatamente aí que a falha mora.",
+    "solucao": "from pathlib import Path\n\ndef caminho_seguro(base, pedido):\n    raiz = Path(base).resolve()\n    alvo = (raiz / pedido).resolve()\n    return alvo if alvo == raiz or raiz in alvo.parents else None\n\nprint(caminho_seguro(\"uploads\", \"foto.png\"))          # .../uploads/foto.png\nprint(caminho_seguro(\"uploads\", \"../../etc/passwd\"))  # None\nprint(caminho_seguro(\"uploads\", \"/etc/passwd\"))       # None\n\n# o caminho absoluto no pedido também escapa: juntar com uma barra no começo\n# joga a base fora. O resolve mostra isso, a soma de texto não.",
+    "custo": "O(profundidade do caminho). Essa falha se chama travessia de diretório, e ela vale pra download, upload, template e log. Sempre que um nome de arquivo vier de fora, ele passa por aqui.",
+    "foco": "seguranca"
+  },
+  {
+    "id": "t18",
+    "titulo": "Limite de tentativas",
+    "nivel": "Difícil",
+    "tempo": 25,
+    "enunciado": "Escreva a classe Limitador(maximo, janela) com o método permitido(chave, agora), que devolve False quando aquela chave passar do máximo de tentativas dentro da janela de tempo em segundos.",
+    "exemplos": [
+      {
+        "entra": "maximo 5, janela 60, seis tentativas nos segundos 0 a 5",
+        "sai": "[True, True, True, True, True, False]"
+      },
+      {
+        "entra": "a mesma chave no segundo 61",
+        "sai": "True"
+      }
+    ],
+    "dica": "Guarde os horários numa deque por chave e, no começo de cada chamada, jogue fora o que já saiu da janela. Sobrou menos que o máximo, pode.",
+    "solucao": "from collections import deque\n\nclass Limitador:\n    def __init__(self, maximo=5, janela=60):\n        self.maximo, self.janela = maximo, janela\n        self.marcas = {}\n\n    def permitido(self, chave, agora):\n        fila = self.marcas.setdefault(chave, deque())\n        while fila and agora - fila[0] > self.janela:\n            fila.popleft()                 # saiu da janela, não conta mais\n        if len(fila) >= self.maximo:\n            return False\n        fila.append(agora)\n        return True\n\nlim = Limitador(maximo=5, janela=60)\nprint([lim.permitido(\"10.0.0.9\", t) for t in range(6)])\n# [True, True, True, True, True, False]\nprint(lim.permitido(\"10.0.0.9\", 61))   # True, a janela andou\nprint(lim.permitido(\"outro-ip\", 5))    # True, cada chave tem a sua conta",
+    "custo": "O(1) amortizado por chamada: cada horário entra e sai uma vez. É a defesa da aula 7.4 isolada num objeto, que dá pra testar sem subir servidor nenhum.",
+    "foco": "seguranca"
   }
 ]

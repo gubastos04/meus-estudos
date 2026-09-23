@@ -4,27 +4,252 @@
     {
       "id": "m8a1",
       "titulo": "Tabela, linha, coluna, chave",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Banco relacional é um monte de planilha com regras. A chave é o que impede o dado de virar bagunça.",
+      "ideia": [
+        "Tabela tem colunas com tipo e linhas com dado. A chave primária identifica cada linha sem repetir, e a estrangeira liga uma tabela na outra.",
+        "As regras (NOT NULL, UNIQUE, REFERENCES) são o banco recusando dado errado. Quem confia só na validação da aplicação acaba com dado quebrado."
+      ],
+      "exemplo": {
+        "nota": "No Ubuntu: sudo apt install -y sqlite3. Salve como loja.sql e rode sqlite3 loja.db < loja.sql",
+        "codigo": "CREATE TABLE usuarios (\n  id    INTEGER PRIMARY KEY,\n  nome  TEXT NOT NULL,\n  email TEXT NOT NULL UNIQUE\n);\n\nCREATE TABLE pedidos (\n  id         INTEGER PRIMARY KEY,\n  usuario_id INTEGER NOT NULL REFERENCES usuarios(id),\n  item       TEXT NOT NULL,\n  valor      REAL NOT NULL\n);\n\nINSERT INTO usuarios (nome, email) VALUES\n  ('Ana', 'ana@exemplo.com'),\n  ('Bruno', 'bruno@exemplo.com');\n\nINSERT INTO pedidos (usuario_id, item, valor) VALUES\n  (1, 'Teclado', 199.90),\n  (1, 'Mouse', 89.90),\n  (2, 'Monitor', 899.00);\n\nSELECT * FROM usuarios;\n-- 1|Ana|ana@exemplo.com\n-- 2|Bruno|bruno@exemplo.com\n\nSELECT * FROM pedidos;\n-- 1|1|Teclado|199.9\n-- 2|1|Mouse|89.9\n-- 3|2|Monitor|899.0",
+        "linguagem": "sql"
+      },
+      "mais": {
+        "titulo": "Detalhes que mordem",
+        "linhas": [
+          "No SQLite, a chave estrangeira só é cobrada se você ligar: PRAGMA foreign_keys = ON. Sem isso, o banco aceita pedido de um usuário que não existe e você descobre depois, com relatório errado.",
+          "PRIMARY KEY identifica a linha. UNIQUE só impede repetição, e uma tabela pode ter várias colunas assim. E-mail costuma ser UNIQUE, não chave primária.",
+          "No terminal do sqlite3, .headers on e .mode column deixam a saída legível, e .schema mostra como a tabela foi criada. É o primeiro comando que se roda num banco desconhecido."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Pra que serve a chave estrangeira?",
+          "opcoes": [
+            "Ligar a linha de uma tabela a uma linha de outra, e impedir que ela aponte pro vazio",
+            "Criptografar a coluna",
+            "Ordenar a tabela automaticamente"
+          ],
+          "correta": 0,
+          "porque": "É o que mantém pedido apontando pra usuário que existe de verdade. Sem ela, sobra dado órfão e ninguém percebe."
+        },
+        {
+          "pergunta": "Uma tabela pode ter duas colunas UNIQUE?",
+          "opcoes": [
+            "Não, só a chave primária é única",
+            "Sim: UNIQUE só proíbe repetição, e pode valer pra quantas colunas você quiser",
+            "Só se as duas forem texto"
+          ],
+          "correta": 1,
+          "porque": "Chave primária é uma por tabela. Restrição de unicidade, quantas fizerem sentido: e-mail, CPF, número de pedido."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie uma tabela de comentários ligada aos usuários, com data e texto, insira três comentários de dois usuários diferentes e liste tudo. Depois tente inserir um comentário de um usuário que não existe e anote no Caderno o que o banco fez.",
+        "solucao": "PRAGMA foreign_keys = ON;\n\nCREATE TABLE usuarios (\n  id INTEGER PRIMARY KEY,\n  nome TEXT NOT NULL\n);\n\nCREATE TABLE comentarios (\n  id         INTEGER PRIMARY KEY,\n  usuario_id INTEGER NOT NULL REFERENCES usuarios(id),\n  data       TEXT NOT NULL,\n  texto      TEXT NOT NULL\n);\n\nINSERT INTO usuarios (nome) VALUES ('Ana'), ('Bruno');\n\nINSERT INTO comentarios (usuario_id, data, texto) VALUES\n  (1, '2026-09-20', 'Chegou rápido.'),\n  (1, '2026-09-21', 'Comprei de novo.'),\n  (2, '2026-09-22', 'Veio com defeito.');\n\nSELECT * FROM comentarios;\n\n-- agora o usuário 99, que não existe:\n-- INSERT INTO comentarios (usuario_id, data, texto)\n--   VALUES (99, '2026-09-23', 'fantasma');\n-- com PRAGMA foreign_keys = ON o banco recusa:\n--   FOREIGN KEY constraint failed\n-- sem o PRAGMA, ele aceita numa boa, e o comentário fica órfão.",
+        "linguagem": "sql"
+      }
     },
     {
       "id": "m8a2",
       "titulo": "SELECT, WHERE, JOIN",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "Perguntar ao banco: quais linhas, de quais tabelas, em que ordem.",
+      "ideia": [
+        "SELECT escolhe colunas, FROM diz a tabela, WHERE filtra as linhas, ORDER BY ordena e LIMIT corta. Essa é a espinha de quase toda consulta.",
+        "JOIN junta duas tabelas pela chave. GROUP BY com COUNT responde a pergunta que mais aparece em segurança: quantas vezes, e por quem."
+      ],
+      "exemplo": {
+        "nota": "Com a loja da aula anterior, as consultas do dia a dia:",
+        "codigo": "CREATE TABLE usuarios (id INTEGER PRIMARY KEY, nome TEXT, email TEXT);\nCREATE TABLE pedidos (id INTEGER PRIMARY KEY, usuario_id INTEGER, item TEXT, valor REAL);\nINSERT INTO usuarios VALUES (1,'Ana','ana@exemplo.com'), (2,'Bruno','bruno@exemplo.com');\nINSERT INTO pedidos VALUES (1,1,'Teclado',199.90), (2,1,'Mouse',89.90), (3,2,'Monitor',899.00);\n\nSELECT nome, email FROM usuarios WHERE nome = 'Ana';\n-- Ana|ana@exemplo.com\n\nSELECT item, valor FROM pedidos WHERE valor > 100 ORDER BY valor DESC;\n-- Monitor|899.0\n-- Teclado|199.9\n\nSELECT u.nome, p.item, p.valor\n  FROM pedidos p\n  JOIN usuarios u ON u.id = p.usuario_id;\n-- Ana|Teclado|199.9\n-- Ana|Mouse|89.9\n-- Bruno|Monitor|899.0\n\nSELECT u.nome, COUNT(*) AS quantos, SUM(p.valor) AS total\n  FROM pedidos p\n  JOIN usuarios u ON u.id = p.usuario_id\n  GROUP BY u.nome\n  ORDER BY quantos DESC;\n-- Ana|2|289.8\n-- Bruno|1|899.0",
+        "linguagem": "sql"
+      },
+      "mais": {
+        "titulo": "Três coisas que valem pro resto da vida",
+        "linhas": [
+          "É o mesmo relatório da aula 3.6, onde você contou acessos por IP com cut, sort e uniq. Ali era arquivo de texto, aqui é tabela. A pergunta é igual: contar por chave e ordenar.",
+          "SELECT * em código de produção é problema: traz coluna que você não pediu, inclusive senha e documento, e quebra quando alguém muda a tabela. Escreva as colunas.",
+          "LIKE '%ana%' procura pedaço de texto e é lento em tabela grande, porque não usa índice. Serve pra investigar, não pra tela que todo mundo abre."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que o JOIN faz?",
+          "opcoes": [
+            "Copia uma tabela pra dentro da outra",
+            "Junta linhas de duas tabelas que combinam pela chave",
+            "Soma os valores das colunas"
+          ],
+          "correta": 1,
+          "porque": "Ele casa pedido com usuário pelo usuario_id. Sem JOIN, você teria o número do usuário e não o nome."
+        },
+        {
+          "pergunta": "Por que evitar SELECT * no código que vai pra produção?",
+          "opcoes": [
+            "Porque é mais lento de digitar",
+            "Porque o SQLite não aceita",
+            "Porque traz colunas que você não pediu, inclusive dado sensível, e quebra quando a tabela muda"
+          ],
+          "correta": 2,
+          "porque": "Muito vazamento em API é isso: alguém devolveu a linha inteira do banco pro navegador, com hash de senha e documento junto."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte uma tabela de tentativas de login com IP, usuário, sucesso e data, coloque umas oito linhas com um IP errando cinco vezes seguidas, e escreva a consulta que mostra quantas falhas cada IP teve, do maior pro menor. Compare no Caderno com o que você fez no terminal na aula 3.6.",
+        "solucao": "CREATE TABLE tentativas (\n  id      INTEGER PRIMARY KEY,\n  ip      TEXT NOT NULL,\n  usuario TEXT NOT NULL,\n  sucesso INTEGER NOT NULL,   -- 0 falhou, 1 entrou\n  data    TEXT NOT NULL\n);\n\nINSERT INTO tentativas (ip, usuario, sucesso, data) VALUES\n  ('10.0.0.9','ana',0,'2026-09-22 10:00:03'),\n  ('10.0.0.9','ana',0,'2026-09-22 10:00:04'),\n  ('10.0.0.9','ana',0,'2026-09-22 10:00:05'),\n  ('10.0.0.9','ana',0,'2026-09-22 10:00:06'),\n  ('10.0.0.9','ana',1,'2026-09-22 10:00:07'),\n  ('10.0.0.5','bruno',1,'2026-09-22 10:01:00'),\n  ('10.0.0.7','admin',0,'2026-09-22 10:02:00'),\n  ('10.0.0.7','root',0,'2026-09-22 10:02:01');\n\n-- falhas por IP, do maior pro menor\nSELECT ip, COUNT(*) AS falhas\n  FROM tentativas\n  WHERE sucesso = 0\n  GROUP BY ip\n  ORDER BY falhas DESC;\n-- 10.0.0.9|4\n-- 10.0.0.7|2\n\n-- quem errou e depois acertou: o desenho de força bruta que funcionou\nSELECT ip, SUM(sucesso) AS entrou, COUNT(*) - SUM(sucesso) AS falhou\n  FROM tentativas\n  GROUP BY ip\n  HAVING entrou > 0 AND falhou >= 3;\n-- 10.0.0.9|1|4\n\n-- é a mesma conta da aula 3.6, que lá saiu com cut, sort e uniq -c.\n-- a diferença: aqui o dado já está estruturado, então a pergunta fica curta.",
+        "linguagem": "sql"
+      }
     },
     {
       "id": "m8a3",
       "titulo": "Python conversando com o banco",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "O módulo sqlite3 já vem com o Python. Conectar, perguntar, gravar e fechar.",
+      "ideia": [
+        "connect abre (ou cria) o arquivo do banco, execute manda a consulta e fetchall traz as linhas como tuplas.",
+        "Valor que vem de fora entra pelo ponto de interrogação, nunca grudado no texto da consulta. Esse é o hábito que evita a falha das próximas duas aulas."
+      ],
+      "exemplo": {
+        "nota": "Um banco de verdade em quinze linhas. Troque :memory: por um nome de arquivo pra ele durar:",
+        "codigo": "import sqlite3\n\ncon = sqlite3.connect(\":memory:\")\ncon.execute(\"CREATE TABLE pedidos (id INTEGER PRIMARY KEY, dono TEXT, item TEXT, valor REAL)\")\n\n# o ? recebe o valor. Repare na vírgula: é uma tupla de um item só\ncon.execute(\"INSERT INTO pedidos (dono, item, valor) VALUES (?, ?, ?)\", (\"ana\", \"Teclado\", 199.90))\ncon.executemany(\"INSERT INTO pedidos (dono, item, valor) VALUES (?, ?, ?)\", [\n    (\"ana\", \"Mouse\", 89.90),\n    (\"bruno\", \"Monitor\", 899.00),\n])\ncon.commit()          # sem commit, nada é gravado de verdade\n\nquem = \"ana\"\nfor linha in con.execute(\"SELECT item, valor FROM pedidos WHERE dono = ?\", (quem,)):\n    print(linha)\n# ('Teclado', 199.9)\n# ('Mouse', 89.9)\n\n(total,) = con.execute(\"SELECT SUM(valor) FROM pedidos WHERE dono = ?\", (quem,)).fetchone()\nprint(\"total:\", total)\n# total: 289.8\n\ncon.close()",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "Três detalhes que economizam horas",
+        "linhas": [
+          "Sem commit, o INSERT some quando o programa fecha. O with con: faz o commit sozinho no fim do bloco, ou desfaz tudo se der erro.",
+          "con.row_factory = sqlite3.Row faz as linhas virarem algo que se lê por nome: linha[\"item\"] em vez de linha[1]. Código fica muito mais claro.",
+          "O ? é do sqlite3. Em outros bancos o sinal muda (%s no PostgreSQL e no MySQL), mas a ideia é idêntica: o valor viaja separado do comando."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você roda um INSERT, o programa termina e o dado não está lá. O que faltou?",
+          "opcoes": [
+            "Faltou o commit",
+            "O SQLite não grava INSERT",
+            "Faltou fechar a conexão"
+          ],
+          "correta": 0,
+          "porque": "A transação fica aberta até o commit. Fechar sem commit desfaz tudo."
+        },
+        {
+          "pergunta": "Por que passar o valor no ? em vez de montar o texto da consulta?",
+          "opcoes": [
+            "Porque fica mais curto",
+            "Porque o valor viaja separado do comando, então ele nunca vira parte do SQL",
+            "Porque o Python exige"
+          ],
+          "correta": 1,
+          "porque": "É a diferença entre dado e instrução, a mesma ideia da aula 7.2. A próxima aula mostra o que acontece quando ela é ignorada."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um programa que crie a tabela de tentativas de login, insira oito registros e imprima as falhas por IP, do maior pro menor, usando ponto de interrogação em todo valor que vier de fora. Anote no Caderno onde ficaria fácil errar e grudar texto na consulta.",
+        "solucao": "import sqlite3\n\ncon = sqlite3.connect(\":memory:\")\ncon.row_factory = sqlite3.Row\ncon.execute(\"\"\"CREATE TABLE tentativas (\n    id INTEGER PRIMARY KEY, ip TEXT, usuario TEXT, sucesso INTEGER, data TEXT)\"\"\")\n\nregistros = [\n    (\"10.0.0.9\", \"ana\", 0, \"2026-09-22 10:00:03\"),\n    (\"10.0.0.9\", \"ana\", 0, \"2026-09-22 10:00:04\"),\n    (\"10.0.0.9\", \"ana\", 0, \"2026-09-22 10:00:05\"),\n    (\"10.0.0.9\", \"ana\", 0, \"2026-09-22 10:00:06\"),\n    (\"10.0.0.9\", \"ana\", 1, \"2026-09-22 10:00:07\"),\n    (\"10.0.0.5\", \"bruno\", 1, \"2026-09-22 10:01:00\"),\n    (\"10.0.0.7\", \"admin\", 0, \"2026-09-22 10:02:00\"),\n    (\"10.0.0.7\", \"root\", 0, \"2026-09-22 10:02:01\"),\n]\n\nwith con:      # commit automático no fim do bloco\n    con.executemany(\n        \"INSERT INTO tentativas (ip, usuario, sucesso, data) VALUES (?, ?, ?, ?)\",\n        registros,\n    )\n\nfalhas = con.execute(\"\"\"\n    SELECT ip, COUNT(*) AS falhas\n      FROM tentativas\n     WHERE sucesso = ?\n     GROUP BY ip\n     ORDER BY falhas DESC\n\"\"\", (0,))\n\nfor linha in falhas:\n    print(linha[\"ip\"], linha[\"falhas\"])\n# 10.0.0.9 4\n# 10.0.0.7 2\n\n# onde seria fácil errar:\n# numa busca por usuário digitado na tela, tipo\n#   f\"SELECT * FROM tentativas WHERE usuario = '{digitado}'\"\n# ou num filtro de data montado com +.\n# toda vez que aparecer f\" ou + perto de SELECT, pare e use ?.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m8a4",
       "titulo": "SQL Injection na prática",
-      "minutos": 20
+      "minutos": 20,
+      "resumo": "Ver com os próprios olhos a consulta mudar de sentido quando o texto digitado entra nela.",
+      "ideia": [
+        "Consulta montada com texto não distingue o que é comando do que é dado. Quem digita passa a escrever um pedaço do comando.",
+        "Rode isto no seu computador, no seu banco em memória. O objetivo é entender o mecanismo pra reconhecer e corrigir, não é sair testando por aí."
+      ],
+      "exemplo": {
+        "nota": "O login da aula 5.6, em Python, imprimindo a consulta que ele monta:",
+        "codigo": "import sqlite3\n\ncon = sqlite3.connect(\":memory:\")\ncon.execute(\"CREATE TABLE usuarios (usuario TEXT, senha TEXT, nome TEXT)\")\ncon.execute(\"INSERT INTO usuarios VALUES ('ana', 'ana123', 'Ana Souza')\")\n\ndef login_montado(usuario, senha):\n    sql = f\"SELECT nome FROM usuarios WHERE usuario = '{usuario}' AND senha = '{senha}'\"\n    print(sql)\n    return con.execute(sql).fetchone()\n\nprint(login_montado(\"ana\", \"ana123\"))\n# SELECT nome FROM usuarios WHERE usuario = 'ana' AND senha = 'ana123'\n# ('Ana Souza',)\n\nprint(login_montado(\"ana\", \"chute\"))\n# SELECT nome FROM usuarios WHERE usuario = 'ana' AND senha = 'chute'\n# None\n\nprint(login_montado(\"ana\", \"x' OR '1'='1\"))\n# SELECT nome FROM usuarios WHERE usuario = 'ana' AND senha = 'x' OR '1'='1'\n# ('Ana Souza',)\n\n# olhe a última consulta impressa: a aspa fechou o campo senha e o resto\n# virou condição. '1'='1' é sempre verdade, então o filtro de senha sumiu.",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "Por que isso é tão grave",
+        "linhas": [
+          "Com a consulta na mão, o estrago não para no login: dependendo da permissão daquele usuário do banco, dá pra ler outras tabelas, alterar e apagar dado.",
+          "Nem sempre a resposta aparece na tela. Quando o sistema só muda de comportamento (a página carrega ou não, demora ou não), o nome é injeção cega, e ela é igualmente explorável, só mais lenta.",
+          "Sinais de que existe: erro de banco aparecendo na tela, resposta diferente quando você põe uma aspa num campo, e busca que aceita ordenar por um nome de coluna vindo da URL. Achou, não explore o sistema dos outros: relate."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que a consulta montada aceita a entrada com aspa?",
+          "opcoes": [
+            "Porque o banco está desatualizado",
+            "Porque a aspa digitada fecha o campo de texto e o que vem depois é lido como parte do comando",
+            "Porque o Python interpreta a aspa"
+          ],
+          "correta": 1,
+          "porque": "Pro banco chegou uma consulta só, sem nenhuma marca do que era texto digitado. Ele obedece o que leu."
+        },
+        {
+          "pergunta": "Você encontrou esse comportamento num site que não é seu. O que fazer?",
+          "opcoes": [
+            "Explorar até ver o tamanho do estrago, pra provar no relatório",
+            "Publicar o achado pra avisar os usuários",
+            "Parar, não extrair dado nenhum e procurar o canal de contato de segurança do site"
+          ],
+          "correta": 2,
+          "porque": "Continuar já é acesso não autorizado, e queima a sua carreira. Divulgação responsável é o caminho: avisa quem pode corrigir, dá prazo e não toca no dado."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Reproduza o exemplo no seu computador e depois responda no Caderno, olhando a consulta impressa: qual pedaço veio do seu código e qual veio da entrada, e em que momento exato os dois deixaram de ser distinguíveis pro banco. Depois troque a função pela versão com ponto de interrogação e mostre que a mesma entrada não entra mais.",
+        "solucao": "import sqlite3\n\ncon = sqlite3.connect(\":memory:\")\ncon.execute(\"CREATE TABLE usuarios (usuario TEXT, senha TEXT, nome TEXT)\")\ncon.execute(\"INSERT INTO usuarios VALUES ('ana', 'ana123', 'Ana Souza')\")\n\ndef login_montado(usuario, senha):\n    sql = f\"SELECT nome FROM usuarios WHERE usuario = '{usuario}' AND senha = '{senha}'\"\n    return con.execute(sql).fetchone()\n\ndef login_parametrizado(usuario, senha):\n    return con.execute(\n        \"SELECT nome FROM usuarios WHERE usuario = ? AND senha = ?\",\n        (usuario, senha),\n    ).fetchone()\n\nentrada = \"x' OR '1'='1\"\n\nprint(login_montado(\"ana\", entrada))         # ('Ana Souza',)  entrou\nprint(login_parametrizado(\"ana\", entrada))   # None            não entrou\n\n# a senha certa continua funcionando nas duas:\nprint(login_parametrizado(\"ana\", \"ana123\"))  # ('Ana Souza',)\n\n# resposta do Caderno:\n# do meu código veio  SELECT nome FROM usuarios WHERE usuario = '...' AND senha = '...'\n# da entrada veio     x' OR '1'='1\n# os dois deixaram de ser distinguíveis no exato momento da montagem do texto,\n# antes de sair do meu programa. O banco recebeu uma frase só e obedeceu.\n#\n# na versão com ?, o comando vai de um lado e os valores do outro.\n# o banco trata o texto inteiro como conteúdo do campo senha, aspas e tudo.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m8a5",
       "titulo": "Consulta parametrizada: a defesa real",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Mandar comando e valor por caminhos separados. É simples, é rápido e resolve a falha na raiz.",
+      "ideia": [
+        "Com parâmetro, o banco recebe o comando pronto e os valores à parte. Não existe texto pra reinterpretar, então não existe injeção.",
+        "O que não dá pra parametrizar é nome de tabela e de coluna. Aí a defesa é lista de permitidos, escolhendo entre opções que você escreveu."
+      ],
+      "exemplo": {
+        "nota": "As três situações que aparecem no dia a dia:",
+        "codigo": "import sqlite3\n\ncon = sqlite3.connect(\":memory:\")\ncon.execute(\"CREATE TABLE pedidos (id INTEGER PRIMARY KEY, dono TEXT, item TEXT, valor REAL)\")\ncon.executemany(\"INSERT INTO pedidos (dono, item, valor) VALUES (?, ?, ?)\", [\n    (\"ana\", \"Teclado\", 199.90), (\"ana\", \"Mouse\", 89.90), (\"bruno\", \"Monitor\", 899.00),\n])\n\n# 1. valor de fora: sempre por parâmetro\nbusca = \"ana\"\nprint(con.execute(\"SELECT item FROM pedidos WHERE dono = ?\", (busca,)).fetchall())\n# [('Teclado',), ('Mouse',)]\n\n# 2. LIKE também é valor: o % entra no parâmetro, não na consulta\ntrecho = \"tecl\"\nprint(con.execute(\"SELECT item FROM pedidos WHERE item LIKE ?\", (f\"%{trecho}%\",)).fetchall())\n# [('Teclado',)]\n\n# 3. nome de coluna não dá pra parametrizar: escolha de uma lista sua\ndef listar(ordenar_por):\n    permitidas = {\"item\", \"valor\", \"dono\"}\n    coluna = ordenar_por if ordenar_por in permitidas else \"item\"\n    return con.execute(f\"SELECT item, valor FROM pedidos ORDER BY {coluna}\").fetchall()\n\nprint(listar(\"valor\"))\nprint(listar(\"valor; DROP TABLE pedidos\"))   # cai na lista e vira \"item\"\nprint(con.execute(\"SELECT COUNT(*) FROM pedidos\").fetchone())   # (3,) a tabela continua lá",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "O resto das camadas",
+        "linhas": [
+          "O usuário que a aplicação usa no banco não precisa poder apagar tabela nem ler tudo. Menor privilégio (aula 3.5) aqui limita o estrago mesmo quando algo escapa.",
+          "ORM não é imunidade: ele parametriza sozinho no uso normal e continua vulnerável se você escrever consulta crua concatenada dentro dele. A regra vale igual.",
+          "Erro de banco não vai pra tela. Mensagem genérica pra quem acessa, detalhe no log (aula 4.3): erro na tela é mapa do banco de graça pra quem está testando."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Dá pra passar o nome da tabela por parâmetro?",
+          "opcoes": [
+            "Não: parâmetro vale pra valor. Nome de tabela e coluna se escolhe numa lista de permitidos",
+            "Sim, funciona igual",
+            "Sim, desde que escrito em maiúsculas"
+          ],
+          "correta": 0,
+          "porque": "O banco precisa saber a estrutura da consulta antes de receber os valores. Nome de objeto é estrutura."
+        },
+        {
+          "pergunta": "Por que escapar as aspas do texto não é uma defesa tão boa quanto o parâmetro?",
+          "opcoes": [
+            "Porque é mais lento",
+            "Porque depende de você lembrar sempre, cobre um caractere por vez e varia de banco pra banco",
+            "Porque as aspas não importam"
+          ],
+          "correta": 1,
+          "porque": "Uma consulta esquecida basta. Com parâmetro, a separação é estrutural: não tem como esquecer só num lugar sem o código parar de funcionar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Pegue todas as consultas do seu laboratório e passe tudo que vem de fora pra parâmetro, incluindo o LIKE da busca. Onde a consulta precisar de um nome de coluna vindo da tela, use lista de permitidos. Depois teste a mesma entrada da aula anterior e anote no Caderno o que passou a acontecer.",
+        "solucao": "import sqlite3\n\ncon = sqlite3.connect(\":memory:\")\ncon.execute(\"CREATE TABLE usuarios (id INTEGER PRIMARY KEY, usuario TEXT, senha TEXT)\")\ncon.execute(\"INSERT INTO usuarios (usuario, senha) VALUES ('ana', 'hash-da-senha')\")\n\nORDENS = {\"usuario\": \"usuario\", \"recentes\": \"id DESC\"}   # lista de permitidos\n\ndef buscar_usuario(termo, ordem=\"usuario\"):\n    coluna = ORDENS.get(ordem, \"usuario\")\n    return con.execute(\n        f\"SELECT id, usuario FROM usuarios WHERE usuario LIKE ? ORDER BY {coluna}\",\n        (f\"%{termo}%\",),\n    ).fetchall()\n\ndef autenticar(usuario, senha_conferida):\n    return con.execute(\n        \"SELECT id FROM usuarios WHERE usuario = ? AND senha = ?\",\n        (usuario, senha_conferida),\n    ).fetchone()\n\nprint(buscar_usuario(\"an\"))                      # [(1, 'ana')]\nprint(buscar_usuario(\"an\", \"'; DROP TABLE x\"))   # cai na lista, ordena por usuario\nprint(autenticar(\"ana\", \"x' OR '1'='1\"))         # None\n\n# o que passou a acontecer:\n# a entrada com aspa virou só um texto esquisito que não existe no banco.\n# a resposta é None, igualzinha a qualquer senha errada.\n# e o nome de coluna vindo de fora nunca chega na consulta: o que chega\n# é um valor escolhido por mim, do meu próprio dicionário.",
+        "linguagem": "python"
+      }
     }
   ]
 }

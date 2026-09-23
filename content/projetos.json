@@ -288,5 +288,179 @@
     "readme": "# Scanner de portas\n\nScanner TCP simples e concorrente, escrito pra entender como a descoberta de portas funciona por baixo.\n\n## Uso ético\n\nEscanear sistemas sem autorização é ilegal na maioria dos países, incluindo o Brasil. Use apenas em máquinas suas ou em alvos que autorizam explicitamente, como scanme.nmap.org.\n\n## Como usar\n\n```bash\npython scanner.py 127.0.0.1\npython scanner.py 127.0.0.1 --portas 1-1000 --timeout 0.5\n```\n\n## Desempenho\n\n| Modo | 1000 portas |\n|------|-------------|\n| Sequencial | [seu número] |\n| 50 threads | [seu número] |\n\n## O que aprendi\n\n[Ex: o que connect_ex devolve e por que é melhor que connect com try/except; o que timeout curto demais causa em falso negativo.]\n\n## Limitações\n\n[Ex: só TCP connect scan. Não faz SYN scan, não detecta versão, é facilmente detectado por qualquer IDS.]",
     "linkedin": "Escrevi um scanner de portas do zero pra entender o que o nmap faz por baixo.\n\nA primeira versão levou 4 minutos pra varrer 1000 portas. Com um pool de 50 threads, caiu pra 9 segundos.\n\nO aprendizado não foi \"threads são rápidas\". Foi entender por que: a máquina não estava ocupada calculando nada, estava parada esperando resposta da rede. Tempo de espera é o que dá pra sobrepor.\n\nColoquei a seção de uso ético antes da seção de instalação, de propósito. Escanear máquina dos outros sem autorização é crime.\n\nCódigo: [link]",
     "foco": "seguranca"
+  },
+  {
+    "id": "p6",
+    "titulo": "Laboratório vulnerável e o relatório da correção",
+    "nivel": 2,
+    "tempo": "8 a 12 horas",
+    "modulo": "Depois do Módulo 7",
+    "pitch": "Um login inseguro de propósito, o relatório das falhas e o mesmo login corrigido, lado a lado no mesmo repositório.",
+    "porque": "Todo mundo tem projeto que ataca. Quase ninguém tem projeto que acha, explica e conserta. É o relatório que mostra que você entende impacto, e é por isso que esse é o projeto que puxa conversa em entrevista.",
+    "escopo": {
+      "faz": [
+        "Sobe um login propositalmente vulnerável em 127.0.0.1",
+        "Documenta três falhas com impacto e como reproduzir no próprio laboratório",
+        "Corrige cada falha em um commit separado",
+        "Mostra o antes e o depois no mesmo repositório"
+      ],
+      "naoFaz": [
+        "Nada disso vai pra internet, em nenhuma hipótese",
+        "Não toca em sistema de terceiro, nem em produção de ninguém",
+        "Não usa ferramenta automática de exploração",
+        "Não guarda dado de pessoa real, nem de mentira parecida com real"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Comece pelo que você já escreveu",
+        "descricao": "Pegue o login da aula 5.6, que já roda no php -S. Ele é o ponto de partida: não escreva nada novo ainda, só coloque no repositório, numa pasta chamada antes."
+      },
+      {
+        "titulo": "Escreva o relatório antes de corrigir",
+        "descricao": "Três falhas, e pra cada uma: o que está errado, o que alguém ganharia com ela, e o passo a passo pra reproduzir na sua máquina. Escrever antes obriga você a entender, e depois vira o texto que o recrutador lê."
+      },
+      {
+        "titulo": "Corrija uma falha por commit",
+        "descricao": "Senha com hash, consulta parametrizada, sessão e limite de tentativa. Um commit por falha, com a mensagem dizendo qual é. O histórico vira a prova de que você sabe o caminho, não só o destino."
+      },
+      {
+        "titulo": "Prove que corrigiu",
+        "descricao": "Pra cada falha, o comando curl que falhava antes e a resposta de agora. Cole a saída de verdade no relatório, não descreva de memória."
+      },
+      {
+        "titulo": "Diga o que ainda falta",
+        "descricao": "Nenhum sistema fica pronto. Liste o risco que continua ali (sem https, sem segundo fator, sem registro de auditoria) e por que você parou nesse ponto. Isso é maturidade, não fraqueza."
+      },
+      {
+        "titulo": "Feche com o aviso",
+        "descricao": "O README abre dizendo em letras claras: laboratório de estudo, roda só em 127.0.0.1, não use nada disso em sistema que não é seu. Repositório de código vulnerável sem esse aviso é um problema esperando acontecer."
+      }
+    ],
+    "pronto": [
+      "Sobe com um comando e escuta só em 127.0.0.1",
+      "As três falhas estão descritas com impacto, não só com o nome",
+      "Cada correção está num commit separado, com a prova em curl",
+      "O README avisa, logo na primeira linha, que é laboratório"
+    ],
+    "readme": "# Laboratório de login: as falhas e a correção\n\n> Laboratório de estudo. Roda só em 127.0.0.1 e não deve ser publicado.\n> Nada aqui deve ser usado contra sistema que você não tem autorização pra testar.\n\nUm login em PHP com SQLite, escrito com três falhas clássicas de propósito, o relatório\ndelas e a versão corrigida.\n\n## Por que fiz\n\n[Ex: eu sabia os nomes das falhas e queria ver cada uma acontecer no meu próprio código.]\n\n## Como subir\n\n```bash\ncd antes      # ou depois\nphp -S 127.0.0.1:8000\n```\n\n## As falhas\n\n### 1. [nome da falha]\n\n**O que está errado:** [uma frase]\n\n**Impacto:** [o que alguém consegue com isso, em termos de dado e de conta]\n\n**Como reproduzir aqui:** [o comando ou o passo, no seu laboratório]\n\n**Correção:** [o que mudou no código, e em qual commit]\n\n```\n[cole o antes e o depois do curl]\n```\n\n### 2. [...]\n\n### 3. [...]\n\n## O que continua inseguro de propósito\n\n[Ex: sem https, sem segundo fator, sem registro de auditoria. Por que parei aqui.]\n\n## O que aprendi\n\n[Específico. Ex: a consulta parametrizada resolveu a injeção e, de quebra, o bug do nome com apóstrofo.]\n",
+    "linkedin": "Montei um login com três falhas de propósito, escrevi o relatório e depois corrigi cada uma.\n\nA parte que mais me ensinou não foi quebrar. Foi escrever o impacto de cada falha antes de consertar.\n\n\"Senha em texto puro\" é um nome. \"Quem copiar o banco tem a senha de todo mundo, e as pessoas repetem senha em outros sites\" é o problema de verdade.\n\nDescrever o segundo é o que faz alguém aprovar o tempo pra corrigir.\n\nTudo roda em 127.0.0.1. É laboratório meu, e está escrito na primeira linha do README.\n\nCódigo: [link]",
+    "foco": "seguranca"
+  },
+  {
+    "id": "p7",
+    "titulo": "Monitor de log com alerta",
+    "nivel": 3,
+    "tempo": "6 a 10 horas",
+    "modulo": "Depois do Módulo 11",
+    "pitch": "Lê o log do servidor, reconhece dois padrões de ataque e escreve um alerta que uma pessoa consegue entender.",
+    "porque": "É o trabalho do dia a dia de quem defende, e mostra três coisas de uma vez: processar arquivo grande sem estourar memória, reconhecer padrão em dado sujo e escrever alerta que não vira ruído. Alerta que todo mundo ignora é o problema mais comum de segurança em empresa.",
+    "escopo": {
+      "faz": [
+        "Lê log de acesso linha a linha, inclusive comprimido em .gz",
+        "Detecta força bruta (falhas seguidas numa janela de tempo) e varredura (muitos caminhos diferentes com 404)",
+        "Gera duas saídas: um resumo pra ler e um JSON pra outro programa",
+        "Conta e mostra quantas linhas não casaram com o formato"
+      ],
+      "naoFaz": [
+        "Não bloqueia IP nem mexe em firewall",
+        "Não manda e-mail nem mensagem sozinho",
+        "Não substitui ferramenta de monitoramento de verdade",
+        "Não afirma que alguém é culpado: ele aponta onde olhar"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Comece pelo detector que já existe",
+        "descricao": "O detector de força bruta da aula 11.2 já está escrito e testado. Traga ele pro projeto como está, com o gerador que lê linha a linha, antes de pensar em qualquer coisa nova."
+      },
+      {
+        "titulo": "Adicione o segundo padrão",
+        "descricao": "Varredura é outro desenho: poucos 404, mas em caminhos diferentes, tipo /.env, /wp-login.php e /.git/config. Junte o detector que você escreveu na prova prática e deixe os dois rodando na mesma passada pelo arquivo."
+      },
+      {
+        "titulo": "Duas saídas, uma passada",
+        "descricao": "Um resumo em texto, curto, que cabe na tela, e um JSON com tudo. O texto é pra pessoa decidir; o JSON é pra guardar e comparar com o de amanhã."
+      },
+      {
+        "titulo": "Encare o dado sujo",
+        "descricao": "Log de verdade tem linha cortada, requisição malformada e formato que mudou. Conte quantas linhas você descartou e mostre esse número no relatório. Silenciar o descarte é como mentir na conta."
+      },
+      {
+        "titulo": "Meça com volume",
+        "descricao": "Gere um log de 100 mil linhas e rode. Cronometre e olhe a memória. Se o tempo explodir, procure a lista sendo varrida dentro de um laço, como no módulo 10."
+      },
+      {
+        "titulo": "Escreva sobre o falso positivo",
+        "descricao": "O README precisa de uma seção dizendo quando o alerta está errado: o robô de backup, o teste automatizado, a pessoa que esqueceu a senha. Quem sabe onde a ferramenta erra sabe usá-la."
+      }
+    ],
+    "pronto": [
+      "Processa 100 mil linhas sem carregar o arquivo inteiro na memória",
+      "Mostra quantas linhas foram descartadas por não casar com o formato",
+      "Tem um log de exemplo no repositório, com os dois padrões plantados",
+      "O relatório separa o que é fato do que é suspeita"
+    ],
+    "readme": "# Monitor de log\n\nLê um log de acesso e aponta dois padrões: tentativa de força bruta e varredura em busca\nde arquivo sensível.\n\n## Por que fiz\n\n[Ex: queria ver quanto dá pra descobrir só com o log que todo servidor já grava.]\n\n## Como usar\n\n```bash\npython monitor.py acesso.log\npython monitor.py acesso.log.gz --falhas 5 --janela 60 --json relatorio.json\n```\n\n## Saída\n\n```\n[cole a saída real]\n```\n\n## O que ele considera suspeito\n\n| Padrão | Regra | Por que |\n|---|---|---|\n| Força bruta | [x] falhas do mesmo IP em [y] segundos | [por quê] |\n| Varredura | [x] caminhos diferentes com 404 | [por quê] |\n\n## Quando ele erra\n\n[Ex: robô de backup, teste automatizado, pessoa que esqueceu a senha. Como eu ajustei\nos limites olhando o meu próprio log por uma semana.]\n\n## Limitações\n\n[Ex: um formato de log só. Não correlaciona com outras fontes. Não bloqueia nada.]\n\n## O que aprendi\n\n[Específico. Ex: a deque descartando o que saiu da janela deixou a detecção O(1) por linha.]\n",
+    "linkedin": "Escrevi um monitor que lê log de servidor e aponta dois padrões: força bruta e varredura.\n\nA parte difícil não foi detectar. Foi decidir o que NÃO alertar.\n\nNa primeira versão, a conta de backup era o primeiro lugar do ranking todo dia. Ela roda de madrugada, baixa muita coisa e é absolutamente normal.\n\nAlerta que dispara todo dia por um motivo conhecido treina a equipe a ignorar o alerta. Aí, quando o de verdade chegar, ninguém olha.\n\nO ajuste que mais valeu foi uma lista de exceções e uma seção no README chamada \"quando ele erra\".\n\nCódigo: [link]",
+    "foco": "seguranca"
+  },
+  {
+    "id": "p8",
+    "titulo": "Esteira de segurança num repositório",
+    "nivel": 2,
+    "tempo": "4 a 6 horas",
+    "modulo": "Depois do Módulo 12",
+    "pitch": "Um repositório que se verifica sozinho a cada push: teste, dependência com falha conhecida e segredo no código.",
+    "porque": "É a diferença entre saber a teoria e ter o hábito. Repositório com esteira verde, SECURITY.md e nenhum segredo no histórico diz mais sobre você do que qualquer certificado, e é a primeira coisa que alguém técnico olha.",
+    "escopo": {
+      "faz": [
+        "Roda teste, auditoria de dependência e varredura de segredo a cada push",
+        "Tem .gitignore e .env.exemplo desde o primeiro commit",
+        "Tem SECURITY.md dizendo como avisar sobre uma falha",
+        "Prova que a varredura funciona, com um segredo falso num branch de teste"
+      ],
+      "naoFaz": [
+        "Não publica nada em produção",
+        "Não guarda segredo de verdade em lugar nenhum do repositório",
+        "Não promete achar tudo: é uma rede, não um escudo",
+        "Não substitui alguém lendo o código"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Escolha o projeto que você já tem",
+        "descricao": "A ferramenta de recon da aula 11.5 serve: ela já tem código seu, já lê arquivo de escopo e já merece teste. Comece criando o repositório dela com .gitignore e .env.exemplo antes do primeiro commit."
+      },
+      {
+        "titulo": "Três testes, não trinta",
+        "descricao": "Com pytest: um que prova que alvo fora do escopo é recusado, um do formato do relatório e um do caso que já te mordeu uma vez. Teste que cobre o que quebrou de verdade vale mais que cobertura alta."
+      },
+      {
+        "titulo": "A esteira mínima",
+        "descricao": "Um workflow que instala, roda os testes e falha quando eles falham. Faça esse pedaço ficar verde antes de acrescentar qualquer verificação nova."
+      },
+      {
+        "titulo": "Dependência com falha conhecida",
+        "descricao": "Acrescente o pip-audit. Se acusar algo, resolva ou anote no README por que aquilo não te afeta. As duas respostas são aceitáveis; ignorar em silêncio, não."
+      },
+      {
+        "titulo": "Segredo, e a prova da armadilha",
+        "descricao": "Acrescente a varredura de segredo. Depois crie um branch, coloque uma chave falsa, faça o push e guarde a captura do trabalho ficando vermelho. Verificação que você nunca viu falhar não vale nada."
+      },
+      {
+        "titulo": "SECURITY.md e o selo",
+        "descricao": "Diga como uma pessoa deve te avisar de uma falha, e em quanto tempo você responde. Coloque o selo da esteira no topo do README. São dez minutos e mudam a cara do repositório."
+      }
+    ],
+    "pronto": [
+      "O push dispara as três verificações e elas terminam em menos de cinco minutos",
+      "Existe o registro do branch de teste em que a varredura de segredo pegou a chave falsa",
+      "O README tem o selo da esteira e o repositório tem SECURITY.md",
+      "Nenhum segredo de verdade aparece no histórico, e isso foi conferido, não presumido"
+    ],
+    "readme": "# [nome do projeto]\n\n![verificação](https://github.com/[usuario]/[repo]/actions/workflows/verificacao.yml/badge.svg)\n\n[Uma frase sobre o que a ferramenta faz.]\n\n## Verificação automática\n\nA cada push, a esteira roda:\n\n- **Testes** com pytest\n- **Dependências** com pip-audit, procurando falha conhecida\n- **Segredos** com gitleaks, no código e no histórico\n\n## Como rodar local\n\n```bash\ncp .env.exemplo .env     # preencha com os seus valores\npip install -r requirements.txt\npython -m pytest -q\n```\n\n## A prova de que a varredura funciona\n\n[Cole aqui o print ou o link do trabalho vermelho no branch de teste, quando você\nplantou uma chave falsa de propósito.]\n\n## O que a esteira não pega\n\n[Ex: lógica errada, falha de autorização, segredo com formato que a ferramenta não\nconhece. Por isso ela não substitui revisão.]\n\n## O que aprendi\n\n[Específico. Ex: segredo apagado do arquivo continua no histórico, e a correção é\nrotacionar a chave, não apagar o commit.]\n",
+    "linkedin": "Coloquei uma esteira de verificação num projeto meu: teste, dependência vulnerável e varredura de segredo, a cada push.\n\nDepois fiz questão de ver a esteira falhar.\n\nCriei um branch, plantei uma chave falsa e mandei. A verificação ficou vermelha em dois minutos e apontou a linha.\n\nVerificação que você nunca viu falhar é decoração. Você não sabe se ela está olhando de verdade.\n\nO outro aprendizado veio junto: segredo apagado do arquivo continua no histórico do Git. A correção não é apagar o commit, é trocar a chave.\n\nCódigo: [link]",
+    "foco": "seguranca"
   }
 ]

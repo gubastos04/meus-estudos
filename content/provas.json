@@ -286,5 +286,214 @@
       }
     ],
     "foco": "base"
+  },
+  {
+    "id": "pa3",
+    "tipo": "alternativas",
+    "titulo": "Segurança: sistema, rede e web",
+    "escopo": "Módulos 3 a 7",
+    "tempo": 15,
+    "questoes": [
+      {
+        "pergunta": "Num servidor exposto na internet, o ss -tln mostra 0.0.0.0:3306 em LISTEN. O que isso quer dizer?",
+        "opcoes": [
+          "O MySQL só aceita conexão da própria máquina",
+          "O MySQL aceita conexão de qualquer endereço que alcançar o servidor",
+          "A porta 3306 está fechada"
+        ],
+        "correta": 1,
+        "porque": "0.0.0.0 é qualquer endereço. Banco de dados escuta em 127.0.0.1 ou fica atrás do firewall."
+      },
+      {
+        "pergunta": "A chave privada do servidor está num arquivo com permissão 644. Qual o problema?",
+        "opcoes": [
+          "Nenhum, 644 é o padrão do sistema",
+          "O arquivo fica mais lento de ler",
+          "Qualquer usuário da máquina consegue ler a chave"
+        ],
+        "correta": 2,
+        "porque": "644 dá leitura pra todo mundo. Chave privada é 600, e só o dono."
+      },
+      {
+        "pergunta": "Você atualizou o IP do site no DNS e parte dos acessos continua caindo no servidor antigo. Por quê?",
+        "opcoes": [
+          "A resposta anterior ainda está em cache e só expira quando o TTL acabar",
+          "O DNS do provedor foi invadido",
+          "Um nome não pode mudar de IP"
+        ],
+        "correta": 0,
+        "porque": "Por isso se baixa o TTL alguns dias antes de uma migração planejada."
+      },
+      {
+        "pergunta": "Num Wi-Fi público, alguém capturando o tráfego vê o quê de um acesso a um site https?",
+        "opcoes": [
+          "Tudo, inclusive a senha digitada",
+          "Absolutamente nada",
+          "Qual site foi acessado e quanto tráfego houve, mas não o conteúdo"
+        ],
+        "correta": 2,
+        "porque": "A consulta de DNS e o nome do site no início do handshake costumam ir abertos. O conteúdo vai cifrado."
+      },
+      {
+        "pergunta": "Uma loja manda o preço do produto num campo hidden do formulário. Isso é seguro?",
+        "opcoes": [
+          "Sim, campo hidden não aparece pra quem acessa",
+          "Não: o valor vem do cliente e pode ser alterado. O servidor tem que buscar o preço no banco",
+          "Só é inseguro se o site não tiver https"
+        ],
+        "correta": 1,
+        "porque": "Preço, desconto, perfil e id de usuário nunca vêm do navegador. Vêm do banco, decididos no servidor."
+      },
+      {
+        "pergunta": "A regra de senha forte está só no JavaScript da página. O que ela garante?",
+        "opcoes": [
+          "Aviso rápido pra quem está preenchendo, e nada de segurança",
+          "Que nenhuma senha fraca chega ao servidor",
+          "Segurança, desde que o script seja minificado"
+        ],
+        "correta": 0,
+        "porque": "Dá pra desligar o JavaScript ou mandar a requisição direto com curl. A validação que vale é a do servidor."
+      },
+      {
+        "pergunta": "Por que guardar senha com sal e um algoritmo lento, em vez de SHA-256 puro?",
+        "opcoes": [
+          "Porque SHA-256 não funciona com texto",
+          "Porque o sal deixa o hash mais curto",
+          "Porque SHA-256 é rápido demais e, sem sal, uma tabela pronta quebra muitas contas de uma vez"
+        ],
+        "correta": 2,
+        "porque": "Senha se guarda com bcrypt, scrypt ou Argon2: lentos de propósito, e com sal diferente por conta."
+      },
+      {
+        "pergunta": "Logado como usuário comum, você pede /admin e recebe 403. O que aconteceu?",
+        "opcoes": [
+          "A sessão expirou e você precisa entrar de novo",
+          "O servidor sabe quem você é e negou a permissão",
+          "A página não existe"
+        ],
+        "correta": 1,
+        "porque": "Falta de autenticação daria 401. O 403 é autorização negada, e revela que a página existe."
+      },
+      {
+        "pergunta": "Qual é a defesa certa contra XSS?",
+        "opcoes": [
+          "Escapar o conteúdo na saída, no contexto onde ele é impresso",
+          "Bloquear a palavra script no formulário",
+          "Guardar tudo em maiúsculas no banco"
+        ],
+        "correta": 0,
+        "porque": "Filtro de lista negra sempre esquece um caso. Escapar na saída resolve na raiz, e no JavaScript o equivalente é textContent."
+      },
+      {
+        "pergunta": "Trocar o id numérico da URL por um UUID aleatório resolve IDOR?",
+        "opcoes": [
+          "Sim, ninguém adivinha um UUID",
+          "Não: dificulta adivinhar, mas quem obtiver o código entra igual. Falta a checagem de dono no servidor",
+          "Sim, desde que o UUID seja trocado todo dia"
+        ],
+        "correta": 1,
+        "porque": "Autorização é decisão do servidor, em toda requisição. Código difícil de adivinhar é obscuridade, não controle de acesso."
+      }
+    ],
+    "foco": "seguranca"
+  },
+  {
+    "id": "pp3",
+    "tipo": "pratica",
+    "titulo": "Defesa e ferramentas em Python",
+    "escopo": "Módulos 8 a 12",
+    "tempo": 60,
+    "aviso": "Resolva no seu editor, rodando o código. Tudo aqui é defesa ou análise do que é seu: nada é pra apontar pra sistema de terceiro. Depois volte e marque só os critérios que o SEU código cumpre de verdade.",
+    "tarefas": [
+      {
+        "titulo": "Login que resiste a injeção",
+        "enunciado": "Escreva cadastrar(con, usuario, senha) e autenticar(con, usuario, senha) usando SQLite, com consulta parametrizada e senha guardada com sal e scrypt. autenticar devolve True ou False.",
+        "criterios": [
+          "Nenhuma consulta é montada com f-string ou soma de texto",
+          "O banco guarda sal e hash, nunca a senha",
+          "Duas contas com a mesma senha têm valores guardados diferentes",
+          "Uma senha com aspa, tipo x' OR '1'='1, devolve False como qualquer senha errada"
+        ],
+        "solucao": "import hashlib, hmac, os, sqlite3\n\ndef criar_banco():\n    con = sqlite3.connect(\":memory:\")\n    con.execute(\"CREATE TABLE usuarios (usuario TEXT PRIMARY KEY, sal BLOB, hash BLOB)\")\n    return con\n\ndef cadastrar(con, usuario, senha):\n    sal = os.urandom(16)\n    guardado = hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1)\n    con.execute(\"INSERT INTO usuarios (usuario, sal, hash) VALUES (?, ?, ?)\", (usuario, sal, guardado))\n    con.commit()\n\ndef autenticar(con, usuario, senha):\n    linha = con.execute(\"SELECT sal, hash FROM usuarios WHERE usuario = ?\", (usuario,)).fetchone()\n    if not linha:\n        return False\n    sal, guardado = linha\n    tentativa = hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1)\n    return hmac.compare_digest(tentativa, guardado)\n\ncon = criar_banco()\ncadastrar(con, \"ana\", \"senha-boa-e-longa\")\n\nprint(autenticar(con, \"ana\", \"senha-boa-e-longa\"))   # True\nprint(autenticar(con, \"ana\", \"errada\"))              # False\nprint(autenticar(con, \"ana\", \"x' OR '1'='1\"))        # False\nprint(autenticar(con, \"ana' --\", \"qualquer\"))        # False"
+      },
+      {
+        "titulo": "Esconder segredo no log",
+        "enunciado": "Escreva mascarar(linha) que encontre pares do tipo senha=, token=, api_key= ou secret= e substitua o valor por asteriscos, deixando visíveis só os quatro últimos caracteres.",
+        "criterios": [
+          "Funciona com dois-pontos e com igual, e ignora maiúscula e minúscula",
+          "Mantém intacta a linha que não tem segredo nenhum",
+          "Valor com quatro caracteres ou menos fica totalmente mascarado",
+          "Mascara mais de um segredo na mesma linha"
+        ],
+        "solucao": "import re\n\nSEGREDOS = re.compile(r'(?i)\\b(senha|password|token|api[_-]?key|secret)\\b\\s*[:=]\\s*\"?([^\\s\"]+)\"?')\n\ndef mascarar(linha):\n    def troca(achado):\n        nome, valor = achado.group(1), achado.group(2)\n        visivel = valor[-4:] if len(valor) > 4 else \"\"\n        return f\"{nome}={'*' * max(len(valor) - len(visivel), 0)}{visivel}\"\n    return SEGREDOS.sub(troca, linha)\n\nexemplos = [\n    'config carregada: api_key=\"sk-prod-9f8e7d6c5b4a\"',\n    \"usuario=ana senha=umaSenhaBoa123 ip=10.0.0.5\",\n    \"requisicao normal, nada sensivel aqui\",\n    \"token: abc\",\n]\nfor linha in exemplos:\n    print(mascarar(linha))\n\n# config carregada: api_key=****************5b4a\n# usuario=ana senha=**********a123 ip=10.0.0.5\n# requisicao normal, nada sensivel aqui\n# token=***"
+      },
+      {
+        "titulo": "Detector de varredura no log",
+        "enunciado": "Escreva varredores(linhas, minimo=3) que devolva os IPs que pediram três ou mais caminhos diferentes com resposta 404, junto da lista de caminhos. Linha que não casa com o formato é ignorada.",
+        "criterios": [
+          "Conta caminhos diferentes, não a quantidade de requisições",
+          "Ignora status que não seja 404",
+          "Não quebra com linha fora do formato",
+          "O limite mínimo é um parâmetro, não um número fixo no meio do código"
+        ],
+        "solucao": "import re\nfrom collections import defaultdict\n\nLINHA = re.compile(\n    r'^(?P<ip>\\S+) \\S+ \\S+ \\[[^\\]]+\\] \"(?P<metodo>\\S+) (?P<caminho>\\S+)[^\"]*\" (?P<status>\\d{3})'\n)\n\ndef varredores(linhas, minimo=3):\n    caminhos = defaultdict(set)\n    for linha in linhas:\n        achou = LINHA.match(linha)\n        if achou and achou[\"status\"] == \"404\":\n            caminhos[achou[\"ip\"]].add(achou[\"caminho\"])\n    return {ip: sorted(cs) for ip, cs in caminhos.items() if len(cs) >= minimo}\n\nLOG = '''10.0.0.7 - - [22/Sep/2026:10:01:10 -0300] \"GET /.env HTTP/1.1\" 404 0\n10.0.0.7 - - [22/Sep/2026:10:01:11 -0300] \"GET /wp-login.php HTTP/1.1\" 404 0\n10.0.0.7 - - [22/Sep/2026:10:01:12 -0300] \"GET /.git/config HTTP/1.1\" 404 0\n10.0.0.5 - - [22/Sep/2026:10:02:00 -0300] \"GET /produtos HTTP/1.1\" 200 2048\n10.0.0.5 - - [22/Sep/2026:10:02:05 -0300] \"GET /produto/9 HTTP/1.1\" 404 0\nlinha quebrada que nao casa\n'''.splitlines()\n\nfor ip, caminhos in varredores(LOG).items():\n    print(ip, len(caminhos), caminhos)\n# 10.0.0.7 3 ['/.env', '/.git/config', '/wp-login.php']"
+      },
+      {
+        "titulo": "Relatório de exposição",
+        "enunciado": "Escreva relatorio(inventario, esperadas) que compare as portas abertas de cada host com a lista do que era esperado e devolva, por host, as portas inesperadas e as que sumiram, ordenando do host com mais surpresas para o com menos.",
+        "criterios": [
+          "Devolve inesperadas e faltando separadas, por host",
+          "A ordem é por quantidade de inesperadas, da maior pra menor",
+          "Host sem nada de estranho aparece com as duas listas vazias",
+          "Funciona com host que não está na lista de esperadas"
+        ],
+        "solucao": "def relatorio(inventario, esperadas):\n    saida = []\n    for host, portas in inventario.items():\n        previstas = set(esperadas.get(host, []))\n        saida.append({\n            \"host\": host,\n            \"inesperadas\": sorted(set(portas) - previstas),\n            \"faltando\": sorted(previstas - set(portas)),\n        })\n    return sorted(saida, key=lambda r: (-len(r[\"inesperadas\"]), r[\"host\"]))\n\ninventario = {\n    \"web-1\":   [22, 80, 443, 3306],\n    \"banco-1\": [22, 5432, 8080],\n    \"app-1\":   [22, 8000],\n}\nesperadas = {\n    \"web-1\":   [22, 80, 443],\n    \"banco-1\": [22, 5432],\n    \"app-1\":   [22, 8000],\n}\n\nfor linha in relatorio(inventario, esperadas):\n    print(linha[\"host\"], \"inesperadas:\", linha[\"inesperadas\"] or \"nenhuma\",\n          \"| faltando:\", linha[\"faltando\"] or \"nenhuma\")\n# banco-1 inesperadas: [8080] | faltando: nenhuma\n# web-1 inesperadas: [3306] | faltando: nenhuma\n# app-1 inesperadas: nenhuma | faltando: nenhuma\n\n# o 3306 no web-1 e o 8080 no banco-1 sao a razao de existir esse relatorio:\n# ninguem sobe um banco no servidor web de proposito. Alguem testou e esqueceu."
+      }
+    ],
+    "foco": "seguranca"
+  },
+  {
+    "id": "pp4",
+    "tipo": "pratica",
+    "titulo": "Investigar e corrigir",
+    "escopo": "Módulos 3 a 7",
+    "tempo": 45,
+    "aviso": "Faça no seu computador, com o laboratório do módulo 5 rodando em 127.0.0.1. Nada aqui se aponta pra sistema de terceiro. Depois volte e marque só os critérios que você cumpriu de verdade, olhando a saída na tela.",
+    "tarefas": [
+      {
+        "titulo": "Três perguntas, só com o terminal",
+        "enunciado": "Você recebe um acesso.log no formato do módulo 3. Sem abrir editor e sem contar na mão, responda: quantas requisições cada IP fez, do maior pro menor; quais IPs tomaram 401 e quantas vezes; e quais caminhos devolveram 403 ou 404.",
+        "criterios": [
+          "Cada resposta sai de um comando só, encadeado com pipe",
+          "Nada é contado na mão nem no olho",
+          "O mesmo comando funciona se o log tiver um milhão de linhas",
+          "A contagem por IP sai ordenada do maior pro menor"
+        ],
+        "solucao": "# 1. requisições por IP, do maior pro menor\ncut -d' ' -f1 acesso.log | sort | uniq -c | sort -rn\n#       5 10.0.0.9\n#       3 10.0.0.7\n#       2 10.0.0.5\n\n# 2. quem tomou 401, e quantas vezes\ngrep '\" 401 ' acesso.log | cut -d' ' -f1 | sort | uniq -c\n#       4 10.0.0.9\n\n# 3. caminhos que deram 403 ou 404\ngrep -E '\" (403|404) ' acesso.log | cut -d' ' -f7\n# /.env\n# /wp-login.php\n# /admin\n\n# o sort antes do uniq -c não é enfeite: o uniq só junta linha igual\n# que está lado a lado.\n# e nenhum desses comandos carrega o arquivo inteiro na memória,\n# então o tamanho do log não muda nada."
+      },
+      {
+        "titulo": "Fechar o XSS sem estragar o texto",
+        "enunciado": "Uma página do laboratório imprime o comentário que a pessoa digitou. Corrija para que HTML digitado apareça como texto na tela, sem quebrar comentário que tenha sinal de menor, e-comercial ou aspas.",
+        "criterios": [
+          "O tratamento está na saída, na hora de imprimir, e não na entrada",
+          "Um comentário com uma tag aparece como texto, e nada executa",
+          "Comentário com & e com aspas continua legível, sem virar código",
+          "Se houver trecho em JavaScript montando a página, ele usa textContent, não innerHTML"
+        ],
+        "solucao": "<?php\n// ===== antes: o que a pessoa digita vira HTML de verdade =====\n?>\n<p><?= $comentario ?></p>\n\n<?php\n// ===== depois: escapado na hora de imprimir =====\n?>\n<p><?= htmlspecialchars($comentario, ENT_QUOTES, \"UTF-8\") ?></p>\n\n<?php\n/*\n  teste com estes três comentários:\n    <b>oi</b>              aparece com os sinais, em texto\n    Casa & Cia             aparece igual, sem sumir nada\n    disse \"oi\" pra ela     as aspas continuam na tela\n\n  ENT_QUOTES trata aspa simples e dupla, o que importa quando o valor\n  vai dentro de um atributo. UTF-8 evita que acento vire lixo.\n\n  por que na saída e não na entrada:\n  o mesmo comentário é inofensivo no banco e perigoso dentro do HTML.\n  quem sabe o que precisa escapar é quem está imprimindo, na hora.\n  limpar na entrada ainda estraga texto legítimo: um comentário sobre\n  a tag <b> deixaria de existir.\n\n  no JavaScript, o equivalente:\n    elemento.textContent = comentario;   // escreve texto\n    elemento.innerHTML  = comentario;    // interpreta tag\n*/"
+      },
+      {
+        "titulo": "Fechar o IDOR do painel",
+        "enunciado": "Uma página mostra um pedido pelo id que vem na URL, e trocar o número entrega o pedido de outra pessoa. Corrija e prove com curl que a resposta virou 403 para o pedido que não é seu.",
+        "criterios": [
+          "O dono sai da sessão, nunca de um parâmetro da URL",
+          "A checagem do dono está na própria consulta ao banco",
+          "Pedido de outra pessoa responde 403, e não 404 disfarçado de erro genérico",
+          "A mesma checagem foi aplicada em todas as rotas que leem ou alteram o pedido"
+        ],
+        "solucao": "<?php\n// ===== antes =====\n$id = $_GET[\"id\"] ?? 0;\n$st = $pdo->prepare(\"SELECT * FROM pedidos WHERE id = ?\");\n$st->execute([$id]);\n$pedido = $st->fetch();        // entrega o pedido de qualquer um\n?>\n\n<?php\n// ===== depois =====\nsession_start();\n$id   = (int)($_GET[\"id\"] ?? 0);\n$dono = (int)($_SESSION[\"usuario_id\"] ?? 0);   // vem da sessão, nunca da URL\n\n$st = $pdo->prepare(\"SELECT * FROM pedidos WHERE id = ? AND usuario_id = ?\");\n$st->execute([$id, $dono]);\n$pedido = $st->fetch();\n\nif (!$pedido) {\n    http_response_code(403);\n    exit(\"Sem permissão.\");\n}\n?>\n\n<?php\n/*\n  a prova, logada como o usuário 1:\n\n  curl -s -b c.txt -w \" [%{http_code}]\\n\" \"http://127.0.0.1:8000/pedido.php?id=1\"\n    Pedido: teclado [200]\n\n  curl -s -b c.txt -w \" [%{http_code}]\\n\" \"http://127.0.0.1:8000/pedido.php?id=2\"\n    Sem permissão. [403]\n\n  repare: a consulta do \"antes\" já estava parametrizada, então não era injeção.\n  o buraco era de autorização, e por isso ele passa despercebido em revisão\n  que só procura SQL montado com texto.\n\n  as outras rotas que precisam da mesma linha:\n    baixar nota, editar endereço, cancelar pedido,\n    e a rota equivalente na API que o aplicativo usa.\n*/"
+      }
+    ],
+    "foco": "seguranca"
   }
 ]

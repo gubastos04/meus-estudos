@@ -4,27 +4,252 @@
     {
       "id": "m11a1",
       "titulo": "requests: falando HTTP por código",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Tudo que você fez com o curl na aula 4.3, agora dentro de um programa que decide o que fazer com a resposta.",
+      "ideia": [
+        "requests faz a requisição e devolve um objeto com status, cabeçalhos e corpo. Uma linha pra pedir, uma linha pra ler.",
+        "Sessão guarda cookie entre as chamadas, igual ao navegador. É assim que um programa faz login e continua navegando."
+      ],
+      "exemplo": {
+        "nota": "Instale com pip install requests. Um verificador de cabeçalhos de segurança em dez linhas:",
+        "codigo": "import requests\n\nr = requests.get(\"https://example.com\", timeout=10)\n\nprint(r.status_code)                 # 200\nprint(r.headers.get(\"Server\"))       # cloudflare\nprint(len(r.text), \"caracteres\")\n\nfor cabecalho in (\"Strict-Transport-Security\", \"Content-Security-Policy\", \"X-Content-Type-Options\"):\n    print(f\"{cabecalho}: {r.headers.get(cabecalho, 'ausente')}\")\n\n# sessão: guarda cookie entre as requisições, como o navegador faz\nsessao = requests.Session()\nsessao.headers[\"User-Agent\"] = \"estudo-seguranca/1.0 (contato: eu@exemplo.com)\"\n\n# com o laboratório da aula 6.3 no ar:\nsessao.post(\"http://127.0.0.1:8000/entrar.php\", timeout=5)\nprint(sessao.cookies.get_dict())        # {'PHPSESSID': 'j794js0q6vv34fk33glrlfqppi'}\n\npainel = sessao.get(\"http://127.0.0.1:8000/painel.php\", timeout=5)\nprint(painel.status_code, painel.text)  # 403 Sem permissão.\n# o cookie foi junto sozinho: a sessão lembra, como o navegador",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "As regras de quem faz isso direito",
+        "linhas": [
+          "timeout sempre. Sem ele, uma requisição pode ficar pendurada pra sempre e travar o seu programa inteiro.",
+          "Identifique-se no User-Agent, com um jeito de te encontrar. Quem cuida do servidor do outro lado vê o seu tráfego e agradece saber quem é.",
+          "Nunca desligue a conferência do certificado (verify=False). Ela é o que impede alguém no meio do caminho, e desligar por causa de um aviso chato é como arrancar o alarme do carro."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que toda chamada precisa de timeout?",
+          "opcoes": [
+            "Pra economizar memória",
+            "Porque sem ele o programa pode ficar esperando a resposta pra sempre",
+            "Porque o requests exige"
+          ],
+          "correta": 1,
+          "porque": "Um alvo lento ou um pacote perdido bastam. Programa parado esperando é o bug mais comum de quem começa a automatizar."
+        },
+        {
+          "pergunta": "O que acontece quando você usa verify=False pra calar um erro de certificado?",
+          "opcoes": [
+            "O programa passa a aceitar qualquer certificado, inclusive de alguém se passando pelo site",
+            "A conexão fica mais rápida",
+            "Nada: o https continua igual"
+          ],
+          "correta": 0,
+          "porque": "Você mantém a criptografia e joga fora a identidade (aula 4.4). É exatamente a metade que impede o ataque do meio do caminho."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um verificador que receba uma lista de endereços seus, faça uma requisição em cada um e monte uma tabela com status, servidor e quais dos três cabeçalhos de segurança estão faltando. Trate erro de conexão sem derrubar o programa e anote no Caderno o que faltou em cada site.",
+        "solucao": "import requests\n\nCABECALHOS = (\n    \"Strict-Transport-Security\",\n    \"Content-Security-Policy\",\n    \"X-Content-Type-Options\",\n)\n\n# só endereços seus, ou que autorizam o teste\nALVOS = [\n    \"https://example.com\",\n    \"http://127.0.0.1:8000\",\n    \"https://nao-existe.invalid\",\n]\n\nsessao = requests.Session()\nsessao.headers[\"User-Agent\"] = \"estudo-seguranca/1.0 (contato: eu@exemplo.com)\"\n\nfor alvo in ALVOS:\n    try:\n        r = sessao.get(alvo, timeout=10)\n    except requests.RequestException as erro:\n        print(f\"{alvo}: não respondeu ({type(erro).__name__})\")\n        continue\n\n    faltando = [c for c in CABECALHOS if c not in r.headers]\n    print(f\"{alvo}: {r.status_code} servidor={r.headers.get('Server', '?')}\")\n    print(f\"  faltando: {', '.join(faltando) if faltando else 'nada'}\")\n\n# o try em volta da requisição é o que separa script de ferramenta:\n# um alvo fora do ar não pode interromper a checagem dos outros.\n#\n# no Caderno, anote também o que NÃO é problema: um site interno sem\n# HSTS pode ser aceitável. Achado sem contexto vira relatório inútil.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m11a2",
       "titulo": "Ler e filtrar logs em massa",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Arquivo de log não cabe na memória e não tem pergunta pronta. Python resolve os dois problemas.",
+      "ideia": [
+        "Ler linha a linha com gerador processa arquivo de qualquer tamanho sem carregar tudo na memória.",
+        "Uma expressão regular com grupos nomeados transforma a linha em campos, e aí a pergunta vira contagem."
+      ],
+      "exemplo": {
+        "nota": "O mesmo log da aula 3.6, agora virando dado estruturado:",
+        "codigo": "import re\nfrom collections import Counter\n\nLINHA = re.compile(\n    r'^(?P<ip>\\S+) \\S+ \\S+ \\[(?P<data>[^\\]]+)\\] '\n    r'\"(?P<metodo>\\S+) (?P<caminho>\\S+)[^\"]*\" (?P<status>\\d{3})'\n)\n\nEXEMPLO = '''10.0.0.5 - - [22/Sep/2026:10:00:01 -0300] \"GET / HTTP/1.1\" 200 512\n10.0.0.9 - - [22/Sep/2026:10:00:03 -0300] \"POST /login HTTP/1.1\" 401 64\n10.0.0.9 - - [22/Sep/2026:10:00:07 -0300] \"POST /login HTTP/1.1\" 200 128\n10.0.0.7 - - [22/Sep/2026:10:01:10 -0300] \"GET /.env HTTP/1.1\" 404 0\nlinha estranha que não casa com nada\n'''\n\nopen(\"acesso.log\", \"w\", encoding=\"utf-8\").write(EXEMPLO)\n\ndef registros(caminho):\n    \"\"\"Gerador: entrega um dicionário por linha, sem carregar o arquivo todo.\"\"\"\n    with open(caminho, encoding=\"utf-8\") as arquivo:\n        for linha in arquivo:\n            achou = LINHA.match(linha)\n            if achou:\n                yield achou.groupdict()\n\nstatus = Counter(r[\"status\"] for r in registros(\"acesso.log\"))\nprint(status)\n# Counter({'200': 2, '401': 1, '404': 1})\n\nprocurados = [r[\"caminho\"] for r in registros(\"acesso.log\") if r[\"status\"] == \"404\"]\nprint(procurados)\n# ['/.env']",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "O que quebra na vida real",
+        "linhas": [
+          "Linha que não casa com o padrão existe sempre: requisição malformada, ataque, mudança de formato. Conte quantas você descartou, senão o relatório mente sem avisar.",
+          "Log grande vem comprimido. gzip.open lê .gz igual a um arquivo comum, e o gerador nem percebe a diferença.",
+          "Fuso horário é armadilha: o log traz o deslocamento (-0300) e o servidor pode estar em UTC. Comparar horário de dois sistemas sem normalizar já atrapalhou muita investigação."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que usar gerador (yield) em vez de ler o arquivo inteiro?",
+          "opcoes": [
+            "Porque é mais fácil de escrever",
+            "Porque o arquivo pode ter gigabytes, e o gerador segura uma linha por vez na memória",
+            "Porque gerador ordena as linhas"
+          ],
+          "correta": 1,
+          "porque": "Log de produção não cabe na RAM. Com gerador, o mesmo código serve pra 10 linhas e pra 10 milhões."
+        },
+        {
+          "pergunta": "Sua expressão regular não casou com 3% das linhas. Qual a atitude certa?",
+          "opcoes": [
+            "Ignorar: 3% é pouco",
+            "Contar e olhar essas linhas, porque é justamente ali que costuma estar o que foge do padrão",
+            "Apagar as linhas do arquivo"
+          ],
+          "correta": 1,
+          "porque": "Requisição estranha não casa com o formato normal por um motivo. Descartar em silêncio é apagar o achado."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um detector de força bruta: percorra o log e avise quando o mesmo IP tiver cinco ou mais respostas 401 dentro de uma janela de sessenta segundos. Mostre o IP, o horário da primeira e da última tentativa, e anote no Caderno qual limite você escolheu e por quê.",
+        "solucao": "import re\nfrom collections import defaultdict, deque\nfrom datetime import datetime, timedelta\n\nLINHA = re.compile(r'^(?P<ip>\\S+) \\S+ \\S+ \\[(?P<data>[^\\]]+)\\] \"[^\"]*\" (?P<status>\\d{3})')\nFORMATO = \"%d/%b/%Y:%H:%M:%S %z\"\nLIMITE, JANELA = 5, timedelta(seconds=60)\n\nEXEMPLO = \"\"\"10.0.0.9 - - [22/Sep/2026:10:00:03 -0300] \"POST /login HTTP/1.1\" 401\n10.0.0.9 - - [22/Sep/2026:10:00:04 -0300] \"POST /login HTTP/1.1\" 401\n10.0.0.9 - - [22/Sep/2026:10:00:05 -0300] \"POST /login HTTP/1.1\" 401\n10.0.0.5 - - [22/Sep/2026:10:00:06 -0300] \"GET / HTTP/1.1\" 200\n10.0.0.9 - - [22/Sep/2026:10:00:06 -0300] \"POST /login HTTP/1.1\" 401\n10.0.0.9 - - [22/Sep/2026:10:00:07 -0300] \"POST /login HTTP/1.1\" 401\n10.0.0.9 - - [22/Sep/2026:10:00:08 -0300] \"POST /login HTTP/1.1\" 200\n\"\"\"\nopen(\"acesso.log\", \"w\", encoding=\"utf-8\").write(EXEMPLO)\n\ndef alertas(caminho):\n    falhas = defaultdict(deque)\n    ja_avisado = set()\n    with open(caminho, encoding=\"utf-8\") as arquivo:\n        for linha in arquivo:\n            achou = LINHA.match(linha)\n            if not achou or achou[\"status\"] != \"401\":\n                continue\n            ip = achou[\"ip\"]\n            quando = datetime.strptime(achou[\"data\"], FORMATO)\n\n            recentes = falhas[ip]\n            recentes.append(quando)\n            while recentes and quando - recentes[0] > JANELA:\n                recentes.popleft()          # sai da janela de 60 segundos\n\n            if len(recentes) >= LIMITE and ip not in ja_avisado:\n                ja_avisado.add(ip)\n                yield ip, recentes[0], recentes[-1], len(recentes)\n\nfor ip, primeira, ultima, quantas in alertas(\"acesso.log\"):\n    print(f\"{ip}: {quantas} falhas entre {primeira:%H:%M:%S} e {ultima:%H:%M:%S}\")\n# 10.0.0.9: 5 falhas entre 10:00:03 e 10:00:07\n\n# a deque é a mesma da aula 10.3: entra no fim, sai do começo.\n# ela mantém só as falhas que ainda estão dentro da janela.\n#\n# o limite que escolhi: 5 falhas em 60 segundos.\n# mais baixo enche de alarme falso (gente esquece a senha mesmo).\n# mais alto deixa passar o robô devagar, que é o que o atacante esperto usa.\n# na vida real esse número se ajusta olhando o seu próprio log por uma semana.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m11a3",
       "titulo": "Scanner de portas do zero",
-      "minutos": 20
+      "minutos": 20,
+      "resumo": "Descobrir que portas respondem é só tentar conectar em cada uma. O socket do Python faz isso em três linhas.",
+      "ideia": [
+        "Tentar abrir uma conexão TCP e ver se o outro lado aceita: aberta responde, fechada recusa na hora, filtrada não responde nada e estoura o tempo.",
+        "Rode na sua máquina, na sua rede ou no scanme.nmap.org, que autoriza. Varrer alvo de terceiro sem autorização não faz parte do ofício."
+      ],
+      "exemplo": {
+        "nota": "O scanner inteiro cabe numa função. Aqui ele olha o 127.0.0.1, que é a sua própria máquina:",
+        "codigo": "import socket\n\ndef porta_aberta(host, porta, espera=0.3):\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n        s.settimeout(espera)\n        return s.connect_ex((host, porta)) == 0   # 0 = conectou\n\nALVO = \"127.0.0.1\"          # a sua própria máquina\nPORTAS = (22, 80, 443, 3000, 3306, 5432, 8000, 8080)\n\nprint(\"alvo:\", ALVO, socket.gethostbyname(socket.gethostname()))\n\nabertas = [p for p in PORTAS if porta_aberta(ALVO, p)]\nprint(\"abertas:\", abertas or \"nenhuma dessas\")\n\n# suba o php -S 127.0.0.1:8000 numa outra janela e rode de novo:\n# a porta 8000 aparece na lista.\n\nservicos = {22: \"ssh\", 80: \"http\", 443: \"https\", 3306: \"mysql\", 5432: \"postgres\"}\nfor porta in abertas:\n    print(porta, servicos.get(porta, \"serviço não identificado\"))",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "O que esse scanner é, e o que ele não é",
+        "linhas": [
+          "connect_ex completa o aperto de mão inteiro, o que se chama connect scan. Ele é honesto e aparece no log do outro lado, com o seu endereço. O nmap -sS manda só o primeiro pacote e precisa de root, e é mais discreto.",
+          "Fechada e filtrada são coisas diferentes: fechada recusa na hora (o sistema responde), filtrada some no silêncio (um firewall engoliu). O que separa as duas é o tempo, não o código de erro: o número devolvido muda entre Linux e Windows, o relógio não.",
+          "Porta aberta não é falha. É informação. O trabalho começa depois: que serviço é, que versão, e ele precisava estar exposto?"
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O connect_ex devolveu um número diferente de zero e voltou na hora. O que isso quer dizer?",
+          "opcoes": [
+            "A porta está fechada: alguém do outro lado recusou a conexão",
+            "A porta está aberta",
+            "O alvo não existe"
+          ],
+          "correta": 0,
+          "porque": "Resposta rápida quer dizer que a máquina está lá e disse não. Silêncio até estourar o tempo é sinal de firewall."
+        },
+        {
+          "pergunta": "Você quer testar o seu scanner num alvo externo. Qual escolher?",
+          "opcoes": [
+            "O site da sua faculdade, que é conhecido",
+            "Qualquer site grande, que aguenta",
+            "O scanme.nmap.org, mantido pelo projeto Nmap justamente pra isso"
+          ],
+          "correta": 2,
+          "porque": "É o único da lista que autoriza. Os outros dois são alvo de terceiro, e boa intenção não substitui autorização."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Melhore o scanner: faça ele aceitar uma faixa de portas, medir quanto tempo cada tentativa levou e classificar cada porta como aberta, fechada ou sem resposta. Rode contra a sua própria máquina e anote no Caderno o que encontrou aberto e se cada um precisava mesmo estar.",
+        "solucao": "import socket, time\n\nESPERA = 0.2   # segundos\n\ndef sondar(host, porta, espera=ESPERA):\n    inicio = time.perf_counter()\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n        s.settimeout(espera)\n        codigo = s.connect_ex((host, porta))\n    gasto = time.perf_counter() - inicio\n\n    if codigo == 0:\n        estado = \"aberta\"\n    elif gasto >= espera * 0.9:\n        estado = \"sem resposta\"     # estourou o tempo: silêncio, cheira a firewall\n    else:\n        estado = \"fechada\"          # recusou na hora: tem alguém ali dizendo não\n    return estado, round(gasto * 1000)\n\nALVO = \"127.0.0.1\"\nFAIXA = range(8000, 8011)          # onde costumam subir laboratórios\n\nresumo = {\"aberta\": [], \"fechada\": [], \"sem resposta\": []}\nfor porta in FAIXA:\n    estado, ms = sondar(ALVO, porta)\n    resumo[estado].append((porta, ms))\n\nfor estado, portas in resumo.items():\n    print(f\"{estado:13} {[p for p, _ in portas] or 'nenhuma'}\")\n\n# classificar pelo relógio, e não pelo número do erro, é de propósito:\n# o código devolvido muda de sistema pra sistema (o Windows devolve 10035\n# quando o tempo estoura), e o tempo conta a mesma história em todos.\n#\n# no Caderno, pra cada porta aberta:\n#   que serviço é, quem subiu, precisa aceitar a rede ou bastava 127.0.0.1?\n# essa última pergunta é a mesma da aula 4.1, e é a que vira ação.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m11a4",
       "titulo": "Automatizar uma varredura completa",
-      "minutos": 22
+      "minutos": 22,
+      "resumo": "Uma porta por vez é lento. Com threads e um relatório em JSON, vira ferramenta.",
+      "ideia": [
+        "Esperar resposta de rede é tempo parado. Várias sondagens ao mesmo tempo resolvem em segundos o que levaria minutos.",
+        "Ferramenta de verdade não imprime na tela e acabou: ela grava um resultado que dá pra comparar com o da semana passada."
+      ],
+      "exemplo": {
+        "nota": "O mesmo scanner, agora com threads e banner. Ele fala com a sua própria máquina:",
+        "codigo": "import json, socket\nfrom concurrent.futures import ThreadPoolExecutor\n\nALVO = \"127.0.0.1\"\n\ndef sondar(porta, espera=0.3):\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n        s.settimeout(espera)\n        if s.connect_ex((ALVO, porta)) != 0:\n            return None\n        banner = \"\"\n        try:\n            s.sendall(b\"HEAD / HTTP/1.0\\r\\n\\r\\n\")\n            banner = s.recv(120).decode(\"utf-8\", \"replace\").splitlines()[0]\n        except OSError:\n            pass\n    return {\"porta\": porta, \"banner\": banner.strip()}\n\nwith ThreadPoolExecutor(max_workers=100) as equipe:\n    achados = [r for r in equipe.map(sondar, range(1, 1025)) if r]\n\nprint(f\"{len(achados)} portas abertas em {ALVO}\")\nfor r in achados:\n    print(\" \", r[\"porta\"], r[\"banner\"] or \"(sem banner)\")\n\nrelatorio = {\"alvo\": ALVO, \"abertas\": achados}\nwith open(\"varredura.json\", \"w\", encoding=\"utf-8\") as f:\n    json.dump(relatorio, f, indent=2, ensure_ascii=False)\nprint(\"gravado em varredura.json\")",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "Velocidade tem preço",
+        "linhas": [
+          "Cem conexões por segundo derrubam serviço frágil e acendem qualquer alarme. Rapidez é ótima no seu laboratório e é falta de educação em ambiente de produção alheio, mesmo autorizado.",
+          "Banner é o que o serviço se dispõe a contar de si: nome e às vezes versão. Ele pode estar desatualizado ou mentindo de propósito, então serve de pista, não de prova.",
+          "Grave o resultado com data. Comparar a varredura de hoje com a do mês passado mostra o que apareceu de novo na rede, e isso é metade do trabalho de defesa."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que threads ajudam tanto numa varredura de portas?",
+          "opcoes": [
+            "Porque o Python fica mais rápido com threads",
+            "Porque quase todo o tempo é espera de rede, e várias esperas cabem ao mesmo tempo",
+            "Porque cada thread usa um núcleo diferente"
+          ],
+          "correta": 1,
+          "porque": "Não é conta pesada, é espera. Enquanto uma sondagem aguarda resposta, as outras seguem."
+        },
+        {
+          "pergunta": "O banner diz Apache 2.4.7. Você pode concluir que é essa versão?",
+          "opcoes": [
+            "Não: banner pode estar desatualizado ou alterado de propósito. É pista, não prova",
+            "Sim, banner é informação do próprio servidor",
+            "Sim, se a porta for 80"
+          ],
+          "correta": 0,
+          "porque": "Muita gente esconde ou falsifica o banner. Achado precisa ser confirmado por mais de um caminho antes de virar relatório."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Transforme a varredura em ferramenta: leia os alvos de um arquivo, guarde o resultado com data e hora e, quando já existir um relatório anterior, mostre o que mudou entre as duas varreduras. Anote no Caderno por que comparar duas fotos vale mais que olhar uma.",
+        "solucao": "import json, socket\nfrom concurrent.futures import ThreadPoolExecutor\nfrom datetime import datetime\nfrom pathlib import Path\n\nPORTAS = range(1, 1025)\n\ndef sondar(alvo, porta, espera=0.3):\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n        s.settimeout(espera)\n        return porta if s.connect_ex((alvo, porta)) == 0 else None\n\ndef varrer(alvo):\n    with ThreadPoolExecutor(max_workers=100) as equipe:\n        achados = equipe.map(lambda p: sondar(alvo, p), PORTAS)\n        return sorted(p for p in achados if p)\n\n# alvos.txt: um por linha, só os seus\nPath(\"alvos.txt\").write_text(\"127.0.0.1\\n\", encoding=\"utf-8\")\nalvos = [l.strip() for l in Path(\"alvos.txt\").read_text(encoding=\"utf-8\").splitlines() if l.strip()]\n\nagora = {\"quando\": datetime.now().isoformat(timespec=\"seconds\"),\n         \"resultado\": {alvo: varrer(alvo) for alvo in alvos}}\n\nanterior = {}\nif Path(\"ultima.json\").exists():\n    anterior = json.loads(Path(\"ultima.json\").read_text(encoding=\"utf-8\")).get(\"resultado\", {})\n\nfor alvo, portas in agora[\"resultado\"].items():\n    antes = set(anterior.get(alvo, []))\n    novas = sorted(set(portas) - antes)\n    sumiram = sorted(antes - set(portas))\n    print(f\"{alvo}: {len(portas)} abertas\")\n    if antes:\n        print(f\"  novas:   {novas or 'nenhuma'}\")\n        print(f\"  sumiram: {sumiram or 'nenhuma'}\")\n    else:\n        print(\"  primeira varredura: esta é a foto de referência\")\n\nPath(\"ultima.json\").write_text(json.dumps(agora, indent=2), encoding=\"utf-8\")\n\n# por que comparar vale mais:\n# uma foto responde o que está aberto. Duas respondem o que mudou,\n# e mudança é onde mora o problema: porta que apareceu sozinha, serviço\n# que alguém subiu pra testar e esqueceu, banco que foi exposto num deploy.\n# defesa é monitorar diferença, não colecionar relatório.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m11a5",
       "titulo": "Projeto: ferramenta própria de recon",
-      "minutos": 30
+      "minutos": 30,
+      "resumo": "Juntar tudo numa ferramenta de linha de comando que levanta o básico de um alvo e entrega relatório.",
+      "ideia": [
+        "Reconhecimento é a primeira fase de qualquer teste: resolver o nome, ver o que responde, olhar cabeçalho e anotar tudo com horário.",
+        "A ferramenta exige confirmação de autorização antes de rodar. Isso não é enfeite: é o hábito que mantém você do lado certo."
+      ],
+      "exemplo": {
+        "nota": "A espinha da ferramenta, com argparse. Salve como recon.py e rode: python recon.py 127.0.0.1 --autorizado",
+        "codigo": "import argparse, json, socket\nfrom datetime import datetime\n\nPORTAS = (21, 22, 25, 53, 80, 110, 143, 443, 3000, 3306, 5432, 8000, 8080)\n\ndef resolver(alvo):\n    try:\n        return socket.gethostbyname(alvo)\n    except socket.gaierror:\n        return None\n\ndef portas_abertas(ip, espera=0.3):\n    abertas = []\n    for porta in PORTAS:\n        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n            s.settimeout(espera)\n            if s.connect_ex((ip, porta)) == 0:\n                abertas.append(porta)\n    return abertas\n\ndef main():\n    p = argparse.ArgumentParser(description=\"Recon básico. Só em alvo próprio ou autorizado.\")\n    p.add_argument(\"alvo\")\n    p.add_argument(\"--autorizado\", action=\"store_true\",\n                   help=\"confirma que você tem autorização por escrito pra testar este alvo\")\n    args = p.parse_args([\"127.0.0.1\", \"--autorizado\"])   # tire isto pra usar de verdade\n\n    if not args.autorizado:\n        p.error(\"sem --autorizado a ferramenta não roda. Escopo primeiro, sempre.\")\n\n    ip = resolver(args.alvo)\n    if not ip:\n        print(f\"{args.alvo}: não resolveu\")\n        return\n\n    relatorio = {\n        \"alvo\": args.alvo,\n        \"ip\": ip,\n        \"quando\": datetime.now().isoformat(timespec=\"seconds\"),\n        \"abertas\": portas_abertas(ip),\n    }\n    print(json.dumps(relatorio, indent=2))\n\nmain()",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "O que separa script de ferramenta",
+        "linhas": [
+          "Entrada por parâmetro, não editada no código. Saída em JSON, que outro programa lê. Erro tratado, pra um alvo fora do ar não derrubar a rodada inteira.",
+          "Escopo explícito: a lista de alvos vem de um arquivo que você escreveu, e a ferramenta recusa qualquer coisa fora dela. É assim que se evita o acidente de varrer o vizinho.",
+          "Registre o que fez: alvo, horário, o que rodou. Se der ruim, o seu registro é a diferença entre teste autorizado e problema sério."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que a ferramenta exige uma confirmação explícita de autorização?",
+          "opcoes": [
+            "Pra ficar mais profissional na aparência",
+            "Porque obriga uma decisão consciente antes de mandar pacote pra qualquer alvo",
+            "Porque o Python pede"
+          ],
+          "correta": 1,
+          "porque": "Acidente com ferramenta de varredura acontece por distração, com o alvo errado colado no comando. Um passo a mais custa dois segundos e evita a pior conversa da sua vida."
+        },
+        {
+          "pergunta": "Por que gravar o resultado em JSON e não só imprimir na tela?",
+          "opcoes": [
+            "Porque JSON ocupa menos espaço",
+            "Porque a tela some quando fecha o terminal",
+            "Porque JSON é lido por outro programa, dá pra comparar com a rodada anterior e serve de prova do que foi feito"
+          ],
+          "correta": 2,
+          "porque": "Comparar duas rodadas é o que mostra o que mudou (aula 11.4). E o registro protege você tanto quanto o alvo."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Complete a ferramenta com três acréscimos: ler os alvos de um arquivo de escopo e recusar qualquer alvo fora dele, buscar os cabeçalhos de segurança de quem responder em http, e gravar um relatório com data no nome. Anote no Caderno o que a sua ferramenta faz que o nmap não faz, e o contrário também.",
+        "solucao": "import json, socket\nfrom datetime import datetime\nfrom pathlib import Path\nfrom urllib.error import URLError\nfrom urllib.request import Request, urlopen\n\nPORTAS = (22, 80, 443, 3000, 8000, 8080)\nCABECALHOS = (\"Strict-Transport-Security\", \"Content-Security-Policy\", \"X-Content-Type-Options\")\n\ndef dentro_do_escopo(alvo, escopo):\n    return alvo in escopo\n\ndef portas_abertas(ip, espera=0.3):\n    abertas = []\n    for porta in PORTAS:\n        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n            s.settimeout(espera)\n            if s.connect_ex((ip, porta)) == 0:\n                abertas.append(porta)\n    return abertas\n\ndef cabecalhos(ip, porta):\n    try:\n        pedido = Request(f\"http://{ip}:{porta}/\", method=\"HEAD\",\n                         headers={\"User-Agent\": \"recon-de-estudo/1.0\"})\n        with urlopen(pedido, timeout=5) as r:\n            return {c: r.headers.get(c, \"ausente\") for c in CABECALHOS}\n    except (URLError, OSError):\n        return None\n\n# escopo.txt é a lista que eu mesmo escrevi. Nada fora dela é tocado.\nPath(\"escopo.txt\").write_text(\"127.0.0.1\\n\", encoding=\"utf-8\")\nescopo = {l.strip() for l in Path(\"escopo.txt\").read_text(encoding=\"utf-8\").splitlines() if l.strip()}\n\nrelatorio = {\"quando\": datetime.now().isoformat(timespec=\"seconds\"), \"alvos\": []}\n\nfor alvo in [\"127.0.0.1\", \"8.8.8.8\"]:\n    if not dentro_do_escopo(alvo, escopo):\n        print(f\"{alvo}: fora do escopo, ignorado\")\n        continue\n\n    abertas = portas_abertas(alvo)\n    achado = {\"alvo\": alvo, \"abertas\": abertas, \"http\": {}}\n    for porta in abertas:\n        cab = cabecalhos(alvo, porta)\n        if cab:\n            achado[\"http\"][porta] = cab\n    relatorio[\"alvos\"].append(achado)\n    print(f\"{alvo}: abertas {abertas or 'nenhuma'}\")\n\nnome = f\"recon-{datetime.now():%Y-%m-%d-%H%M}.json\"\nPath(nome).write_text(json.dumps(relatorio, indent=2, ensure_ascii=False), encoding=\"utf-8\")\nprint(\"relatório em\", nome)\n\n# minha ferramenta faz o que o nmap não faz:\n#   sai no formato que eu quero, olha exatamente os cabeçalhos que me\n#   interessam e recusa alvo fora do meu escopo.\n# o nmap faz o que a minha não faz:\n#   dezenas de técnicas de varredura, identificação de serviço e de\n#   sistema, scripts prontos pra milhares de casos, e anos de teste.\n#\n# a graça de escrever a sua é entender o que a ferramenta pronta faz.\n# em trabalho de verdade, use a ferramenta madura e escreva a sua\n# pro pedaço que falta.",
+        "linguagem": "python"
+      }
     }
   ]
 }

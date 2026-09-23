@@ -46,6 +46,9 @@ import certificadosJson from "@/content/certificados.json";
 
 // foco de um conteúdo: "base" (todos) ou o id de um foco
 const Foco = z.string().min(1);
+// Conteúdo de apoio pode valer pra mais de um foco: "web" ou ["web", "backend"].
+// Módulos continuam com um foco só.
+const FocoItem = z.union([Foco, z.array(Foco).min(1)]);
 
 const Questao = z.object({
   pergunta: z.string(),
@@ -63,7 +66,8 @@ const Aula = z.object({
   exemplo: z.object({ nota: z.string().optional(), codigo: z.string(), linguagem: z.string().optional() }).optional(),
   mais: z.object({ titulo: z.string(), linhas: z.array(z.string()).min(1) }).optional(),
   quiz: z.array(Questao).optional(),
-  desafio: z.object({ pergunta: z.string(), solucao: z.string() }).optional(),
+  // linguagem da solução, quando difere da do exemplo (usada só pelo verificador de código)
+  desafio: z.object({ pergunta: z.string(), solucao: z.string(), linguagem: z.string().optional() }).optional(),
 });
 
 const FocoDef = z.object({ id: z.string(), nome: z.string(), descricao: z.string() });
@@ -99,7 +103,7 @@ export const Demanda = z.object({
   reviravolta: z.object({ texto: z.string(), criterios: z.array(z.string()).min(1) }).optional(),
   solucao: z.string(),
   aprendizado: z.string(),
-  foco: Foco.optional(),
+  foco: FocoItem.optional(),
 });
 
 const Treino = z.object({
@@ -112,7 +116,7 @@ const Treino = z.object({
   dica: z.string(),
   solucao: z.string(),
   custo: z.string(),
-  foco: Foco.optional(),
+  foco: FocoItem.optional(),
 });
 
 const Projeto = z.object({
@@ -128,10 +132,10 @@ const Projeto = z.object({
   pronto: z.array(z.string()).min(1),
   readme: z.string(),
   linkedin: z.string(),
-  foco: Foco.optional(),
+  foco: FocoItem.optional(),
 });
 
-const ProvaBase = { id: z.string(), titulo: z.string(), escopo: z.string(), tempo: z.number().int().positive(), foco: Foco.optional() };
+const ProvaBase = { id: z.string(), titulo: z.string(), escopo: z.string(), tempo: z.number().int().positive(), foco: FocoItem.optional() };
 const Prova = z.discriminatedUnion("tipo", [
   z.object({ ...ProvaBase, tipo: z.literal("alternativas"), questoes: z.array(Questao).min(1) }),
   z.object({
@@ -147,7 +151,7 @@ const Prova = z.discriminatedUnion("tipo", [
   }),
 ]);
 
-const Termo = z.object({ termo: z.string(), area: z.string(), definicao: z.string(), foco: Foco.optional() });
+const Termo = z.object({ termo: z.string(), area: z.string(), definicao: z.string(), foco: FocoItem.optional() });
 
 const PerguntaEntrevista = z.object({
   tema: z.string(),
@@ -155,7 +159,7 @@ const PerguntaEntrevista = z.object({
   querem: z.string(),
   esqueleto: z.string(),
   cuidado: z.string(),
-  foco: Foco.optional(),
+  foco: FocoItem.optional(),
 });
 
 const Certificado = z.object({
@@ -165,10 +169,10 @@ const Certificado = z.object({
   ordem: z.number().int().positive(),
   quando: z.string(),
   porque: z.string(),
-  foco: Foco.optional(),
+  foco: FocoItem.optional(),
 });
 
-const Lab = z.object({ nome: z.string(), tema: z.string(), descricao: z.string(), url: z.string().optional(), foco: Foco.optional() });
+const Lab = z.object({ nome: z.string(), tema: z.string(), descricao: z.string(), url: z.string().optional(), foco: FocoItem.optional() });
 
 /* ── Tipos ────────────────────────────────────────────────────── */
 
@@ -253,14 +257,51 @@ const { certificados: CERTIFICADOS, labs: LABS } = valida(
   certificadosJson
 );
 
+// Foco de um item como lista. Sem foco = base.
+type FocoDoItem = string | string[] | undefined;
+const focosDoItem = (f: FocoDoItem): string[] => (f === undefined ? ["base"] : Array.isArray(f) ? f : [f]);
+
+// Todo foco citado precisa existir, e id repetido quebra o build: com dezenas de
+// itens novos por foco, erro de digitação tem que aparecer aqui, não na tela.
+{
+  const validos = new Set(["base", ...FOCOS.map((f) => f.id)]);
+  const conferir = (onde: string, f: FocoDoItem) => {
+    for (const id of focosDoItem(f)) {
+      if (!validos.has(id)) throw new Error(`${onde}: foco "${id}" não existe em focos`);
+    }
+  };
+  const unicos = (tipo: string, ids: string[]) => {
+    const vistos = new Set<string>();
+    for (const id of ids) {
+      if (vistos.has(id)) throw new Error(`id de ${tipo} repetido: ${id}`);
+      vistos.add(id);
+    }
+  };
+  DEMANDAS.forEach((d) => conferir(`demanda ${d.id}`, d.foco));
+  TREINOS.forEach((t) => conferir(`treino ${t.id}`, t.foco));
+  PROJETOS.forEach((p) => conferir(`projeto ${p.id}`, p.foco));
+  PROVAS.forEach((p) => conferir(`prova ${p.id}`, p.foco));
+  GLOSSARIO.forEach((g) => conferir(`termo ${g.termo}`, g.foco));
+  ENTREVISTA.forEach((q) => conferir(`pergunta "${q.pergunta.slice(0, 40)}"`, q.foco));
+  CERTIFICADOS.forEach((c) => conferir(`certificado ${c.nome}`, c.foco));
+  LABS.forEach((l) => conferir(`lab ${l.nome}`, l.foco));
+  unicos("demanda", DEMANDAS.map((d) => d.id));
+  unicos("treino", TREINOS.map((t) => t.id));
+  unicos("projeto", PROJETOS.map((p) => p.id));
+  unicos("prova", PROVAS.map((p) => p.id));
+}
+
 /* ── API ──────────────────────────────────────────────────────── */
 
 /** Id de um foco (ex.: "seguranca"), ou undefined para "tudo, sem filtrar". */
 export type FocoId = string;
 
-// Visível quando: sem filtro (foco undefined), ou o item é base, ou é do foco ativo.
-const visivel = (itemFoco: string | undefined, foco: FocoId | undefined) =>
-  foco === undefined || (itemFoco ?? "base") === "base" || itemFoco === foco;
+// Visível quando: sem filtro (foco undefined), ou o item é base, ou vale pro foco ativo.
+const visivel = (itemFoco: FocoDoItem, foco: FocoId | undefined) => {
+  if (foco === undefined) return true;
+  const fs = focosDoItem(itemFoco);
+  return fs.includes("base") || fs.includes(foco);
+};
 
 /** Uma aula "tem conteúdo" quando a ideia foi escrita. Só o título não conta. */
 export const temConteudo = (a: Aula) => Boolean(a.ideia && a.ideia.length > 0);

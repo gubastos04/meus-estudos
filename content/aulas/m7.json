@@ -4,32 +4,302 @@
     {
       "id": "m7a1",
       "titulo": "Montar o laboratório (Juice Shop)",
-      "minutos": 20
+      "minutos": 20,
+      "resumo": "Um alvo feito pra ser quebrado, rodando na sua máquina. É onde você pode testar à vontade.",
+      "ideia": [
+        "A Juice Shop é uma loja de propósito cheia de falhas, mantida pela própria OWASP. Ela roda no seu computador e vem com uma lista de desafios.",
+        "Aqui vale a regra que não muda: você testa o que é seu ou o que autorizou por escrito. Fora disso, não se toca."
+      ],
+      "exemplo": {
+        "nota": "Com Docker é uma linha. Repare no 127.0.0.1 antes da porta: ele prende a loja vulnerável na sua máquina.",
+        "codigo": "docker pull bkimminich/juice-shop\ndocker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop\n# abra http://localhost:3000\n\n# sem Docker, com Node 22 ou mais novo:\ngit clone https://github.com/juice-shop/juice-shop.git --depth 1\ncd juice-shop\nnpm install\nnpm start\n\n# pra parar o contêiner: Ctrl+C na janela onde ele está rodando.\n# o --rm apaga o contêiner ao sair, então cada vez você começa do zero.",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O Top 10 da OWASP, edição 2025",
+        "linhas": [
+          "A lista que o mercado usa pra falar de risco web: 1 Controle de acesso quebrado, 2 Configuração insegura, 3 Falhas na cadeia de suprimentos, 4 Falhas de criptografia, 5 Injeção.",
+          "E o resto: 6 Design inseguro, 7 Falhas de autenticação, 8 Falhas de integridade de software e dados, 9 Falhas de registro e alerta, 10 Tratamento ruim de condições excepcionais.",
+          "Controle de acesso quebrado é o número 1 de novo. As aulas 7.5 e 7.4 são exatamente isso, e a aula 7.2 é o número 5."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que rodar o laboratório com -p 127.0.0.1:3000:3000 em vez de -p 3000:3000?",
+          "opcoes": [
+            "Só por costume, dá na mesma",
+            "Porque assim a aplicação vulnerável fica alcançável só pela sua máquina, e não por toda a rede",
+            "Porque a porta 3000 é reservada"
+          ],
+          "correta": 1,
+          "porque": "Sem o 127.0.0.1, você acabou de colocar uma loja cheia de falhas à disposição de quem estiver na mesma rede. Já aconteceu com muita gente."
+        },
+        {
+          "pergunta": "Você aprendeu uma técnica nova. Onde pode usar?",
+          "opcoes": [
+            "Em qualquer site, desde que você não estrague nada",
+            "No laboratório que roda na sua máquina e em alvos que autorizam por escrito",
+            "Em sites pequenos, que não têm segurança mesmo"
+          ],
+          "correta": 1,
+          "porque": "Não existe teste sem autorização. O laboratório próprio e as plataformas feitas pra isso são o lugar de errar à vontade."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Suba a Juice Shop, navegue pela loja como um cliente qualquer e encontre o Score Board, que é o primeiro desafio dela. Anote no Caderno três categorias do Top 10 que aparecem na lista de desafios e por qual delas você quer começar.",
+        "solucao": "docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop\n\n# 1. abra http://localhost:3000 e use a loja: procure produto, veja detalhe,\n#    coloque no carrinho. Sinta como um cliente antes de olhar como testador.\n\n# 2. o Score Board não tem link no menu. Ele existe no endereço:\n#    http://localhost:3000/#/score-board\n#    achar esse endereço é o desafio de entrada, e a pista está\n#    no código JavaScript que a página carrega (F12 > Sources).\n\n# 3. no Score Board, filtre por dificuldade 1 estrela e leia os nomes.\n#    as categorias batem com o Top 10: controle de acesso quebrado,\n#    injeção, falhas de autenticação, XSS.\n\n# comece pelas de 1 estrela. A Juice Shop tem dica embutida:\n# clique no balão de cada desafio antes de procurar solução na internet.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m7a2",
       "titulo": "Injeção: quando o dado vira comando",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "Injeção é o que acontece quando o texto que a pessoa digitou atravessa e passa a valer como instrução.",
+      "ideia": [
+        "Sempre que o seu código monta um comando grudando texto de fora, quem digita ganha o direito de escrever parte desse comando. Vale pra SQL, pro shell, pro HTML e pra qualquer interpretador.",
+        "A correção não é caçar caractere perigoso. É separar o comando dos dados: parâmetro no banco, lista de argumentos no sistema, escape na saída."
+      ],
+      "exemplo": {
+        "nota": "Um serviço que testa se um endereço responde. Repare no que acontece com a linha montada:",
+        "codigo": "import subprocess, sys\n\ndef linha_de_comando(host):\n    return \"ping -c 1 \" + host          # montada grudando texto\n\nprint(linha_de_comando(\"8.8.8.8\"))\n# ping -c 1 8.8.8.8\n\nprint(linha_de_comando(\"8.8.8.8; id\"))\n# ping -c 1 8.8.8.8; id\n#                  ^ o ponto e vírgula encerra o ping e começa outro comando.\n# entregue essa linha a um shell e ele executa os dois, com o usuário do serviço.\n\n# a forma segura não monta texto: manda uma lista de argumentos\nhost = \"8.8.8.8; id\"\nprint([\"ping\", \"-c\", \"1\", host])\n# ['ping', '-c', '1', '8.8.8.8; id']\n# o texto inteiro virou UM argumento. Não existe shell pra enxergar o ;\n\nsubprocess.run([sys.executable, \"-c\", \"print('chamada feita sem shell no meio')\"])",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "A mesma falha, quatro roupas",
+        "linhas": [
+          "No banco, o texto entra na consulta e vira SQL. É a SQL Injection, que tem duas aulas só pra ela no módulo 8.",
+          "No sistema, o texto entra na linha de comando e vira outro comando, como no exemplo. A defesa é nunca usar shell e passar lista de argumentos.",
+          "Na página, o texto entra no HTML e vira tag ou script. É o XSS da próxima aula. Em todos os casos a pergunta é a mesma: esse pedaço é dado ou é instrução?"
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual a defesa certa contra injeção?",
+          "opcoes": [
+            "Filtrar uma lista de caracteres e palavras perigosas antes de gravar",
+            "Separar comando de dado: parâmetro no banco, lista de argumentos no sistema, escape na saída",
+            "Limitar o tamanho do campo no formulário"
+          ],
+          "correta": 1,
+          "porque": "Lista negra sempre esquece um caso e quebra dado legítimo, tipo o sobrenome O'Brien. Separar comando de dado resolve na raiz."
+        },
+        {
+          "pergunta": "Por que passar uma lista de argumentos evita injeção de comando?",
+          "opcoes": [
+            "Porque o texto inteiro vira um argumento só, sem shell pra interpretar ; e |",
+            "Porque a lista é mais rápida",
+            "Porque o Python remove os caracteres perigosos da lista"
+          ],
+          "correta": 0,
+          "porque": "Quem interpreta ponto e vírgula, pipe e aspas é o shell. Sem shell no caminho, esses caracteres são letras comuns."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva uma função que receba um nome de arquivo e devolva a linha de comando montada por concatenação, e outra que devolva a lista de argumentos. Passe um texto com ponto e vírgula nas duas e mostre a diferença. Anote no Caderno a pergunta que você vai fazer daqui pra frente em toda entrada de usuário.",
+        "solucao": "import subprocess, sys\n\ndef montada(arquivo):\n    return \"wc -l \" + arquivo\n\ndef segura(arquivo):\n    return [\"wc\", \"-l\", arquivo]\n\nentrada = \"relatorio.txt; rm -rf pasta\"\n\nprint(montada(entrada))\n# wc -l relatorio.txt; rm -rf pasta\n# duas instruções: o shell contaria as linhas e depois apagaria a pasta\n\nprint(segura(entrada))\n# ['wc', '-l', 'relatorio.txt; rm -rf pasta']\n# uma instrução só, com um nome de arquivo esquisito que simplesmente não existe\n\n# rodando de verdade, sem shell, o erro é inofensivo:\nr = subprocess.run(segura(entrada), capture_output=True, text=True)\nprint(\"deu certo?\", r.returncode == 0)\n\n# a pergunta pra toda entrada de usuário:\n# \"esse texto vai virar comando em algum lugar? SQL, shell, HTML, caminho de arquivo?\"\n# se vai, ele não pode ser grudado. Tem que ir como parâmetro.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m7a3",
       "titulo": "XSS: rodando script na página dos outros",
-      "minutos": 18
+      "minutos": 18,
+      "resumo": "Quando o site imprime na página o que alguém digitou, sem tratar, o navegador de quem visita obedece.",
+      "ideia": [
+        "XSS é injeção de HTML: o texto de fora entra na página e o navegador executa como se fosse do site. Quem consegue isso age como a pessoa logada.",
+        "A defesa é na saída, não na entrada: escapar na hora de imprimir. O mesmo texto é inofensivo num lugar e perigoso em outro."
+      ],
+      "exemplo": {
+        "nota": "Volte à página da aula 5.5, na versão sem tratamento, e compare as duas:",
+        "codigo": "<?php\n// versao-1.php: imprime direto o que veio da URL\n$nome = $_GET[\"nome\"] ?? \"visitante\";\n?>\n<h1>Olá, <?= $nome ?></h1>\n\n<!--\n  ?nome=Ana                        vira  <h1>Olá, Ana</h1>\n  ?nome=<b>Ana</b>                 vira  negrito de verdade\n  ?nome=<script>alert(1)</script>  vira  script rodando na sua página\n\n  o navegador não tem como saber que aquele pedaço veio de fora.\n-->\n\n<?php\n// versao-2.php: escapa na hora de imprimir\n$nome = $_GET[\"nome\"] ?? \"visitante\";\n?>\n<h1>Olá, <?= htmlspecialchars($nome, ENT_QUOTES, \"UTF-8\") ?></h1>\n\n<!-- agora o mesmo texto aparece na tela como texto, e nada executa -->",
+        "linguagem": "php"
+      },
+      "mais": {
+        "titulo": "Três tipos, e o que está em jogo",
+        "linhas": [
+          "Refletido: o texto vem no link e volta na resposta. Precisa que a vítima abra o link. Armazenado: o texto fica salvo no banco, num comentário por exemplo, e atinge todo mundo que abrir a página. De DOM: nem passa pelo servidor, o próprio JavaScript da página escreve com innerHTML.",
+          "O estrago não é o alerta na tela. Script rodando na página faz o que a pessoa logada faria: ler a tela, enviar formulário, trocar o e-mail da conta. Por isso o cookie de sessão vai com HttpOnly (aula 6.3).",
+          "Camadas de defesa: escapar na saída sempre, usar textContent em vez de innerHTML no JavaScript, e um Content-Security-Policy que recusa script solto na página."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual a defesa principal contra XSS?",
+          "opcoes": [
+            "Bloquear a palavra script no formulário",
+            "Escapar o conteúdo na hora de imprimir na página",
+            "Guardar tudo em maiúsculas no banco"
+          ],
+          "correta": 1,
+          "porque": "A defesa é no contexto da saída: dentro do HTML se escapa de um jeito, dentro de um atributo de outro, dentro de JavaScript de outro. Filtrar palavra é jogo perdido."
+        },
+        {
+          "pergunta": "Qual a diferença entre XSS refletido e armazenado?",
+          "opcoes": [
+            "O refletido é mais grave",
+            "O refletido só funciona em https",
+            "O refletido vem no link e atinge quem abre; o armazenado fica salvo e atinge todo mundo que vê a página"
+          ],
+          "correta": 2,
+          "porque": "Por isso o armazenado costuma valer mais: um comentário envenenado num produto popular alcança todo visitante, sem precisar convencer ninguém a clicar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "No seu laboratório, prove a diferença entre a versão que imprime direto e a que escapa: passe um pedaço de HTML pela URL e veja o que cada uma faz. Depois corrija a versão insegura e anote no Caderno por que a correção fica na saída e não na entrada.",
+        "solucao": "<?php\n// antes\n?>\n<h1>Olá, <?= $_GET[\"nome\"] ?></h1>\n\n<?php\n// depois\n?>\n<h1>Olá, <?= htmlspecialchars($_GET[\"nome\"] ?? \"\", ENT_QUOTES, \"UTF-8\") ?></h1>\n\n<?php\n/*\n  teste as duas com  ?nome=<b>Ana</b>  e depois com um <script> simples.\n  na primeira, o navegador obedece. Na segunda, aparece o texto na tela.\n\n  por que a defesa é na saída:\n  o mesmo texto é inofensivo no banco, perigoso dentro de HTML, e perigoso\n  de outro jeito dentro de um atributo ou de um bloco de JavaScript.\n  quem sabe o que precisa ser escapado é quem está imprimindo, na hora.\n\n  limpar na entrada estraga dado legítimo (um comentário sobre a tag <b>\n  deixaria de existir) e não protege as outras saídas do mesmo campo.\n\n  no JavaScript, o equivalente é usar textContent em vez de innerHTML.\n*/",
+        "linguagem": "php"
+      }
     },
     {
       "id": "m7a4",
       "titulo": "Autenticação quebrada",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Login mal feito entrega a conta sem precisar de falha nenhuma no resto do sistema.",
+      "ideia": [
+        "As falhas se repetem: senha fraca aceita, tentativa sem limite, mensagem que denuncia se o usuário existe, sessão que não morre e recuperação de senha frouxa.",
+        "Nenhuma delas precisa de técnica avançada. É configuração e cuidado, e é o item 7 do Top 10 de 2025."
+      ],
+      "exemplo": {
+        "nota": "O login da aula 5.6, agora com as quatro correções que importam:",
+        "codigo": "<?php\nsession_start();\n$pdo = new PDO(\"sqlite:lab.db\");\n\n$usuario = $_POST[\"usuario\"] ?? \"\";\n$senha   = $_POST[\"senha\"] ?? \"\";\n\n// 1. limite de tentativa\n$_SESSION[\"tentativas\"] = ($_SESSION[\"tentativas\"] ?? 0) + 1;\nif ($_SESSION[\"tentativas\"] > 5) {\n  http_response_code(429);\n  exit(\"Muitas tentativas. Espere um minuto.\");\n}\n\n// 2. consulta parametrizada: o texto não entra no comando (aula 8.5)\n$busca = $pdo->prepare(\"SELECT senha FROM usuarios WHERE usuario = ?\");\n$busca->execute([$usuario]);\n$linha = $busca->fetch();\n\n// 3. senha conferida contra o hash, nunca comparada como texto\n//    no cadastro:  password_hash($senha, PASSWORD_DEFAULT)\nif (!$linha || !password_verify($senha, $linha[\"senha\"])) {\n  // 4. mensagem única: não conta se o usuário existe\n  exit(\"Usuário ou senha inválidos.\");\n}\n\n$_SESSION[\"tentativas\"] = 0;\nsession_regenerate_id(true);      // id novo depois do login\n$_SESSION[\"usuario\"] = $usuario;\necho \"Entrou.\";",
+        "linguagem": "php"
+      },
+      "mais": {
+        "titulo": "O que mais entrega conta",
+        "linhas": [
+          "Mensagem diferente pra usuário inexistente e pra senha errada deixa qualquer um montar a lista de quem tem conta ali. O mesmo vale pro tempo de resposta e pra tela de recuperação de senha.",
+          "Senha vazada em outro site é a porta mais usada: as pessoas repetem senha. Barrar as senhas mais comuns no cadastro vale mais que exigir um caractere especial, e o projeto Verificador de senha vazada faz exatamente essa checagem.",
+          "Segundo fator é o que segura o estrago quando a senha já vazou. E a sessão precisa morrer no logout, na troca de senha e por inatividade."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que responder Usuário não encontrado é pior que Usuário ou senha inválidos?",
+          "opcoes": [
+            "Porque é uma mensagem mais longa",
+            "Porque confirma quais contas existem, e isso é meio caminho pra tentar senha nelas",
+            "Não faz diferença, o atacante já sabe"
+          ],
+          "correta": 1,
+          "porque": "Isso é enumeração de usuário. Com a lista de contas válidas em mãos, o esforço do atacante cai pela metade."
+        },
+        {
+          "pergunta": "A sua senha vazou num site que você usava anos atrás. O que mais protege a sua conta hoje?",
+          "opcoes": [
+            "Trocar uma letra da senha antiga",
+            "Segundo fator ativado",
+            "Usar um navegador diferente"
+          ],
+          "correta": 1,
+          "porque": "Com segundo fator, a senha sozinha não entra. É a defesa com melhor retorno pelo esforço que dá."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Corrija o login do seu laboratório com as quatro mudanças: hash de senha, consulta parametrizada, mensagem única e limite de tentativa. Depois teste com curl e anote no Caderno o que mudou na resposta do servidor em cada caso.",
+        "solucao": "<?php\n// ===== cadastro.php: gravar o hash, nunca a senha =====\n$pdo = new PDO(\"sqlite:lab.db\");\n$hash = password_hash(\"ana123\", PASSWORD_DEFAULT);\n$st = $pdo->prepare(\"UPDATE usuarios SET senha = ? WHERE usuario = ?\");\n$st->execute([$hash, \"ana\"]);\necho \"senha regravada como hash\\n\";\n?>\n\n<?php\n/*\n  ===== os testes =====\n\n  curl -s -X POST -d \"usuario=ana&senha=ana123\" http://127.0.0.1:8000/login.php\n    Entrou.\n\n  curl -s -X POST -d \"usuario=ana&senha=errada\" http://127.0.0.1:8000/login.php\n    Usuário ou senha inválidos.\n\n  curl -s -X POST -d \"usuario=naoexiste&senha=x\" http://127.0.0.1:8000/login.php\n    Usuário ou senha inválidos.        <- a mesma frase, de propósito\n\n  seis vezes seguidas, guardando o cookie:\n  curl -s -c c.txt -b c.txt -X POST -d \"usuario=ana&senha=errada\" ...\n    na sexta:  Muitas tentativas. Espere um minuto.   [429]\n\n  o que mudou:\n  - o banco não tem mais senha legível, só hash\n  - o texto digitado não entra mais no comando SQL\n  - as duas respostas de erro são iguais, então não dá pra descobrir contas\n  - tentar sem parar deixou de ser de graça\n\n  no mundo real o contador não pode ficar na sessão do cliente:\n  vai no servidor, por usuário e por endereço de origem.\n*/",
+        "linguagem": "php"
+      }
     },
     {
       "id": "m7a5",
       "titulo": "IDOR: trocando o id na URL",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "O sistema pergunta quem é você no login e esquece de perguntar se aquele pedido é seu.",
+      "ideia": [
+        "IDOR é acessar o dado de outra pessoa só trocando um número: /pedido?id=124 vira /pedido?id=125. O sistema entrega porque nunca conferiu de quem é.",
+        "É a cara do controle de acesso quebrado, o número 1 do Top 10 de 2025, e um dos achados mais comuns em teste de verdade."
+      ],
+      "exemplo": {
+        "nota": "A diferença entre as duas versões cabe numa linha da consulta:",
+        "codigo": "<?php\n// ===== errado: pega o pedido pelo id, e pronto =====\n$id = $_GET[\"id\"] ?? 0;\n$st = $pdo->prepare(\"SELECT * FROM pedidos WHERE id = ?\");\n$st->execute([$id]);\n$pedido = $st->fetch();\n// trocar o id na URL entrega o pedido de qualquer um.\n// repare: a consulta está parametrizada, então não é injeção.\n// o buraco é de autorização.\n?>\n\n<?php\n// ===== certo: o dono entra na condição =====\nsession_start();\n$id   = $_GET[\"id\"] ?? 0;\n$dono = $_SESSION[\"usuario_id\"] ?? 0;      // vem da sessão, nunca da URL\n\n$st = $pdo->prepare(\"SELECT * FROM pedidos WHERE id = ? AND usuario_id = ?\");\n$st->execute([$id, $dono]);\n$pedido = $st->fetch();\n\nif (!$pedido) {\n  http_response_code(403);\n  exit(\"Sem permissão.\");\n}",
+        "linguagem": "php"
+      },
+      "mais": {
+        "titulo": "Os enganos comuns",
+        "linhas": [
+          "Trocar o id por um código aleatório dificulta adivinhar e não autoriza nada. Quem descobre o código entra igual, e códigos vazam em log, histórico e link compartilhado.",
+          "Esconder o botão no menu não protege o endereço. A checagem tem que estar no servidor, em toda rota, inclusive nas da API que o aplicativo do celular usa.",
+          "O mesmo vale pra ação, não só pra leitura: apagar, editar e baixar arquivo precisam da mesma pergunta. Quem é o dono disso?"
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Trocar o id numérico por um UUID aleatório resolve IDOR?",
+          "opcoes": [
+            "Sim, ninguém adivinha um UUID",
+            "Não: dificulta adivinhar, mas quem obtiver o código continua entrando. Falta a checagem de dono",
+            "Sim, desde que o UUID mude toda hora"
+          ],
+          "correta": 1,
+          "porque": "Isso é segurança por obscuridade. A autorização é uma decisão do servidor, tomada em toda requisição."
+        },
+        {
+          "pergunta": "Onde a verificação de dono tem que ficar?",
+          "opcoes": [
+            "No servidor, em toda rota que lê ou altera o dado",
+            "No JavaScript da página, antes de mostrar o botão",
+            "No banco de dados, com uma coluna chamada privado"
+          ],
+          "correta": 0,
+          "porque": "Tudo que está no navegador é editável (aula 5.3). A única checagem que vale é a que roda do lado do servidor."
+        }
+      ],
+      "desafio": {
+        "pergunta": "No seu laboratório, crie dois usuários com um pedido cada, entre como o primeiro e tente abrir o pedido do segundo trocando o id na URL. Depois implemente a checagem de dono, confirme que a resposta virou 403 e anote no Caderno em que outras rotas do seu sistema essa mesma checagem faltaria.",
+        "solucao": "<?php\n// ===== preparar o laboratório =====\n$pdo = new PDO(\"sqlite:lab.db\");\n$pdo->exec(\"CREATE TABLE IF NOT EXISTS pedidos (\n  id INTEGER PRIMARY KEY, usuario_id INTEGER, item TEXT)\");\n$pdo->exec(\"INSERT OR IGNORE INTO pedidos (id, usuario_id, item)\n  VALUES (1, 1, 'teclado'), (2, 2, 'monitor')\");\n?>\n\n<?php\n// ===== pedido.php, com a checagem no lugar certo =====\nsession_start();\n$id   = (int)($_GET[\"id\"] ?? 0);\n$dono = (int)($_SESSION[\"usuario_id\"] ?? 0);\n\n$st = $pdo->prepare(\"SELECT * FROM pedidos WHERE id = ? AND usuario_id = ?\");\n$st->execute([$id, $dono]);\n$pedido = $st->fetch();\n\nif (!$pedido) {\n  http_response_code(403);\n  exit(\"Sem permissão.\");\n}\necho \"Pedido: \" . htmlspecialchars($pedido[\"item\"]);\n?>\n\n<?php\n/*\n  antes da correção, logada como usuário 1:\n    /pedido.php?id=1   teclado\n    /pedido.php?id=2   monitor      <- não era meu\n\n  depois:\n    /pedido.php?id=2   Sem permissão. [403]\n\n  onde mais essa checagem costuma faltar:\n    baixar nota fiscal      /nota.php?id=\n    editar endereço         /endereco.php?id=\n    cancelar pedido         POST /cancelar\n    a mesma tela na API do aplicativo, que ninguém lembra de testar\n    e qualquer relatório que aceite um id vindo da URL\n*/",
+        "linguagem": "php"
+      }
     },
     {
       "id": "m7a6",
       "titulo": "Burp Suite: interceptar e alterar",
-      "minutos": 22
+      "minutos": 22,
+      "resumo": "Um proxy entre o navegador e o site: você vê cada requisição, para no meio do caminho e muda o que quiser.",
+      "ideia": [
+        "O Burp fica no meio: o navegador fala com ele e ele fala com o site. Isso mostra tudo que a página manda, inclusive o que o JavaScript envia sozinho.",
+        "É a ferramenta que transforma a aula 5.4 em prática: o que o navegador manda é uma sugestão, e no Burp você reescreve antes de seguir."
+      ],
+      "exemplo": {
+        "nota": "Burp Suite Community, que é gratuito. O navegador embutido já vem configurado, então não precisa mexer em proxy nem instalar certificado:",
+        "codigo": "1. Burp > Proxy > Intercept > Open browser\n   (o navegador embutido abre já apontando pro Burp)\n\n2. Target > Scope > Add: http://localhost:3000\n   e marque para filtrar só o que está no escopo.\n   isso evita capturar o resto da sua navegação.\n\n3. Proxy > HTTP history: cada requisição que a loja fez, com\n   cabeçalho, corpo e resposta. Comece só olhando.\n\n4. Intercept is on: a próxima requisição para na tela.\n   edite qualquer coisa e clique em Forward pra deixar seguir.\n\n5. clique com o botão direito numa requisição > Send to Repeater.\n   no Repeater você manda a mesma requisição quantas vezes quiser,\n   mudando um pedaço por vez e lendo a resposta.",
+        "linguagem": "texto"
+      },
+      "mais": {
+        "titulo": "Escopo, e o que a versão gratuita faz",
+        "linhas": [
+          "Definir o escopo não é organização, é limite: sem ele o Burp guarda também a sua navegação pessoal e o que passar pela máquina. Escopo estreito é hábito profissional.",
+          "A Community tem Proxy, histórico, Repeater e Intruder com velocidade travada perto de uma requisição por segundo. Dá pra aprender tudo o que interessa aqui.",
+          "Sem instalar nada: F12 > Network > botão direito na requisição > Copy as cURL cola no terminal uma linha pronta com cabeçalhos e corpo. Serve pra 80 por cento dos casos."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que o navegador embutido do Burp dispensa instalar certificado?",
+          "opcoes": [
+            "Porque ele não usa https",
+            "Porque ele já vem configurado pra confiar no certificado do próprio Burp",
+            "Porque ele desliga a criptografia do site"
+          ],
+          "correta": 1,
+          "porque": "Pra ler https, o Burp apresenta um certificado dele (aula 4.4). Num navegador comum você teria que instalar a autoridade dele antes, e depois removê-la."
+        },
+        {
+          "pergunta": "Pra que serve o Repeater?",
+          "opcoes": [
+            "Pra gravar um vídeo do teste",
+            "Pra reenviar a mesma requisição várias vezes, mudando um pedaço e comparando as respostas",
+            "Pra repetir o site inteiro em outro endereço"
+          ],
+          "correta": 1,
+          "porque": "É onde se testa hipótese: muda um parâmetro, lê a resposta, muda outro. Sem precisar refazer o caminho pelo navegador toda vez."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Com a Juice Shop no escopo, intercepte uma requisição que você mesmo disparou, altere um valor antes de dar Forward e veja o efeito na tela. Depois mande a mesma requisição pro Repeater e teste três variações. Anote no Caderno o que o servidor aceitou sem reclamar.",
+        "solucao": "1. escopo primeiro\n   Target > Scope > Add > http://localhost:3000\n   Proxy > HTTP history > filtro: Show only in-scope items\n\n2. um pedido qualquer da loja, com o Intercept ligado\n   coloque um item no carrinho e observe a requisição parar.\n   troque a quantidade no corpo da requisição e clique em Forward.\n   a tela mostra o que o servidor aceitou, não o que a página pediu.\n\n3. Send to Repeater, e três variações:\n   quantidade negativa\n   quantidade absurda, tipo 99999\n   um id de produto que não é o da tela\n\n4. leia a resposta de cada uma. Anote:\n   status devolvido, mensagem, e se o carrinho mudou mesmo.\n\no que isso ensina:\nvalidação do formulário ficou pra trás no primeiro Forward.\ntoda regra de negócio (quantidade, preço, dono, estoque)\nprecisa ser conferida de novo no servidor, em toda requisição.\n\nnão achou nada? ótimo: relatório de teste também registra o que\nresistiu, e isso é metade do trabalho de quem faz isso pra viver.",
+        "linguagem": "texto"
+      }
     }
   ]
 }

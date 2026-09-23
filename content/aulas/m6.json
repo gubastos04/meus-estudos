@@ -4,32 +4,302 @@
     {
       "id": "m6a1",
       "titulo": "Confidencialidade, integridade, disponibilidade",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "Segurança protege três coisas: quem pode ver, se o dado continua inteiro e se ele está no ar quando precisa.",
+      "ideia": [
+        "Confidencialidade é só quem pode ver, vê. Integridade é o dado não mudar sem você saber. Disponibilidade é estar lá na hora que precisa.",
+        "Todo incidente quebra pelo menos um dos três. Dizer qual quebrou é o primeiro passo pra decidir o que fazer."
+      ],
+      "exemplo": {
+        "nota": "Os três pilares em comandos que você já conhece:",
+        "codigo": "# integridade: uma impressão digital do arquivo\necho \"saldo: 1000\" > conta.txt\nsha256sum conta.txt\n# fcd80517...  conta.txt\n\necho \"saldo: 9000\" > conta.txt\nsha256sum conta.txt\n# 4bd2de22...  conta.txt   mudou uma letra, mudou tudo\n\n# confidencialidade: quem pode abrir (aula 3.4)\nchmod 600 conta.txt\n\n# disponibilidade: uma cópia em outro lugar\nmkdir -p ~/backup && cp conta.txt ~/backup/",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Os três brigam entre si",
+        "linhas": [
+          "Senha de 40 caracteres trocada toda semana protege a confidencialidade e atropela a disponibilidade: ninguém consegue trabalhar, e todo mundo anota num papel.",
+          "Backup protege a disponibilidade e pode furar a confidencialidade, se ficar num balde aberto na nuvem. Metade dos vazamentos famosos é backup esquecido.",
+          "Segurança é escolher o equilíbrio pro caso e escrever por que escolheu. Não existe configuração certa fora de contexto."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Um ataque derruba a loja por seis horas. Nada vazou e nada foi alterado. Qual pilar caiu?",
+          "opcoes": [
+            "Confidencialidade",
+            "Integridade",
+            "Disponibilidade"
+          ],
+          "correta": 2,
+          "porque": "Seis horas fora do ar é prejuízo direto. Ataque de negação de serviço vive disso, sem precisar entrar em lugar nenhum."
+        },
+        {
+          "pergunta": "Alguém alterou o valor de um boleto no caminho entre o sistema e o cliente. Qual pilar caiu?",
+          "opcoes": [
+            "Integridade",
+            "Disponibilidade",
+            "Nenhum: o boleto foi entregue"
+          ],
+          "correta": 0,
+          "porque": "O dado chegou, mas chegou diferente do que saiu. É exatamente pra isso que existe hash e assinatura."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escolha um serviço que você usa todo dia e descreva no Caderno o que aconteceria em cada pilar: o que vazaria, o que poderia ser alterado sem ninguém perceber e quanto tempo você aguentaria sem ele. Termine dizendo qual dos três é o mais crítico nesse caso e por quê.",
+        "solucao": "exemplo: o app do banco\n\nconfidencialidade\n  vazaria: saldo, extrato, CPF, endereço, com quem eu transfiro.\n  estrago: golpe personalizado, que é muito mais convincente.\n\nintegridade\n  alterável sem eu ver: valor de um pix, dados do favorecido, o extrato.\n  estrago: dinheiro indo pro lugar errado e eu sem prova do que houve.\n\ndisponibilidade\n  aguento: umas horas. Um dia inteiro no dia do pagamento já vira problema.\n\nmais crítico aqui: integridade.\nvazamento é grave e disponibilidade incomoda, mas transação alterada\nsem rastro tira o chão do serviço inteiro: ninguém mais confia no saldo.\n\nnum blog pessoal a resposta seria outra: disponibilidade.\né o contexto que decide, não uma regra fixa.",
+        "linguagem": "texto"
+      }
     },
     {
       "id": "m6a2",
       "titulo": "Ameaça, vulnerabilidade e risco",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "Vulnerabilidade é a falha. Ameaça é quem explora. Risco é a chance vezes o tamanho do estrago.",
+      "ideia": [
+        "Sem risco, uma lista de falhas não ajuda ninguém: são 300 itens e nenhuma ordem pra começar.",
+        "Risco é chance vezes impacto, e os dois dependem do seu caso. A mesma falha é crítica num sistema e irrelevante em outro."
+      ],
+      "exemplo": {
+        "nota": "A tabela de risco do laboratório que você montou na aula 5.6:",
+        "codigo": "falha                        ameaça                chance  impacto  risco\n---------------------------------------------------------------------\nconsulta concatenada         qualquer visitante    alta    alto     crítico\nsenha em texto puro          cópia do banco        média   alto     alto\nsem limite de tentativa      robô de força bruta   alta    médio    alto\nsem https                    vizinho de rede       baixa   baixo    baixo\n\nrisco = chance x impacto\n\no https ficou por último porque o laboratório só escuta em 127.0.0.1:\nnão existe rede no caminho. Num servidor de verdade, essa linha sobe\npro topo na hora.",
+        "linguagem": "texto"
+      },
+      "mais": {
+        "titulo": "CVE e CVSS, o vocabulário do mercado",
+        "linhas": [
+          "CVE é o número de identidade de uma falha conhecida, como CVE-2021-44228, o Log4Shell. Serve pra todo mundo falar da mesma coisa.",
+          "CVSS é a nota de 0 a 10 que mede a gravidade técnica. Nota alta não quer dizer risco alto pra você: depende de você usar aquele componente, de ele estar exposto e do que o sistema guarda.",
+          "Zero-day é a falha que ainda não tem correção. Enquanto ela existe, a defesa é reduzir exposição: desligar o que dá, limitar acesso, vigiar o log."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Sai um CVSS 10 numa biblioteca que o seu sistema não usa. Qual o seu risco?",
+          "opcoes": [
+            "10, a nota é global",
+            "Praticamente nulo: a falha existe, mas não no seu sistema",
+            "Alto, por precaução"
+          ],
+          "correta": 1,
+          "porque": "A nota mede a falha, não o seu ambiente. Por isso a primeira pergunta de todo alerta é: eu uso isso, e está exposto?"
+        },
+        {
+          "pergunta": "Qual a diferença entre vulnerabilidade e risco?",
+          "opcoes": [
+            "Nenhuma, são sinônimos no mercado",
+            "Vulnerabilidade é a falha que existe; risco é a chance de ela ser explorada vezes o estrago que causaria",
+            "Vulnerabilidade é interna, risco é externo"
+          ],
+          "correta": 1,
+          "porque": "Uma falha grave num sistema desligado e sem rede é risco baixo. Uma falha média no login público é risco alto."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte a tabela de risco do seu laboratório da aula 5.6 com pelo menos quatro linhas: falha, ameaça, chance e impacto. Ordene por risco, escolha a primeira pra corrigir e anote no Caderno por que ela ficou na frente das outras.",
+        "solucao": "falha                     ameaça               chance  impacto  risco\n-------------------------------------------------------------------\nconsulta concatenada      qualquer visitante   alta    alto     crítico\nsenha em texto puro       cópia do banco       média   alto     alto\nsem limite de tentativa   robô                 alta    médio    alto\nsem sessão no painel      quem souber a URL    média   alto     alto\n\nprimeira a corrigir: a consulta concatenada.\n\npor quê:\n  chance alta   não precisa de acesso nenhum, só abrir a página\n  impacto alto  quem explora lê o banco inteiro, incluindo as senhas\n  e ela torna as outras piores: com o banco na mão, a senha em texto\n  puro vira lista pronta de senha de gente de verdade.\n\nquando duas falhas se somam assim, corrija primeiro a que abre a porta\npras outras.",
+        "linguagem": "texto"
+      }
     },
     {
       "id": "m6a3",
       "titulo": "Autenticação, autorização e sessão",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Autenticar é provar quem você é. Autorizar é decidir o que você pode. Sessão é o sistema lembrando disso.",
+      "ideia": [
+        "São três coisas diferentes e todo mundo mistura. Login é autenticação. Poder abrir o painel é autorização. O cookie que carrega isso entre uma página e outra é a sessão.",
+        "Como o HTTP não lembra de nada (aula 4.3), o servidor guarda a sessão e manda um cookie com o identificador dela."
+      ],
+      "exemplo": {
+        "nota": "Com o php -S rodando um painel protegido, dá pra ver as três em três requisições:",
+        "codigo": "# 1. sem sessão: não sei quem é você\ncurl -s -w \" [%{http_code}]\\n\" http://127.0.0.1:8000/painel.php\n# Entre primeiro. [401]\n\n# 2. login: o servidor cria a sessão e manda o cookie\ncurl -s -i -c cookies.txt -X POST http://127.0.0.1:8000/entrar.php\n# Set-Cookie: PHPSESSID=j794js0q6vv34fk33glrlfqppi; path=/\n\n# 3. agora ele sabe quem é você, e diz que você não pode\ncurl -s -b cookies.txt -w \" [%{http_code}]\\n\" http://127.0.0.1:8000/painel.php\n# Sem permissão. [403]\n\n# 401 é autenticação. 403 é autorização. A sessão é o que liga uma na outra.",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O cookie de sessão vale o mesmo que a senha",
+        "linhas": [
+          "Quem copia o PHPSESSID entra como você, sem precisar da senha. Por isso o cookie de sessão vai com três marcas: HttpOnly (script não lê), Secure (só por https) e SameSite (não viaja em requisição vinda de outro site).",
+          "A sessão tem que morrer: no logout, por inatividade e ao trocar a senha. E o identificador precisa ser trocado no momento do login, senão vale um ataque chamado fixação de sessão.",
+          "Guardar o token de sessão no localStorage deixa ele ao alcance de qualquer script da página. Cookie com HttpOnly, não."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O sistema te conhece, você está logado, e mesmo assim /admin responde 403. O que faltou?",
+          "opcoes": [
+            "Autenticação: o login não valeu",
+            "Autorização: você é quem diz ser, mas esse perfil não pode entrar ali",
+            "A sessão expirou"
+          ],
+          "correta": 1,
+          "porque": "Sessão expirada daria 401 de novo. O 403 é a decisão de permissão, tomada depois de saber quem você é."
+        },
+        {
+          "pergunta": "Alguém copiou o seu cookie de sessão. O que essa pessoa consegue?",
+          "opcoes": [
+            "Nada sem a senha",
+            "Agir como você até a sessão expirar ou você sair",
+            "Só ler páginas públicas"
+          ],
+          "correta": 1,
+          "porque": "É por isso que HttpOnly, Secure e SameSite existem, e por isso o logout precisa realmente destruir a sessão no servidor."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Proteja uma página do seu laboratório com sessão: sem login ela responde 401, logada como usuário comum responde 403 e só o perfil admin vê o conteúdo. Teste os três casos com curl e anote no Caderno qual linha do código é a autenticação e qual é a autorização.",
+        "solucao": "<?php\n// ===== entrar.php =====\nsession_start();\nsession_regenerate_id(true);        // id novo no login: evita fixação de sessão\n$_SESSION[\"usuario\"] = \"ana\";\n$_SESSION[\"perfil\"]  = \"comum\";     // troque pra \"admin\" e teste de novo\necho \"logada como ana\";\n?>\n\n<?php\n// ===== painel.php =====\nsession_start();\n\nif (empty($_SESSION[\"usuario\"])) {  // AUTENTICAÇÃO: sei quem é?\n  http_response_code(401);\n  exit(\"Entre primeiro.\");\n}\n\nif (($_SESSION[\"perfil\"] ?? \"\") !== \"admin\") {  // AUTORIZAÇÃO: pode?\n  http_response_code(403);\n  exit(\"Sem permissão.\");\n}\n\necho \"Painel do administrador\";\n?>\n\n<?php\n/*\n  os três testes:\n  curl -s -w \" [%{http_code}]\\n\" http://127.0.0.1:8000/painel.php          401\n  curl -s -c c.txt -X POST http://127.0.0.1:8000/entrar.php\n  curl -s -b c.txt -w \" [%{http_code}]\\n\" http://127.0.0.1:8000/painel.php  403\n  troque o perfil pra admin, entre de novo e o painel abre.\n\n  a checagem de perfil precisa estar em toda página protegida.\n  esconder o link do menu não é autorização: é decoração.\n*/",
+        "linguagem": "php"
+      }
     },
     {
       "id": "m6a4",
       "titulo": "Hash: por que senha não se guarda",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Hash é um caminho só de ida. Sistema sério não guarda a sua senha: guarda a marca dela.",
+      "ideia": [
+        "A mesma entrada dá sempre o mesmo hash, e não existe volta. Pra conferir o login, o sistema calcula o hash da tentativa e compara com o guardado.",
+        "Sal é um pedaço aleatório junto de cada senha. Sem ele, senhas iguais têm hashes iguais, e uma tabela pronta quebra todas de uma vez."
+      ],
+      "exemplo": {
+        "nota": "hashlib já vem com o Python. Repare que o mesmo texto dá sempre o mesmo resultado:",
+        "codigo": "import hashlib, hmac, os\n\nsenha = \"ana123\"\n\n# sempre igual pra mesma entrada\nprint(hashlib.sha256(senha.encode()).hexdigest())\n# e82827b00b2ca8620beb37f879778c082b292a52270390cff35b6fe3157f4e8b\n\n# uma letra diferente, nada a ver com o anterior\nprint(hashlib.sha256(\"ana124\".encode()).hexdigest())\n# e58051b9b260f9460f65f1a573623ada78a0cf12b7e5a5670f0248a93e07b065\n\n# senha de gente se guarda assim: sal aleatório e algoritmo lento\nsal = os.urandom(16)\nguardado = hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1)\n\ndef confere(tentativa):\n    novo = hashlib.scrypt(tentativa.encode(), salt=sal, n=16384, r=8, p=1)\n    return hmac.compare_digest(novo, guardado)   # comparação sem vazar tempo\n\nprint(confere(\"ana123\"))   # True\nprint(confere(\"ana124\"))   # False\n\n# o banco guarda o sal e o guardado. A senha, nunca.",
+        "linguagem": "python"
+      },
+      "mais": {
+        "titulo": "Rápido é ruim aqui",
+        "linhas": [
+          "SHA-256 foi feito pra ser rápido, e é ótimo pra conferir arquivo. Pra senha é péssimo: uma placa de vídeo testa bilhões por segundo.",
+          "Senha se guarda com algoritmo lento de propósito: bcrypt, scrypt ou Argon2. Eles gastam tempo e memória em cada tentativa, o que atrapalha quem testa aos milhões e não incomoda quem faz login.",
+          "Hash não é criptografia: não tem chave e não tem volta. Se o sistema consegue te mandar a sua senha antiga por e-mail, ele não usa hash, e isso é motivo pra sair de lá."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Pra que serve o sal no hash de senha?",
+          "opcoes": [
+            "Deixa o hash mais curto",
+            "Permite desfazer o hash quando precisar",
+            "Faz senhas iguais gerarem hashes diferentes, o que derruba tabela pronta"
+          ],
+          "correta": 2,
+          "porque": "Sem sal, dá pra quebrar milhões de contas com uma tabela feita uma vez. Com sal, cada senha tem que ser atacada sozinha."
+        },
+        {
+          "pergunta": "Um site te manda a sua senha antiga por e-mail quando você clica em esqueci a senha. O que isso revela?",
+          "opcoes": [
+            "Que a senha está guardada de um jeito que dá pra ler, então não é hash",
+            "Que o site usa um hash muito forte",
+            "Nada, é só comodidade"
+          ],
+          "correta": 0,
+          "porque": "Com hash não existe volta: o certo é mandar um link temporário pra você criar outra senha."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um programa que guarde três usuários com sal e scrypt num dicionário e depois confira duas tentativas de login, uma certa e uma errada. Mostre que o mesmo texto cadastrado duas vezes gera valores guardados diferentes, e anote no Caderno por quê.",
+        "solucao": "import hashlib, hmac, os\n\nbanco = {}\n\ndef cadastrar(usuario, senha):\n    sal = os.urandom(16)\n    banco[usuario] = (sal, hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1))\n\ndef entrar(usuario, senha):\n    if usuario not in banco:\n        return False\n    sal, guardado = banco[usuario]\n    novo = hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1)\n    return hmac.compare_digest(novo, guardado)\n\ncadastrar(\"ana\", \"senha-boa-e-longa\")\ncadastrar(\"bruno\", \"senha-boa-e-longa\")   # mesma senha de propósito\ncadastrar(\"carla\", \"outra-senha-longa\")\n\nprint(entrar(\"ana\", \"senha-boa-e-longa\"))   # True\nprint(entrar(\"ana\", \"senha-boa-e-long\"))    # False\n\n# mesma senha, valores guardados diferentes:\nprint(banco[\"ana\"][1].hex()[:16])\nprint(banco[\"bruno\"][1].hex()[:16])\n\n# por quê: o sal de cada um é sorteado na hora do cadastro.\n# quem rouba o banco não consegue nem descobrir que ana e bruno\n# usam a mesma senha, e precisa atacar cada conta separadamente.",
+        "linguagem": "python"
+      }
     },
     {
       "id": "m6a5",
       "titulo": "Criptografia simétrica e assimétrica",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "Uma chave pros dois lados, ou um par de chaves em que uma fecha e a outra abre.",
+      "ideia": [
+        "Simétrica é a mesma chave pra fechar e abrir. Rápida e boa pra volume, com um problema: como entregar a chave pro outro lado.",
+        "Assimétrica é um par. A pública fecha e pode ser distribuída; a privada abre e nunca sai de perto. É assim que o https da aula 4.4 combina a chave."
+      ],
+      "exemplo": {
+        "nota": "O openssl faz as duas. Ele pergunta a senha, então nada fica gravado no histórico do terminal:",
+        "codigo": "echo \"combinado: sexta as 20h\" > segredo.txt\n\n# simétrica: uma senha fecha e a mesma senha abre\nopenssl enc -aes-256-cbc -pbkdf2 -in segredo.txt -out segredo.enc\nhead -c 16 segredo.enc          # Salted__ e bytes sem sentido\nopenssl enc -d -aes-256-cbc -pbkdf2 -in segredo.enc -out volta.txt\ncat volta.txt                   # combinado: sexta as 20h\n\n# assimétrica: um par de chaves\nopenssl genrsa -out privada.pem 2048\nopenssl rsa -in privada.pem -pubout -out publica.pem\n\n# qualquer um fecha com a pública\nopenssl pkeyutl -encrypt -pubin -inkey publica.pem -in segredo.txt -out fechado.bin\n\n# só quem tem a privada abre\nopenssl pkeyutl -decrypt -inkey privada.pem -in fechado.bin",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Na prática, os dois juntos",
+        "linhas": [
+          "Assimétrica é lenta e não serve pra mandar arquivo grande. Então o https usa ela só no começo, pra combinar uma chave simétrica, e o resto da conversa vai na simétrica, que é rápida.",
+          "Inverta o par e você tem assinatura: quem fecha com a privada prova que é dono dela, porque a pública de todo mundo abre. É o que o certificado da aula 4.4 faz.",
+          "A chave privada é o segredo de verdade: protegida por senha, com permissão 600 (aula 3.4) e sem nunca entrar num repositório. Vazou a privada, todo o resto cai junto."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você quer receber uma mensagem que só você consiga ler. O que você manda pra pessoa?",
+          "opcoes": [
+            "A sua chave pública, que ela usa pra fechar",
+            "A sua chave privada, pra ela fechar com ela",
+            "As duas, senão não funciona"
+          ],
+          "correta": 0,
+          "porque": "A pública é feita pra circular. A privada, que abre, fica com você e não sai de perto."
+        },
+        {
+          "pergunta": "Por que o https não usa só criptografia assimétrica do começo ao fim?",
+          "opcoes": [
+            "Porque ela é menos segura",
+            "Porque ela é lenta demais pro volume de uma página inteira",
+            "Porque ela não funciona em navegador"
+          ],
+          "correta": 1,
+          "porque": "Ela resolve o problema difícil, que é combinar a chave com quem você nunca viu. O trabalho pesado fica com a simétrica."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Cifre um arquivo com senha, apague o original, restaure a partir do cifrado e confirme com sha256sum que o conteúdo voltou idêntico. Depois gere um par de chaves e explique no Caderno, com as suas palavras, por que a chave pública pode ser publicada sem risco.",
+        "solucao": "echo \"minha anotação secreta\" > nota.txt\nsha256sum nota.txt          # guarde esse valor\n\nopenssl enc -aes-256-cbc -pbkdf2 -in nota.txt -out nota.enc\nrm nota.txt\n\nopenssl enc -d -aes-256-cbc -pbkdf2 -in nota.enc -out nota.txt\nsha256sum nota.txt          # tem que ser o mesmo valor de antes\n\n# o par de chaves\nopenssl genrsa -out privada.pem 2048\nchmod 600 privada.pem\nopenssl rsa -in privada.pem -pubout -out publica.pem\n\n# por que a pública pode ser publicada:\n# ela só serve pra fechar mensagem e pra conferir assinatura.\n# ninguém abre nada com ela, e não dá pra calcular a privada a partir dela\n# em tempo que caiba numa vida. É o mesmo motivo de você poder publicar\n# a sua chave pública de SSH num servidor sem entregar acesso a ninguém.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m6a6",
       "titulo": "Engenharia social: o elo humano",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "O caminho mais barato pra dentro de uma empresa é pedir. Com pressa, com autoridade e com uma boa história.",
+      "ideia": [
+        "A maioria dos incidentes começa com alguém clicando, aprovando ou contando. Não é falta de inteligência: a mensagem é feita pra parecer legítima e urgente.",
+        "A defesa aqui é hábito e processo, não ferramenta: conferir por outro canal, desconfiar de pressa e usar segundo fator."
+      ],
+      "exemplo": {
+        "nota": "Uma mensagem de golpe, com os sinais marcados:",
+        "codigo": "De: suporte@banc0-seguro.com          <- domínio parecido, zero no lugar do o\nAssunto: SUA CONTA SERÁ BLOQUEADA HOJE  <- medo e pressa\n\nDetectamos um acesso indevido na sua conta. Confirme seus dados\nem até 2 horas pelo link abaixo, ou o acesso será encerrado.\n\nhttps://banco-seguro.com.verificacao-cliente.net/login\n                                  ^^^^^^^^^^^^^^^^^^^^\n        o domínio de verdade é o último antes da primeira barra:\n        verificacao-cliente.net. O começo é enfeite.\n\nO que fazer: não clicar. Abrir o app pelo caminho de sempre.\nSe quiser confirmar, ligar pro número impresso no cartão.",
+        "linguagem": "texto"
+      },
+      "mais": {
+        "titulo": "Os sinais que se repetem",
+        "linhas": [
+          "Pressa e ameaça, pedido de dado que a empresa já tem, canal estranho (o banco chamando no WhatsApp), domínio parecido, anexo inesperado, link encurtado.",
+          "Por telefone chama vishing, e a história pronta chama pretexting: sou do TI e preciso confirmar a sua senha pra liberar o acesso. Suporte de verdade nunca pede senha, e nunca pede o código do segundo fator.",
+          "Segundo fator derruba a maior parte desses golpes, porque a senha sozinha deixa de bastar. Por isso o golpe evoluiu pra pedir o código: quem pede o seu código é o golpe."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Chega uma mensagem do banco com um link pra confirmar a senha, dizendo que a conta será bloqueada em duas horas. Qual a resposta certa?",
+          "opcoes": [
+            "Clicar no link e conferir se o site tem cadeado",
+            "Responder perguntando se é golpe",
+            "Não clicar: abrir o app pelo caminho de sempre e, se quiser confirmar, ligar pro número do cartão"
+          ],
+          "correta": 2,
+          "porque": "Cadeado não diz nada sobre honestidade (aula 4.4), e responder confirma que o seu contato é ativo. Verificar por outro canal é o hábito que resolve."
+        },
+        {
+          "pergunta": "Alguém liga dizendo que é do TI e pede o código de seis dígitos que acabou de chegar no seu celular. O que está acontecendo?",
+          "opcoes": [
+            "É golpe: esse código é justamente o que impede outra pessoa de entrar com a sua senha",
+            "É rotina de manutenção",
+            "É seguro se a pessoa souber o seu nome completo"
+          ],
+          "correta": 0,
+          "porque": "Saber o seu nome é fácil. O código é o segundo fator, e a pessoa está pedindo porque já tem a sua senha."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Pegue uma mensagem suspeita que você ou alguém da sua casa recebeu e escreva no Caderno os sinais que a denunciam: quem manda, o domínio de verdade do link, o que ela pede e a pressa que ela cria. Termine com a regra que você vai seguir daqui pra frente quando receber algo assim.",
+        "solucao": "análise de uma mensagem recebida\n\nquem manda     nome conhecido no visor, endereço estranho atrás dele.\n               no celular, toque no nome pra ver o endereço inteiro.\n\nlink           leia da direita pra esquerda a partir da primeira barra.\n               o que vale é o último pedaço antes dela.\n               pague-agora.com.br.cobranca-online.xyz/boleto\n               domínio de verdade: cobranca-online.xyz\n               no computador, passe o mouse sem clicar e leia embaixo.\n               no celular, segure o link e leia o endereço.\n\no que pede     dado que a empresa já tem, senha, código, ou um pagamento\n               com dados novos. Pedido de segredo é sempre suspeito.\n\npressa         prazo curto, ameaça de bloqueio, desconto que acaba hoje.\n               pressa existe pra você não parar pra pensar.\n\nminha regra\n  não decido nada por link recebido. Abro o aplicativo ou digito o\n  endereço eu mesmo. Se for cobrança, confiro pelo canal oficial.\n  Se pedirem código ou senha, é golpe, sem exceção.\n  E aviso a pessoa que recebeu junto comigo: golpe funciona no silêncio.",
+        "linguagem": "texto"
+      }
     }
   ]
 }

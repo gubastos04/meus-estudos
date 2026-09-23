@@ -4,6 +4,8 @@
 
 > **Reforma visual de 21/09/2026 (design system "Estúdio").** O visual "Caderno" (papel morno, âmbar) foi substituído por um SaaS de estudo premium e frio: base slate neutra (claro/escuro), acento indigo/violeta (`--acento`), profundidade por borda sutil (sombra com parcimônia), e tokens de espaço/raio/sombra. Navegação virou shell: **sidebar no desktop** e barra inferior no mobile (`components/Sidebar.tsx`, `Nav.tsx`, `itensNav.ts`). A home virou **dashboard** (uma próxima ação em destaque + métricas de progresso em cards). Isso relaxou as antigas anti-referências "sem dashboard / sem métricas em grade"; a meta semanal calma (dias ativos, sem punição) permanece. Seções de design abaixo são o registro original.
 
+> **Plano de conteúdo (22/09/2026).** Só a base (módulos 1 e 2) tem aulas escritas. As decisões e o andamento da escrita das aulas e do conteúdo de apoio de cada foco estão em `docs/plano-conteudo.md`.
+
 Documento de entrada para a construção. Contém tudo que foi decidido no protótipo: princípios, arquitetura, modelo de dados, telas, prompts de IA, design system e ordem de construção.
 
 O protótipo funcional existia como arquivo React único (`centro.jsx`, ~171 KB). Seu conteúdo já foi extraído para `/content` (ver `scripts/extrair-prototipo.mjs`); o formato do progresso que ele salvava está em `docs/formato-prototipo.md`. Este documento descreve para onde ele vai.

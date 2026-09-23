@@ -4,32 +4,293 @@
     {
       "id": "m3a1",
       "titulo": "Por que o terminal manda",
-      "minutos": 10
+      "minutos": 10,
+      "resumo": "Servidor não tem tela. Quem trabalha com segurança conversa com a máquina pelo terminal.",
+      "ideia": [
+        "A maior parte dos servidores da internet roda Linux sem interface gráfica. Não tem janela pra clicar: você digita um comando e ele responde.",
+        "Log, configuração e ferramenta de segurança são texto. Quem manda no terminal enxerga o que está acontecendo de verdade."
+      ],
+      "exemplo": {
+        "nota": "No Windows, o jeito mais direto de ter um Linux de verdade é o WSL. Abra o PowerShell como administrador:",
+        "codigo": "wsl --install\n\n# reinicie o computador quando ele pedir\n# depois abra o Ubuntu pelo menu Iniciar\n# ele pede um nome de usuário e uma senha\n# (a senha não aparece enquanto você digita, é normal)",
+        "linguagem": "powershell"
+      },
+      "mais": {
+        "titulo": "E se não der pra instalar o WSL?",
+        "linhas": [
+          "O wsl --install pede Windows 10 versão 2004 ou mais nova, ou Windows 11.",
+          "Se não der, o Git Bash, que vem com o Git, roda a maioria dos comandos deste módulo. Só não é um Linux de verdade: permissão de arquivo, por exemplo, não funciona igual.",
+          "Pra treinar sem instalar nada, o OverTheWire Bandit é um Linux remoto feito pra isso. Está na lista de laboratórios, em Você > Certificados."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que quase todo servidor roda sem interface gráfica?",
+          "opcoes": [
+            "Porque Linux não tem interface gráfica",
+            "Porque interface gráfica é insegura por natureza",
+            "Porque ninguém fica olhando a tela de um servidor, e ela gastaria memória à toa"
+          ],
+          "correta": 2,
+          "porque": "Servidor fica numa sala sem ninguém. Linux tem interface gráfica, sim; o servidor só não precisa dela."
+        },
+        {
+          "pergunta": "Você digita a senha no Ubuntu e nada aparece na tela. O que houve?",
+          "opcoes": [
+            "É normal: o terminal esconde a senha enquanto você digita",
+            "O teclado travou",
+            "A senha foi recusada"
+          ],
+          "correta": 0,
+          "porque": "É proposital. Assim ninguém olhando por cima do seu ombro conta quantas letras ela tem."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Abra o Ubuntu (ou o Git Bash) e rode três comandos: whoami, date e uname -a. Anote no Caderno o que cada um mostrou.",
+        "solucao": "whoami     # o seu usuário\ndate       # data e hora do sistema\nuname -a   # nome da máquina, versão do kernel e arquitetura\n\n# no WSL, o uname -a mostra algo como:\n# Linux MEU-PC ...-microsoft-standard-WSL2 ... x86_64 GNU/Linux",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m3a2",
       "titulo": "Andar pelo sistema: pwd, ls, cd",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "pwd diz onde você está, ls mostra o que tem ali e cd muda de lugar.",
+      "ideia": [
+        "No Linux tudo sai da raiz, a /. A sua pasta pessoal é o ~, que no fundo é algo como /home/ana.",
+        "Caminho que começa com / é absoluto e funciona de qualquer lugar. Sem a barra, é relativo à pasta onde você está."
+      ],
+      "exemplo": {
+        "nota": "Um passeio pelo sistema:",
+        "codigo": "pwd              # /home/ana\nls               # o que tem aqui\nls -la           # inclui os ocultos, com detalhes\ncd /var/log      # vai direto, caminho absoluto\ncd ..            # sobe um nível: /var\ncd ~             # volta pra casa\ncd -             # volta pra pasta anterior",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Arquivo oculto não é segredo",
+        "linhas": [
+          "Arquivo que começa com ponto, como .bashrc ou .ssh, só não aparece no ls comum. O ls -a mostra.",
+          "Quem invade uma máquina adora esconder coisa assim. Ao investigar, use sempre ls -la."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você está em /var/log e digita cd nginx. Pra onde vai?",
+          "opcoes": [
+            "/nginx",
+            "/var/log/nginx",
+            "/home/nginx"
+          ],
+          "correta": 1,
+          "porque": "Sem barra no começo, o caminho parte da pasta atual."
+        },
+        {
+          "pergunta": "Qual comando mostra também os arquivos ocultos?",
+          "opcoes": [
+            "ls",
+            "pwd",
+            "ls -la"
+          ],
+          "correta": 2,
+          "porque": "O -a (de all) inclui os que começam com ponto. O -l mostra dono, permissão e tamanho."
+        }
+      ],
+      "desafio": {
+        "pergunta": "A partir da sua pasta pessoal, crie a estrutura estudos/linux/aula2 e entre nela com um único cd. Depois volte pra casa. Dica: mkdir -p cria a pasta e todas as que faltarem no caminho.",
+        "solucao": "cd ~\nmkdir -p estudos/linux/aula2\ncd estudos/linux/aula2\npwd     # /home/seu_usuario/estudos/linux/aula2\ncd      # cd sozinho também volta pra casa"
+      }
     },
     {
       "id": "m3a3",
       "titulo": "Ler e procurar: cat, grep, find",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "cat mostra o arquivo, grep acha a linha e find acha o arquivo.",
+      "ideia": [
+        "cat despeja o arquivo inteiro na tela. Pra arquivo grande, use less, que rola com as setas e sai com q.",
+        "grep mostra só as linhas que têm um texto. O pipe, a barra |, entrega a saída de um comando pro próximo."
+      ],
+      "exemplo": {
+        "nota": "Procurando falha de login num log:",
+        "codigo": "cat /etc/hostname                    # arquivo pequeno: mostra tudo\ngrep \"Failed password\" auth.log      # só as linhas com o texto\ngrep -c \"Failed password\" auth.log   # conta quantas são\ngrep -i \"erro\" app.log               # -i ignora maiúscula e minúscula\n\nfind ~ -name \"*.log\"                 # arquivos .log na sua pasta\ngrep \"Failed\" auth.log | wc -l       # pipe: o grep filtra, o wc -l conta as linhas",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "A armadilha do ponto",
+        "linhas": [
+          "No grep, o ponto quer dizer qualquer caractere. grep \"10.0.0.5\" casa com 10.0.0.5, mas também com 10.0.0.55 e até com 10a0b0c5.",
+          "Pra procurar um IP exato, use grep -wF: o -F lê o texto ao pé da letra e o -w exige a palavra inteira."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você quer só a quantidade de linhas com Failed password. Qual comando?",
+          "opcoes": [
+            "grep -c \"Failed password\" auth.log",
+            "grep \"Failed password\" auth.log",
+            "find -c \"Failed password\""
+          ],
+          "correta": 0,
+          "porque": "O -c conta em vez de mostrar. Com o pipe também daria: grep ... | wc -l."
+        },
+        {
+          "pergunta": "Qual a diferença entre grep e find?",
+          "opcoes": [
+            "Nenhuma, são sinônimos",
+            "find é só uma versão mais rápida do grep",
+            "grep procura texto dentro dos arquivos; find procura os próprios arquivos"
+          ],
+          "correta": 2,
+          "porque": "Um olha o conteúdo, o outro olha nome, tamanho e data."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Na pasta estudos, crie um arquivo acessos.txt com 5 linhas no formato IP, método e caminho, repetindo o IP 10.0.0.5 em três delas. Mostre só as linhas desse IP e depois conte quantas são.",
+        "solucao": "cd ~/estudos\n\n# cat > arquivo << 'FIM' grava tudo até a linha FIM\ncat > acessos.txt << 'FIM'\n10.0.0.5 GET /\n10.0.0.9 GET /login\n10.0.0.5 POST /login\n10.0.0.7 GET /\n10.0.0.5 GET /admin\nFIM\n\ngrep -wF \"10.0.0.5\" acessos.txt    # as 3 linhas desse IP\ngrep -cwF \"10.0.0.5\" acessos.txt   # 3\n\n# o -wF é a armadilha do ponto: sem ele, 10.0.0.55 também entraria"
+      }
     },
     {
       "id": "m3a4",
       "titulo": "Permissões: quem pode o quê",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Todo arquivo diz quem pode ler, escrever e executar: o dono, o grupo e o resto.",
+      "ideia": [
+        "No ls -l, o começo da linha é o mapa: r é ler, w é escrever, x é executar, em três blocos: dono, grupo e outros.",
+        "chmod muda as permissões. Permissão frouxa é uma das falhas mais comuns em servidor."
+      ],
+      "exemplo": {
+        "nota": "Lendo e mudando:",
+        "codigo": "ls -l relatorio.txt\n# -rw-r--r-- 1 ana ana 120 Sep 22 10:00 relatorio.txt\n\n# depois do primeiro traço, leia em três blocos:\n# rw-  a dona (ana) lê e escreve\n# r--  o grupo só lê\n# r--  os outros só leem\n\nchmod 600 relatorio.txt   # só a dona lê e escreve\nchmod +x backup.sh        # torna o script executável\nls -l relatorio.txt\n# -rw------- 1 ana ana 120 Sep 22 10:00 relatorio.txt",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "Os números do chmod",
+        "linhas": [
+          "Cada permissão vale um número: r = 4, w = 2, x = 1. Some dentro de cada bloco.",
+          "600 é ler e escrever pro dono e nada pro resto. 755 é tudo pro dono e ler e executar pros outros. 777 é todo mundo podendo tudo, e quase sempre é erro."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que significa -rwxr-x---?",
+          "opcoes": [
+            "Dono pode tudo, grupo lê e executa, outros nada",
+            "Todo mundo pode tudo",
+            "Só o dono pode ler"
+          ],
+          "correta": 0,
+          "porque": "Três blocos depois do primeiro traço: rwx do dono, r-x do grupo, --- dos outros."
+        },
+        {
+          "pergunta": "Um arquivo com senhas do servidor está com permissão 777. Qual o problema?",
+          "opcoes": [
+            "Nenhum, é só um número",
+            "Qualquer usuário da máquina pode ler e alterar o arquivo",
+            "O arquivo fica mais lento"
+          ],
+          "correta": 1,
+          "porque": "777 dá leitura, escrita e execução pra todo mundo. Segredo com 777 é segredo público."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie um arquivo segredo.txt que só você consiga ler e editar, sem ninguém mais nem ler, e confira com ls -l. No WSL, faça isso dentro da sua pasta do Linux (~), e não em /mnt/c: lá as permissões não funcionam igual.",
+        "solucao": "cd ~\necho \"minha anotação\" > segredo.txt\nchmod 600 segredo.txt\nls -l segredo.txt\n# -rw------- 1 voce voce ... segredo.txt"
+      }
     },
     {
       "id": "m3a5",
       "titulo": "Usuários, sudo e privilégio",
-      "minutos": 12
+      "minutos": 12,
+      "resumo": "root pode tudo, por isso você não trabalha como root: pede o poder só na hora, com sudo.",
+      "ideia": [
+        "Cada usuário tem suas permissões. O root é o administrador e não tem limite nenhum.",
+        "sudo roda um único comando como root, depois de pedir a sua senha. É poder emprestado, só pro que precisa."
+      ],
+      "exemplo": {
+        "nota": "Na prática:",
+        "codigo": "whoami                 # ana\ncat /etc/shadow        # Permission denied\nsudo cat /etc/shadow   # pede a sua senha e mostra, como root\n\nid                     # o seu usuário e os seus grupos\nsudo apt update        # atualizar a lista de programas exige root",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O princípio do menor privilégio",
+        "linhas": [
+          "Cada pessoa e cada programa deve ter só o acesso de que precisa. Nem um pouco a mais.",
+          "Se um programa rodando como root for invadido, o atacante ganha a máquina inteira. Rodando como usuário comum, o estrago fica contido."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que não usar root o tempo todo, se é mais prático?",
+          "opcoes": [
+            "Porque o root é mais lento",
+            "Porque o root não pode instalar programas",
+            "Porque um erro ou uma invasão como root atinge o sistema inteiro"
+          ],
+          "correta": 2,
+          "porque": "Com root não existe rede de proteção. Um comando errado apaga o sistema, e um programa invadido entrega tudo."
+        },
+        {
+          "pergunta": "O que o sudo faz?",
+          "opcoes": [
+            "Roda aquele comando como root, depois de confirmar a sua senha",
+            "Cria um usuário novo",
+            "Deixa você como root pra sempre"
+          ],
+          "correta": 0,
+          "porque": "É um empréstimo por comando. O próximo comando volta a rodar como você."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Descubra em quais grupos o seu usuário está e se ele pode usar sudo. Depois escreva no Caderno, com as suas palavras, por que /etc/shadow não pode ser lido por qualquer um.",
+        "solucao": "id\n# uid=1000(ana) gid=1000(ana) groups=1000(ana),4(adm),27(sudo),...\n# o grupo sudo na lista: pode usar sudo\n\nsudo -l   # lista o que você pode rodar com sudo\n\n# por que proteger o /etc/shadow:\n# é ali que ficam os hashes das senhas.\n# quem copia os hashes pode tentar quebrar com calma, no próprio computador,\n# sem limite de tentativa e sem ninguém ver."
+      }
     },
     {
       "id": "m3a6",
       "titulo": "Projeto: investigar um log de acesso",
-      "minutos": 25
+      "minutos": 25,
+      "resumo": "Juntar tudo: descobrir só com o terminal quem está tentando invadir.",
+      "ideia": [
+        "Você recebe o log de um servidor web e responde três perguntas: quem mais acessou, quem errou o login várias vezes e o que tentaram abrir sem permissão.",
+        "Os comandos que você já conhece ficam poderosos quando encadeados com o pipe."
+      ],
+      "exemplo": {
+        "nota": "Crie o arquivo acesso.log colando este bloco inteiro no terminal. Cada linha é uma requisição: IP, data, pedido, status e tamanho.",
+        "codigo": "cat > acesso.log << 'FIM'\n10.0.0.5 - - [22/Sep/2026:10:00:01 -0300] \"GET / HTTP/1.1\" 200 512\n10.0.0.9 - - [22/Sep/2026:10:00:03 -0300] \"POST /login HTTP/1.1\" 401 64\n10.0.0.9 - - [22/Sep/2026:10:00:04 -0300] \"POST /login HTTP/1.1\" 401 64\n10.0.0.9 - - [22/Sep/2026:10:00:05 -0300] \"POST /login HTTP/1.1\" 401 64\n10.0.0.9 - - [22/Sep/2026:10:00:06 -0300] \"POST /login HTTP/1.1\" 401 64\n10.0.0.9 - - [22/Sep/2026:10:00:07 -0300] \"POST /login HTTP/1.1\" 200 128\n10.0.0.7 - - [22/Sep/2026:10:01:10 -0300] \"GET /.env HTTP/1.1\" 404 0\n10.0.0.7 - - [22/Sep/2026:10:01:11 -0300] \"GET /wp-login.php HTTP/1.1\" 404 0\n10.0.0.7 - - [22/Sep/2026:10:01:12 -0300] \"GET /admin HTTP/1.1\" 403 0\n10.0.0.5 - - [22/Sep/2026:10:02:00 -0300] \"GET /produtos HTTP/1.1\" 200 2048\n10.0.0.3 - - [22/Sep/2026:10:02:30 -0300] \"POST /login HTTP/1.1\" 200 128\nFIM",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "As três peças novas",
+        "linhas": [
+          "cut -d' ' -f1 recorta a primeira coluna, usando o espaço como separador. No log, é o IP.",
+          "sort ordena as linhas. uniq -c junta as linhas iguais que estão lado a lado e conta. Por isso o sort vem antes.",
+          "sort -rn ordena por número, do maior pro menor."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que o sort vem antes do uniq -c?",
+          "opcoes": [
+            "Só pra ficar organizado",
+            "Porque o uniq só junta linhas iguais que estão uma do lado da outra",
+            "Não precisa, a ordem tanto faz"
+          ],
+          "correta": 1,
+          "porque": "Sem ordenar, o mesmo IP aparece espalhado e é contado em pedaços."
+        },
+        {
+          "pergunta": "O IP 10.0.0.9 errou a senha quatro vezes em quatro segundos e na quinta recebeu 200. Isso é:",
+          "opcoes": [
+            "Normal: a pessoa lembrou a senha",
+            "Um erro do servidor",
+            "Um sinal forte de força bruta que funcionou, pra investigar agora"
+          ],
+          "correta": 2,
+          "porque": "Falhas seguidas e rápidas terminando em sucesso é o desenho clássico de força bruta. Pode ser alguém esquecido, e é justamente isso que você precisa confirmar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Com o acesso.log criado, responda só com o terminal: quantas requisições cada IP fez, do maior pro menor; quais IPs tomaram 401 (login recusado) e quantas vezes; e quais caminhos deram 403 ou 404. Anote no Caderno o que você concluiu sobre cada IP.",
+        "solucao": "# 1. requisições por IP, do maior pro menor\ncut -d' ' -f1 acesso.log | sort | uniq -c | sort -rn\n#       5 10.0.0.9\n#       3 10.0.0.7\n#       2 10.0.0.5\n#       1 10.0.0.3\n\n# 2. quem tomou 401 (login recusado), e quantas vezes\n# o '\" 401 ' pega o status logo depois das aspas do pedido\ngrep '\" 401 ' acesso.log | cut -d' ' -f1 | sort | uniq -c\n#       4 10.0.0.9\n\n# 3. caminhos que deram 403 ou 404\ngrep -E '\" (403|404) ' acesso.log | cut -d' ' -f7\n# /.env\n# /wp-login.php\n# /admin\n\n# a sequência do 10.0.0.9: horário e status\ngrep -wF \"10.0.0.9\" acesso.log | cut -d' ' -f4,9\n# [22/Sep/2026:10:00:03 401\n# [22/Sep/2026:10:00:04 401\n# [22/Sep/2026:10:00:05 401\n# [22/Sep/2026:10:00:06 401\n# [22/Sep/2026:10:00:07 200\n\n# conclusão\n# 10.0.0.9: errou 4 vezes em 4 segundos e acertou na quinta. Força bruta que funcionou.\n# 10.0.0.7: procurou arquivo sensível (.env, wp-login.php, /admin). Varredura automática.\n# 10.0.0.5 e 10.0.0.3: tráfego normal.\n\n# próximo passo: o projeto Analisador de log de acesso (Trilha > Projetos) faz isso em Python."
+      }
     }
   ]
 }

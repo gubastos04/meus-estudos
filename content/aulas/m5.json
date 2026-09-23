@@ -4,32 +4,302 @@
     {
       "id": "m5a1",
       "titulo": "HTML: a estrutura da página",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "HTML é o esqueleto da página. O navegador lê essas marcas e monta o que você vê.",
+      "ideia": [
+        "Tag é uma marca com começo e fim: <p>texto</p>. Dentro dela vão atributos, como href e name, que o navegador e o servidor usam.",
+        "Tudo que chega no navegador é visível pra quem está lá. Comentário esquecido, campo escondido e caminho de arquivo vão junto no pacote."
+      ],
+      "exemplo": {
+        "nota": "Salve como index.html e abra clicando duas vezes. Depois aperte Ctrl+U pra ver o que o navegador recebeu:",
+        "codigo": "<!doctype html>\n<html lang=\"pt-br\">\n  <head>\n    <meta charset=\"utf-8\">\n    <title>Minha página</title>\n  </head>\n  <body>\n    <h1>Olá</h1>\n    <p>Um parágrafo com um <a href=\"/sobre.html\">link</a>.</p>\n\n    <!-- TODO: trocar a senha do painel antes de publicar -->\n    <input type=\"hidden\" name=\"perfil\" value=\"comum\">\n  </body>\n</html>",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "Código-fonte e DOM não são a mesma coisa",
+        "linhas": [
+          "Ctrl+U mostra o texto que o servidor mandou. O F12, na aba Elements, mostra a página como ela está agora, já mexida pelo JavaScript.",
+          "As duas visões interessam: o comentário esquecido aparece no fonte; o campo que o script criou depois, só no Elements.",
+          "Primeira coisa que se olha num site: fonte, comentários, campos escondidos e a lista de arquivos .js que ele carrega."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual o problema de deixar o comentário TODO: trocar a senha do painel no HTML?",
+          "opcoes": [
+            "Nenhum: comentário não aparece na tela",
+            "Ele chega inteiro no navegador de qualquer visitante, que lê com Ctrl+U",
+            "Ele deixa a página mais lenta"
+          ],
+          "correta": 1,
+          "porque": "Comentário some da tela, não do arquivo. Já vazou senha, endereço de servidor interno e nome de arquivo assim."
+        },
+        {
+          "pergunta": "Você abre o Ctrl+U e não acha um botão que está na tela. Como isso é possível?",
+          "opcoes": [
+            "O botão foi criado pelo JavaScript depois que a página carregou",
+            "O Ctrl+U está quebrado",
+            "O botão está escondido por CSS"
+          ],
+          "correta": 0,
+          "porque": "O Ctrl+U é uma foto do que o servidor entregou. O que o script montou depois só aparece na aba Elements do F12."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie uma página com título, um parágrafo, um link e um campo escondido com algum valor. Abra no navegador, veja o fonte com Ctrl+U e depois abra a aba Elements do F12. Anote no Caderno uma diferença entre as duas telas e onde apareceu o valor do campo escondido.",
+        "solucao": "<!doctype html>\n<html lang=\"pt-br\">\n  <head>\n    <meta charset=\"utf-8\">\n    <title>Teste</title>\n  </head>\n  <body>\n    <h1>Página de teste</h1>\n    <p>Feita na aula 5.1, com um <a href=\"https://example.com\">link</a>.</p>\n    <input type=\"hidden\" name=\"nivel\" value=\"1\">\n  </body>\n</html>\n\n<!--\n  Ctrl+U: o arquivo como ele é, do doctype ao final.\n  F12 > Elements: a mesma coisa, mas viva. Dá pra clicar, editar e ver\n  o valor do campo escondido, que nunca apareceu na tela.\n-->",
+        "linguagem": "html"
+      }
     },
     {
       "id": "m5a2",
       "titulo": "CSS: o suficiente pra não ficar feio",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "CSS diz como a página aparece. E aparência nunca foi segurança.",
+      "ideia": [
+        "Você escolhe o elemento com um seletor e muda as propriedades. Tag, .classe e #id dão conta do dia a dia.",
+        "Esconder com CSS só muda o desenho. O conteúdo continua chegando no navegador e qualquer um enxerga em dois cliques."
+      ],
+      "exemplo": {
+        "nota": "Salve como estilo.css e ligue no head com <link rel=\"stylesheet\" href=\"estilo.css\">:",
+        "codigo": "body {\n  font-family: system-ui, sans-serif;\n  max-width: 40rem;\n  margin: 2rem auto;\n  line-height: 1.5;\n}\n\nh1 { color: #1f2937; }\n\n.aviso {\n  border: 1px solid #b91c1c;\n  padding: 0.75rem;\n}\n\n#saldo { display: none; }   /* some da tela, continua no HTML */",
+        "linguagem": "css"
+      },
+      "mais": {
+        "titulo": "Quando o desenho vira ataque",
+        "linhas": [
+          "display: none e visibility: hidden escondem do olho. F12, aba Elements, e o valor está lá pra ler e editar.",
+          "Uma página pode carregar a sua dentro de um iframe transparente, por cima de um botão dela: a pessoa clica achando que aperta uma coisa e aperta outra. Isso é clickjacking.",
+          "A defesa é o servidor mandar o cabeçalho Content-Security-Policy com frame-ancestors, dizendo quem pode colocar o seu site dentro de um quadro."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Uma loja guarda o preço num campo com display: none. Isso protege o preço?",
+          "opcoes": [
+            "Sim, ninguém vê o campo",
+            "Não: o valor está no HTML e pode ser lido e alterado antes do envio",
+            "Só protege no celular"
+          ],
+          "correta": 1,
+          "porque": "CSS é desenho. Preço se busca no banco, no servidor, na hora de fechar o pedido."
+        },
+        {
+          "pergunta": "O que impede o seu site de ser carregado dentro de um iframe de outra pessoa?",
+          "opcoes": [
+            "Um z-index bem alto no CSS",
+            "Esconder o botão com display: none",
+            "O cabeçalho Content-Security-Policy com frame-ancestors"
+          ],
+          "correta": 2,
+          "porque": "É uma decisão do servidor, mandada num cabeçalho da resposta. CSS não manda em quem carrega a página."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Estilize a página da aula 5.1 e depois, no F12, mude o campo escondido pra type text e veja ele aparecer na tela sem você tocar no arquivo. Anote no Caderno o que isso prova sobre qualquer regra escrita no navegador.",
+        "solucao": "/* estilo.css */\nbody { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; }\nh1 { color: #1f2937; }\na { color: #4f46e5; }\n\n/*\n  No F12 > Elements, clique duas vezes no hidden do input e troque por text.\n  O campo aparece, com valor e tudo, e dá pra digitar outro.\n\n  Prova: o HTML e o CSS que chegam no navegador são um rascunho editável.\n  Quem manda no que vale é o servidor, sempre.\n*/",
+        "linguagem": "css"
+      }
     },
     {
       "id": "m5a3",
       "titulo": "JavaScript no navegador",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "JavaScript roda dentro do navegador da pessoa. Ou seja: na máquina de quem pode mudar tudo.",
+      "ideia": [
+        "O script pega elementos com querySelector, escuta eventos com addEventListener e muda a página pelo DOM.",
+        "Como ele roda na máquina de quem acessa, qualquer regra escrita ali pode ser desligada, alterada ou ignorada."
+      ],
+      "exemplo": {
+        "nota": "Ligue com <script src=\"app.js\"></script> no fim do body. Este trecho barra o envio quando a senha é curta:",
+        "codigo": "const form = document.querySelector(\"#form\");\nconst campo = document.querySelector(\"#senha\");\nconst aviso = document.querySelector(\"#aviso\");\n\nform.addEventListener(\"submit\", (evento) => {\n  if (campo.value.length < 8) {\n    evento.preventDefault();               // cancela o envio\n    aviso.textContent = \"Senha curta demais.\";\n  }\n});\n\n// textContent escreve texto. innerHTML escreveria HTML,\n// e aí o que a pessoa digitasse viraria tag de verdade.",
+        "linguagem": "javascript"
+      },
+      "mais": {
+        "titulo": "O que o F12 te dá de graça",
+        "linhas": [
+          "A aba Console roda JavaScript na página aberta, com o mesmo acesso ao DOM que o script do site. Uma linha ali passa por cima de qualquer validação sua.",
+          "A aba Network mostra cada requisição que a página fez, com cabeçalho, corpo e resposta. É o Wireshark do navegador, sem instalar o Wireshark da aula 4.5.",
+          "A aba Application mostra cookies e o que o site guardou na máquina. Token de sessão guardado ali é o alvo preferido de quem consegue rodar script na sua página."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "A regra de senha forte está só no JavaScript da página. Isso protege o servidor?",
+          "opcoes": [
+            "Sim, ninguém consegue enviar sem passar por ela",
+            "Protege se o script for minificado",
+            "Não: dá pra desligar o JavaScript ou mandar a requisição direto, sem navegador"
+          ],
+          "correta": 2,
+          "porque": "Validação no navegador é conforto: avisa rápido e evita requisição à toa. A que vale é a do servidor."
+        },
+        {
+          "pergunta": "Por que textContent é mais seguro que innerHTML pra mostrar algo que a pessoa digitou?",
+          "opcoes": [
+            "textContent escreve como texto; innerHTML interpreta tags e pode executar o que veio de fora",
+            "Não há diferença, só o nome",
+            "innerHTML é mais lento"
+          ],
+          "correta": 0,
+          "porque": "É a mesma ideia do htmlspecialchars no servidor: dado de fora entra como texto, nunca como código."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça a validação de senha em JavaScript e depois passe por cima dela de dois jeitos: pelo Console do F12 e mandando a requisição direto com curl. Anote no Caderno por que a validação no navegador continua valendo a pena mesmo não sendo segurança.",
+        "solucao": "1. pelo Console do F12, com a página aberta:\n\n   document.querySelector(\"#senha\").value = \"123\"\n   document.querySelector(\"#form\").submit()\n\n   o submit() do elemento não dispara o evento submit,\n   então a sua checagem nem roda.\n\n2. sem navegador nenhum:\n\n   curl -X POST -d \"senha=123\" http://127.0.0.1:8000/login.php\n\n   o servidor recebe igual. Ele não sabe se veio de um formulário,\n   de um script ou de uma linha de comando.\n\npor que manter a validação do navegador:\naviso na hora, menos requisição inútil e formulário mais agradável.\nsegurança, não. Essa é a do servidor, e ela é obrigatória.",
+        "linguagem": "texto"
+      }
     },
     {
       "id": "m5a4",
       "titulo": "Formulário e o que ele manda pro servidor",
-      "minutos": 14
+      "minutos": 14,
+      "resumo": "Formulário é um pacote de pares nome e valor. Quem monta o pacote é o navegador, e ele obedece a quem está na frente dele.",
+      "ideia": [
+        "Cada campo com name vira um par nome=valor. GET manda esses pares na URL, POST manda no corpo da requisição.",
+        "Nada que veio do navegador é confiável: campo escondido, lista de opções e limite de tamanho ficam todos do lado de quem envia."
+      ],
+      "exemplo": {
+        "nota": "Um formulário de compra com um erro clássico:",
+        "codigo": "<form action=\"/comprar.php\" method=\"post\">\n  <label>Produto <input name=\"produto\" value=\"Teclado\"></label>\n  <label>Quantidade <input name=\"qtd\" type=\"number\" value=\"1\" max=\"3\"></label>\n\n  <input type=\"hidden\" name=\"preco\" value=\"199.90\">\n  <button>Comprar</button>\n</form>\n\n<!--\n  o navegador manda:  produto=Teclado&qtd=1&preco=199.90\n  o preço saiu do HTML, ou seja, de quem está comprando.\n  o servidor tem que buscar o preço no banco pelo produto.\n-->",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "GET ou POST",
+        "linhas": [
+          "GET vai na URL: fica no histórico do navegador, no log do servidor e no Referer mandado pro próximo site. Senha em GET é vazamento na certa.",
+          "POST vai no corpo. Isso não é criptografia: sem https continua legível na rede. Só não fica escrito na barra de endereço.",
+          "max, maxlength e as opções de um select valem no navegador e mais nada. O servidor confere tudo de novo, sempre."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O preço do produto vai num campo hidden do formulário. Dá pra comprar por outro valor?",
+          "opcoes": [
+            "Sim: basta alterar o campo antes de enviar, ou montar a requisição na mão",
+            "Não, campo hidden é protegido pelo navegador",
+            "Só se o site não tiver https"
+          ],
+          "correta": 0,
+          "porque": "Preço, desconto, id de usuário e nível de permissão nunca vêm do cliente. Vêm do banco, decididos no servidor."
+        },
+        {
+          "pergunta": "Por que não mandar usuário e senha por GET?",
+          "opcoes": [
+            "Porque GET é mais lento",
+            "Porque a URL fica gravada no histórico, no log do servidor e em quem receber o Referer",
+            "Porque GET não aceita texto"
+          ],
+          "correta": 1,
+          "porque": "O corpo do POST não é gravado nesses lugares. Segurança de verdade na rede é o https da aula 4.4."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte um formulário com um campo normal e um escondido, envie e olhe na aba Network do F12 exatamente o que foi enviado. Depois refaça a mesma requisição com curl, trocando o valor do campo escondido. Anote no Caderno quais campos o servidor nunca deveria aceitar vindos do cliente.",
+        "solucao": "# 1. no F12 > Network, clique na requisição e procure Form Data ou Payload:\n#    produto=Teclado&qtd=1&preco=199.90\n\n# 2. a mesma requisição, montada por você:\ncurl -X POST -d \"produto=Teclado&qtd=1&preco=0.01\" http://127.0.0.1:8000/comprar.php\n\n# 3. e com quantidade acima do max do HTML:\ncurl -X POST -d \"produto=Teclado&qtd=999&preco=0.01\" http://127.0.0.1:8000/comprar.php\n\n# nunca aceitar do cliente: preço, desconto, id do usuário, perfil, saldo,\n# status do pedido. Tudo isso o servidor decide olhando o banco.\n# do cliente vem o que ele pode mesmo escolher: qual produto, quantos.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "m5a5",
       "titulo": "PHP: o back-end mais atacado do mundo",
-      "minutos": 16
+      "minutos": 16,
+      "resumo": "PHP roda no servidor e devolve HTML pronto. Quem acessa nunca vê o código, só o resultado.",
+      "ideia": [
+        "O arquivo .php é executado no servidor a cada requisição. Pro navegador vai só a saída, já virada em texto.",
+        "$_GET e $_POST trazem o que a pessoa mandou, cru. Tratar isso como texto confiável é a origem de boa parte das falhas web."
+      ],
+      "exemplo": {
+        "nota": "No Ubuntu: sudo apt install -y php-cli. Salve como ola.php, rode php -S 127.0.0.1:8000 na pasta e abra http://127.0.0.1:8000/ola.php?nome=Ana",
+        "codigo": "<?php\n$nome = $_GET[\"nome\"] ?? \"visitante\";\n?>\n<!doctype html>\n<meta charset=\"utf-8\">\n\n<h1>Olá, <?= htmlspecialchars($nome, ENT_QUOTES, \"UTF-8\") ?></h1>\n\n<p>\n  Com htmlspecialchars, o sinal de menor vira &lt; e o navegador mostra o texto.\n  Sem ele, o que a pessoa digita vira HTML de verdade na sua página.\n</p>",
+        "linguagem": "php"
+      },
+      "mais": {
+        "titulo": "Por que PHP tem essa fama",
+        "linhas": [
+          "PHP move uma fatia enorme dos sites do mundo, e uma montanha de tutorial antigo ensina a grudar texto direto na consulta e a imprimir a entrada sem tratar. O problema quase nunca é a linguagem: é o código copiado.",
+          "A regra que vale em qualquer linguagem: dado de fora entra como dado. Pra mostrar na tela, escapa. Pra consultar o banco, parâmetro. Pra virar caminho de arquivo, lista do que é permitido.",
+          "php -S é servidor de desenvolvimento. Escuta em 127.0.0.1, ou seja, só a sua máquina, e não aguenta nem deve ir pra produção."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você abre o código-fonte da página no navegador e não encontra nada de PHP. Por quê?",
+          "opcoes": [
+            "O navegador esconde o PHP",
+            "O PHP roda no servidor: pro navegador vai só a saída dele",
+            "O arquivo estava vazio"
+          ],
+          "correta": 1,
+          "porque": "É a diferença de lado. JavaScript da página é do cliente e todo mundo lê. PHP é do servidor e ninguém vê, a não ser que o servidor esteja mal configurado."
+        },
+        {
+          "pergunta": "O que htmlspecialchars faz com o que a pessoa digitou?",
+          "opcoes": [
+            "Apaga as tags perigosas da lista",
+            "Criptografa o texto",
+            "Troca os caracteres de HTML por entidades, então o navegador exibe em vez de executar"
+          ],
+          "correta": 2,
+          "porque": "Não é filtro de lista negra, que sempre esquece um caso. É mudar o significado do caractere na hora de imprimir."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Suba o php -S e faça uma página que cumprimenta o nome vindo da URL. Teste passando um pedaço de HTML no lugar do nome, como um b em volta dele, primeiro sem htmlspecialchars e depois com. Anote no Caderno a diferença exata que apareceu na tela.",
+        "solucao": "<?php\n// versao-1.php: sem tratamento\n$nome = $_GET[\"nome\"] ?? \"visitante\";\n?>\n<h1>Olá, <?= $nome ?></h1>\n\n<?php\n// versao-2.php: tratado na saída\n$nome = $_GET[\"nome\"] ?? \"visitante\";\n?>\n<h1>Olá, <?= htmlspecialchars($nome, ENT_QUOTES, \"UTF-8\") ?></h1>\n\n<?php\n/*\n  teste: ?nome=<b>Ana</b>\n\n  versao-1: aparece Ana em negrito. O navegador recebeu a tag e obedeceu.\n  versao-2: aparece <b>Ana</b> na tela, com os sinais e tudo.\n\n  o que entra pela URL virou parte do HTML na versão 1.\n  se der pra escrever <b>, dá pra escrever <script>. Esse é o XSS,\n  e ele tem uma aula só dele no módulo 7.\n*/",
+        "linguagem": "php"
+      }
     },
     {
       "id": "m5a6",
       "titulo": "Projeto: um login funcional e inseguro",
-      "minutos": 30
+      "minutos": 30,
+      "resumo": "Montar o alvo com as próprias mãos: um login que funciona e tem três falhas clássicas, de propósito.",
+      "ideia": [
+        "Você vai subir um login em PHP com SQLite que aceita usuário e senha. Ele funciona, e é errado de três jeitos que você mesmo vai listar.",
+        "Roda em 127.0.0.1, só na sua máquina, e não vai pra lugar nenhum. É o alvo dos módulos 7 e 8, onde cada falha ganha a sua correção."
+      ],
+      "exemplo": {
+        "nota": "No Ubuntu: sudo apt install -y php-cli php-sqlite3. Salve como login.php, rode php -S 127.0.0.1:8000 na pasta e abra http://127.0.0.1:8000/login.php",
+        "codigo": "<?php\n// LABORATÓRIO. Roda só em 127.0.0.1 e não vai pra internet nunca.\n$pdo = new PDO(\"sqlite:lab.db\");\n$pdo->exec(\"CREATE TABLE IF NOT EXISTS usuarios (\n  id INTEGER PRIMARY KEY, usuario TEXT UNIQUE, senha TEXT)\");\n$pdo->exec(\"INSERT OR IGNORE INTO usuarios (usuario, senha)\n  VALUES ('ana', 'ana123'), ('admin', 'admin')\");\n\n$aviso = \"\";\nif ($_SERVER[\"REQUEST_METHOD\"] === \"POST\") {\n  $usuario = $_POST[\"usuario\"] ?? \"\";\n  $senha   = $_POST[\"senha\"] ?? \"\";\n\n  $sql = \"SELECT * FROM usuarios WHERE usuario = '$usuario' AND senha = '$senha'\";\n  $linha = $pdo->query($sql)->fetch();\n\n  if ($linha) {\n    echo \"<h1>Entrou como \" . htmlspecialchars($linha[\"usuario\"]) . \"</h1>\";\n    exit;\n  }\n  $aviso = \"Usuário ou senha inválidos.\";\n}\n?>\n<!doctype html>\n<meta charset=\"utf-8\">\n<form method=\"post\">\n  <input name=\"usuario\" placeholder=\"usuário\">\n  <input name=\"senha\" type=\"password\" placeholder=\"senha\">\n  <button>Entrar</button>\n</form>\n<p><?= $aviso ?></p>",
+        "linguagem": "php"
+      },
+      "mais": {
+        "titulo": "As três falhas, e onde cada uma se conserta",
+        "linhas": [
+          "Senha guardada em texto puro: quem ler o banco lê todas as senhas de todo mundo. O jeito certo é hash com sal, e isso é a aula 6.4.",
+          "Consulta montada grudando texto: o que vem do formulário vira parte do comando SQL. Isso é SQL Injection, e a correção, a consulta parametrizada, é a aula 8.5.",
+          "Nenhuma sessão e nenhum limite de tentativa: depois do login nada guarda quem entrou, e dá pra tentar senha a noite inteira, como o 10.0.0.9 da aula 3.6. Sessão e autorização são o módulo 6, e a autenticação quebrada, a aula 7.4."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que montar um sistema inseguro de propósito, em vez de só ler sobre as falhas?",
+          "opcoes": [
+            "Porque atacar sistema dos outros é mais difícil",
+            "Porque é o único jeito de aprender",
+            "Porque você vê a falha aparecer no seu código, e depois conserta o mesmo código"
+          ],
+          "correta": 2,
+          "porque": "Quem só lê decora nome de ataque. Quem escreve, quebra e conserta entende a causa. E laboratório próprio é o único alvo que você pode atacar à vontade."
+        },
+        {
+          "pergunta": "O php -S escuta em 127.0.0.1. O que isso garante?",
+          "opcoes": [
+            "Que só a sua máquina alcança esse servidor",
+            "Que ninguém na internet consegue descobrir a sua senha",
+            "Que o site está protegido por https"
+          ],
+          "correta": 0,
+          "porque": "É o mesmo 127.0.0.1 da aula 4.1. Trocar por 0.0.0.0 abriria o laboratório pra rede inteira, e um laboratório vulnerável na rede é um problema de verdade."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Suba o login, entre com ana e ana123 e confirme que funciona. Depois, sem atacar nada ainda, escreva no Caderno as três falhas com as suas palavras: o que está errado, o que um atacante ganharia com cada uma e qual aula deste plano conserta cada uma.",
+        "solucao": "<?php\n/*\n  1. senha em texto puro no banco\n     ganho do atacante: uma cópia do banco entrega a senha de todo mundo,\n     e as pessoas repetem senha em outros sites.\n     conserta em: aula 6.4, hash com sal.\n\n  2. consulta montada com concatenação\n     \"... WHERE usuario = '$usuario' AND senha = '$senha'\"\n     o texto digitado entra dentro do comando SQL, então quem digita\n     escreve um pedaço da consulta.\n     ganho do atacante: entrar sem senha e, dependendo do banco, ler\n     qualquer tabela.\n     conserta em: aula 8.5, consulta parametrizada.\n\n  3. nenhuma sessão e nenhum limite de tentativa\n     depois do echo não sobra nada dizendo quem entrou, e qualquer\n     página seguinte fica aberta. E dá pra tentar senha sem parar.\n     ganho do atacante: acesso direto às telas internas e força bruta\n     tranquila, igual à do log da aula 3.6.\n     conserta em: módulo 6 (sessão e autorização) e aula 7.4.\n\n  confirme que o login funciona antes de seguir:\n  ana / ana123 entra. ana / errada não entra.\n  guarde a pasta: os módulos 7 e 8 voltam aqui.\n*/",
+        "linguagem": "php"
+      }
     }
   ]
 }

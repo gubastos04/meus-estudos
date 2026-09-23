@@ -1,0 +1,8 @@
+{
+  "m5a3:exemplo": "roda no navegador: depende do DOM da página",
+  "m11a1:exemplo": "precisa da biblioteca requests, de rede e do laboratório php da aula 6.3 no ar",
+  "m11a1:solucao": "precisa da biblioteca requests e de rede",
+  "pp4.1:solucao": "solução em bash (pipeline no terminal), conferida à mão",
+  "pp4.2:solucao": "solução em PHP, conferida com php -l e no php -S",
+  "pp4.3:solucao": "solução em PHP, conferida com php -l e no php -S"
+}
