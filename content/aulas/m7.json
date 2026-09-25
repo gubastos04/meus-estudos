@@ -28,20 +28,20 @@
           "pergunta": "Por que rodar o laboratório com -p 127.0.0.1:3000:3000 em vez de -p 3000:3000?",
           "opcoes": [
             "Só por costume, dá na mesma",
-            "Porque assim a aplicação vulnerável fica alcançável só pela sua máquina, e não por toda a rede",
-            "Porque a porta 3000 é reservada"
+            "Porque a porta 3000 é reservada",
+            "Porque assim a aplicação vulnerável fica alcançável só pela sua máquina, e não por toda a rede"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Sem o 127.0.0.1, você acabou de colocar uma loja cheia de falhas à disposição de quem estiver na mesma rede. Já aconteceu com muita gente."
         },
         {
           "pergunta": "Você aprendeu uma técnica nova. Onde pode usar?",
           "opcoes": [
-            "Em qualquer site, desde que você não estrague nada",
             "No laboratório que roda na sua máquina e em alvos que autorizam por escrito",
+            "Em qualquer site, desde que você não estrague nada",
             "Em sites pequenos, que não têm segurança mesmo"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Não existe teste sem autorização. O laboratório próprio e as plataformas feitas pra isso são o lugar de errar à vontade."
         }
       ],
@@ -78,10 +78,10 @@
           "pergunta": "Qual a defesa certa contra injeção?",
           "opcoes": [
             "Filtrar uma lista de caracteres e palavras perigosas antes de gravar",
-            "Separar comando de dado: parâmetro no banco, lista de argumentos no sistema, escape na saída",
-            "Limitar o tamanho do campo no formulário"
+            "Limitar o tamanho do campo no formulário",
+            "Separar comando de dado: parâmetro no banco, lista de argumentos no sistema, escape na saída"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Lista negra sempre esquece um caso e quebra dado legítimo, tipo o sobrenome O'Brien. Separar comando de dado resolve na raiz."
         },
         {
@@ -127,11 +127,11 @@
         {
           "pergunta": "Qual a defesa principal contra XSS?",
           "opcoes": [
-            "Bloquear a palavra script no formulário",
             "Escapar o conteúdo na hora de imprimir na página",
+            "Bloquear a palavra script no formulário",
             "Guardar tudo em maiúsculas no banco"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "A defesa é no contexto da saída: dentro do HTML se escapa de um jeito, dentro de um atributo de outro, dentro de JavaScript de outro. Filtrar palavra é jogo perdido."
         },
         {
@@ -178,20 +178,20 @@
           "pergunta": "Por que responder Usuário não encontrado é pior que Usuário ou senha inválidos?",
           "opcoes": [
             "Porque é uma mensagem mais longa",
-            "Porque confirma quais contas existem, e isso é meio caminho pra tentar senha nelas",
-            "Não faz diferença, o atacante já sabe"
+            "Não faz diferença, o atacante já sabe",
+            "Porque confirma quais contas existem, e isso é meio caminho pra tentar senha nelas"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Isso é enumeração de usuário. Com a lista de contas válidas em mãos, o esforço do atacante cai pela metade."
         },
         {
           "pergunta": "A sua senha vazou num site que você usava anos atrás. O que mais protege a sua conta hoje?",
           "opcoes": [
-            "Trocar uma letra da senha antiga",
             "Segundo fator ativado",
+            "Trocar uma letra da senha antiga",
             "Usar um navegador diferente"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Com segundo fator, a senha sozinha não entra. É a defesa com melhor retorno pelo esforço que dá."
         }
       ],
@@ -228,10 +228,10 @@
           "pergunta": "Trocar o id numérico por um UUID aleatório resolve IDOR?",
           "opcoes": [
             "Sim, ninguém adivinha um UUID",
-            "Não: dificulta adivinhar, mas quem obtiver o código continua entrando. Falta a checagem de dono",
-            "Sim, desde que o UUID mude toda hora"
+            "Sim, desde que o UUID mude toda hora",
+            "Não: dificulta adivinhar, mas quem obtiver o código continua entrando. Falta a checagem de dono"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Isso é segurança por obscuridade. A autorização é uma decisão do servidor, tomada em toda requisição."
         },
         {
@@ -277,21 +277,21 @@
         {
           "pergunta": "Por que o navegador embutido do Burp dispensa instalar certificado?",
           "opcoes": [
-            "Porque ele não usa https",
             "Porque ele já vem configurado pra confiar no certificado do próprio Burp",
+            "Porque ele não usa https",
             "Porque ele desliga a criptografia do site"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Pra ler https, o Burp apresenta um certificado dele (aula 4.4). Num navegador comum você teria que instalar a autoridade dele antes, e depois removê-la."
         },
         {
           "pergunta": "Pra que serve o Repeater?",
           "opcoes": [
             "Pra gravar um vídeo do teste",
-            "Pra reenviar a mesma requisição várias vezes, mudando um pedaço e comparando as respostas",
-            "Pra repetir o site inteiro em outro endereço"
+            "Pra repetir o site inteiro em outro endereço",
+            "Pra reenviar a mesma requisição várias vezes, mudando um pedaço e comparando as respostas"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "É onde se testa hipótese: muda um parâmetro, lê a resposta, muda outro. Sem precisar refazer o caminho pelo navegador toda vez."
         }
       ],

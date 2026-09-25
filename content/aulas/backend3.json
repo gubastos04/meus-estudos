@@ -4,22 +4,300 @@
     {
       "id": "backend3a1",
       "titulo": "Tabelas e chaves",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "A lista em memória some quando o servidor reinicia. O banco é onde o dado fica de verdade.",
+      "ideia": [
+        "Tabela tem colunas com tipo e linhas com dado. A chave primária identifica cada linha, e a estrangeira liga uma tabela na outra.",
+        "As regras (NOT NULL, UNIQUE, REFERENCES) são o banco recusando dado errado. Elas valem mesmo quando o bug está na sua API."
+      ],
+      "exemplo": {
+        "nota": "SQLite é um banco inteiro num arquivo só, sem instalar servidor. No Ubuntu: sudo apt install -y sqlite3. Depois: sqlite3 tarefas.db < esquema.sql",
+        "codigo": "PRAGMA foreign_keys = ON;\n\nCREATE TABLE usuarios (\n  id    INTEGER PRIMARY KEY,\n  nome  TEXT NOT NULL,\n  email TEXT NOT NULL UNIQUE\n);\n\nCREATE TABLE tarefas (\n  id         INTEGER PRIMARY KEY,\n  usuario_id INTEGER NOT NULL REFERENCES usuarios(id),\n  titulo     TEXT NOT NULL,\n  feita      INTEGER NOT NULL DEFAULT 0,\n  criada_em  TEXT NOT NULL DEFAULT (datetime('now'))\n);\n\nINSERT INTO usuarios (nome, email) VALUES\n  ('Ana', 'ana@exemplo.com'),\n  ('Bruno', 'bruno@exemplo.com');\n\nINSERT INTO tarefas (usuario_id, titulo, feita) VALUES\n  (1, 'Estudar API', 0),\n  (1, 'Escrever teste', 1),\n  (2, 'Revisar PR', 0);\n\nSELECT id, nome, email FROM usuarios;\n-- 1|Ana|ana@exemplo.com\n-- 2|Bruno|bruno@exemplo.com\n\nSELECT id, usuario_id, titulo, feita FROM tarefas;\n-- 1|1|Estudar API|0\n-- 2|1|Escrever teste|1\n-- 3|2|Revisar PR|0",
+        "linguagem": "sql"
+      },
+      "mais": {
+        "titulo": "Detalhes do SQLite que pegam todo mundo",
+        "linhas": [
+          "A chave estrangeira só é cobrada se você ligar: PRAGMA foreign_keys = ON, em toda conexão. Sem isso o banco aceita tarefa de um usuário que não existe.",
+          "Não existe tipo booleano: guarde 0 e 1 num INTEGER e converta na API. Data também não: guarde texto no formato ISO, que ordena certo como texto.",
+          "INTEGER PRIMARY KEY tem um poder extra no SQLite: ele vira o identificador interno da linha e se preenche sozinho a cada INSERT. É por isso que você não manda o id."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Para que serve a chave estrangeira em tarefas.usuario_id?",
+          "opcoes": [
+            "Impedir que uma tarefa aponte para um usuário que não existe",
+            "Deixar a consulta mais rápida",
+            "Guardar o nome do usuário junto"
+          ],
+          "correta": 0,
+          "porque": "É o banco protegendo a integridade mesmo quando a API erra. Dado órfão é o tipo de problema que só aparece meses depois, no relatório."
+        },
+        {
+          "pergunta": "Por que a coluna feita é INTEGER e não booleana?",
+          "opcoes": [
+            "Porque booleano ocupa mais espaço",
+            "Porque o SQLite não tem tipo booleano: guarda 0 ou 1 e a conversão é da aplicação",
+            "Porque booleano não pode ter valor padrão"
+          ],
+          "correta": 1,
+          "porque": "Por isso a API converte com bool() ou Boolean() na hora de responder: o JSON precisa de true e false de verdade."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Acrescente ao esquema uma tabela de etiquetas e a ligação entre tarefa e etiqueta, sabendo que uma tarefa pode ter várias etiquetas e uma etiqueta serve pra várias tarefas. Insira duas etiquetas, ligue-as a uma tarefa e liste o resultado.",
+        "solucao": "PRAGMA foreign_keys = ON;\n\nCREATE TABLE tarefas (\n  id     INTEGER PRIMARY KEY,\n  titulo TEXT NOT NULL\n);\n\nCREATE TABLE etiquetas (\n  id   INTEGER PRIMARY KEY,\n  nome TEXT NOT NULL UNIQUE\n);\n\n-- muitos pra muitos precisa de uma terceira tabela, só com as duas chaves\nCREATE TABLE tarefa_etiqueta (\n  tarefa_id   INTEGER NOT NULL REFERENCES tarefas(id),\n  etiqueta_id INTEGER NOT NULL REFERENCES etiquetas(id),\n  PRIMARY KEY (tarefa_id, etiqueta_id)\n);\n\nINSERT INTO tarefas (titulo) VALUES ('Estudar API');\nINSERT INTO etiquetas (nome) VALUES ('estudo'), ('backend');\nINSERT INTO tarefa_etiqueta (tarefa_id, etiqueta_id) VALUES (1, 1), (1, 2);\n\nSELECT t.titulo, e.nome\n  FROM tarefa_etiqueta te\n  JOIN tarefas t   ON t.id = te.tarefa_id\n  JOIN etiquetas e ON e.id = te.etiqueta_id;\n-- Estudar API|estudo\n-- Estudar API|backend\n\n-- a chave primária composta (tarefa_id, etiqueta_id) impede ligar\n-- a mesma etiqueta duas vezes na mesma tarefa. É a regra no lugar certo:\n-- no banco, e não num if da API.",
+        "linguagem": "sql"
+      }
     },
     {
       "id": "backend3a2",
       "titulo": "SELECT e WHERE",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "As consultas que a sua API vai fazer o dia inteiro: filtrar, ordenar, contar e paginar.",
+      "ideia": [
+        "SELECT escolhe colunas, WHERE filtra linhas, ORDER BY ordena e LIMIT com OFFSET corta em páginas. É a espinha de qualquer listagem.",
+        "Escreva as colunas que você quer. SELECT * traz coluna que você não pediu e quebra quando alguém mexe na tabela."
+      ],
+      "exemplo": {
+        "nota": "As consultas de uma rota de listagem, uma por vez:",
+        "codigo": "CREATE TABLE tarefas (\n  id INTEGER PRIMARY KEY, usuario_id INTEGER, titulo TEXT, feita INTEGER);\n\nINSERT INTO tarefas (usuario_id, titulo, feita) VALUES\n  (1, 'Estudar API', 0), (1, 'Escrever teste', 1),\n  (2, 'Revisar PR', 0), (1, 'Publicar', 0);\n\nSELECT id, titulo FROM tarefas WHERE usuario_id = 1 AND feita = 0;\n-- 1|Estudar API\n-- 4|Publicar\n\nSELECT id, titulo FROM tarefas ORDER BY id DESC LIMIT 2;\n-- 4|Publicar\n-- 3|Revisar PR\n\n-- página 2, com 2 por página: pula as 2 primeiras\nSELECT id, titulo FROM tarefas ORDER BY id LIMIT 2 OFFSET 2;\n-- 3|Revisar PR\n-- 4|Publicar\n\nSELECT COUNT(*) AS total FROM tarefas WHERE feita = 0;\n-- 3\n\nSELECT id, titulo FROM tarefas WHERE titulo LIKE '%test%';\n-- 2|Escrever teste",
+        "linguagem": "sql"
+      },
+      "mais": {
+        "titulo": "Paginação e busca, sem pegadinha",
+        "linhas": [
+          "LIMIT sem ORDER BY é sorteio: sem ordem definida, o banco pode devolver a mesma linha em duas páginas. Toda listagem paginada tem ORDER BY.",
+          "OFFSET fica lento em tabela grande, porque o banco precisa percorrer tudo que pulou. Pra volume alto se usa paginação por cursor: pegue a partir do último id visto.",
+          "LIKE '%texto%' não usa índice e percorre a tabela inteira. Serve pra tela de admin, não pra busca de um site movimentado."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Sua API pagina com LIMIT e OFFSET e, de vez em quando, um item aparece em duas páginas. Qual a causa mais provável?",
+          "opcoes": [
+            "Falta ORDER BY: sem ordem definida, o banco não garante quem vem primeiro",
+            "O OFFSET está começando em 1",
+            "O LIMIT é baixo demais"
+          ],
+          "correta": 0,
+          "porque": "Sem ORDER BY a ordem é detalhe interno do banco, e ela pode mudar entre uma consulta e outra."
+        },
+        {
+          "pergunta": "Por que evitar SELECT * na API?",
+          "opcoes": [
+            "Porque é mais lento de digitar",
+            "Porque traz coluna que você não pediu, inclusive dado sensível, e quebra quando a tabela muda",
+            "Porque o SQLite não aceita"
+          ],
+          "correta": 1,
+          "porque": "Muito vazamento em API é isso: alguém devolveu a linha inteira do banco, com hash de senha e documento junto."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva as quatro consultas que a rota de listagem da sua API precisa: as tarefas de um usuário, só as não feitas, ordenadas da mais nova pra mais antiga, em páginas de dois itens, e a contagem total para o cliente saber quantas páginas existem.",
+        "solucao": "CREATE TABLE tarefas (\n  id INTEGER PRIMARY KEY, usuario_id INTEGER, titulo TEXT, feita INTEGER);\n\nINSERT INTO tarefas (usuario_id, titulo, feita) VALUES\n  (1, 'Estudar API', 0), (1, 'Escrever teste', 1),\n  (2, 'Revisar PR', 0), (1, 'Publicar', 0), (1, 'Ler o plano', 0);\n\n-- 1. página 1, do mais novo pro mais antigo\nSELECT id, titulo FROM tarefas\n WHERE usuario_id = 1 AND feita = 0\n ORDER BY id DESC\n LIMIT 2 OFFSET 0;\n-- 5|Ler o plano\n-- 4|Publicar\n\n-- 2. página 2\nSELECT id, titulo FROM tarefas\n WHERE usuario_id = 1 AND feita = 0\n ORDER BY id DESC\n LIMIT 2 OFFSET 2;\n-- 1|Estudar API\n\n-- 3. o total, pro cliente calcular as páginas\nSELECT COUNT(*) AS total FROM tarefas WHERE usuario_id = 1 AND feita = 0;\n-- 3\n\n-- 4. a mesma listagem sem o filtro de feita, que é o caso padrão\nSELECT id, titulo, feita FROM tarefas\n WHERE usuario_id = 1\n ORDER BY id DESC;\n-- 5|Ler o plano|0\n-- 4|Publicar|0\n-- 2|Escrever teste|1\n-- 1|Estudar API|0\n\n-- a resposta da API junta as duas primeiras: {\"itens\": [...], \"total\": 3}\n-- sem o total, quem consome não sabe se existe página seguinte.",
+        "linguagem": "sql"
+      }
     },
     {
       "id": "backend3a3",
       "titulo": "JOIN",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "Juntar duas tabelas pela chave. É o que transforma usuario_id igual a 1 no nome da pessoa.",
+      "ideia": [
+        "JOIN casa linhas de duas tabelas por uma condição, quase sempre chave estrangeira com chave primária.",
+        "O JOIN normal só traz quem tem par dos dois lados. O LEFT JOIN traz todo mundo da esquerda, com nulo onde não houver par."
+      ],
+      "exemplo": {
+        "nota": "A diferença entre os dois aparece no Bruno, que não tem tarefa:",
+        "codigo": "CREATE TABLE usuarios (id INTEGER PRIMARY KEY, nome TEXT);\nCREATE TABLE tarefas (id INTEGER PRIMARY KEY, usuario_id INTEGER, titulo TEXT, feita INTEGER);\n\nINSERT INTO usuarios (nome) VALUES ('Ana'), ('Bruno');\nINSERT INTO tarefas (usuario_id, titulo, feita) VALUES\n  (1, 'Estudar API', 0), (1, 'Escrever teste', 1);\n\n-- só quem tem par dos dois lados\nSELECT u.nome, t.titulo\n  FROM tarefas t\n  JOIN usuarios u ON u.id = t.usuario_id\n ORDER BY t.id;\n-- Ana|Estudar API\n-- Ana|Escrever teste\n\n-- todo mundo da esquerda, com nulo onde não há par\nSELECT u.nome, t.titulo\n  FROM usuarios u\n  LEFT JOIN tarefas t ON t.usuario_id = u.id\n ORDER BY u.id, t.id;\n-- Ana|Estudar API\n-- Ana|Escrever teste\n-- Bruno|\n\n-- quantas tarefas cada um tem, inclusive quem tem zero\nSELECT u.nome, COUNT(t.id) AS quantas\n  FROM usuarios u\n  LEFT JOIN tarefas t ON t.usuario_id = u.id\n  GROUP BY u.id\n  ORDER BY quantas DESC;\n-- Ana|2\n-- Bruno|0",
+        "linguagem": "sql"
+      },
+      "mais": {
+        "titulo": "O erro de contagem, e o problema das N+1",
+        "linhas": [
+          "COUNT(*) conta linhas, inclusive as que vieram vazias do LEFT JOIN, e o Bruno apareceria com 1. COUNT(t.id) conta só os pares de verdade, e é por isso que ele dá zero certinho.",
+          "O apelido (u, t) evita escrever o nome inteiro e deixa claro de qual tabela é cada coluna. Com duas tabelas que têm id, sem apelido a consulta nem roda.",
+          "O problema mais comum de API lenta se chama N+1: buscar a lista e depois fazer uma consulta por item pra pegar o nome do dono. Um JOIN resolve as duas coisas numa viagem só."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você quer listar todos os usuários, inclusive os que não têm nenhuma tarefa. Qual consulta usar?",
+          "opcoes": [
+            "JOIN normal, de usuarios para tarefas",
+            "LEFT JOIN, com usuarios do lado esquerdo",
+            "Duas consultas separadas e juntar no código"
+          ],
+          "correta": 1,
+          "porque": "O JOIN normal descartaria quem não tem par, que é justamente quem você quer ver."
+        },
+        {
+          "pergunta": "A sua rota busca 50 tarefas e depois faz uma consulta por tarefa pra pegar o nome do dono. Qual o problema?",
+          "opcoes": [
+            "Nenhum, é mais organizado",
+            "São 51 idas ao banco onde bastaria uma com JOIN, e isso é o clássico problema N+1",
+            "O banco vai recusar tantas consultas"
+          ],
+          "correta": 1,
+          "porque": "Funciona com 50 linhas na sua máquina e derruba a API com 5 mil em produção. É a causa número um de lentidão que aparece só depois."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva a consulta que a rota de relatório precisa: para cada usuário, o nome, quantas tarefas ele tem no total e quantas ainda não fez, incluindo quem não tem nenhuma. Ordene de quem tem mais pendência para quem tem menos.",
+        "solucao": "CREATE TABLE usuarios (id INTEGER PRIMARY KEY, nome TEXT);\nCREATE TABLE tarefas (id INTEGER PRIMARY KEY, usuario_id INTEGER, titulo TEXT, feita INTEGER);\n\nINSERT INTO usuarios (nome) VALUES ('Ana'), ('Bruno'), ('Carla');\nINSERT INTO tarefas (usuario_id, titulo, feita) VALUES\n  (1, 'Estudar API', 0), (1, 'Escrever teste', 1), (1, 'Publicar', 0),\n  (2, 'Revisar PR', 0);\n\nSELECT u.nome,\n       COUNT(t.id) AS total,\n       SUM(CASE WHEN t.feita = 0 THEN 1 ELSE 0 END) AS pendentes\n  FROM usuarios u\n  LEFT JOIN tarefas t ON t.usuario_id = u.id\n  GROUP BY u.id\n  ORDER BY pendentes DESC, u.nome;\n-- Ana|3|2\n-- Bruno|1|1\n-- Carla|0|0\n\n-- o SUM com CASE é o jeito de contar só uma parte dentro do grupo.\n-- a Carla vem com total 0 porque o COUNT(t.id) ignora o nulo do LEFT JOIN,\n-- e com 0 pendentes porque o CASE cai no ELSE naquela linha vazia.\n-- se fosse SUM(t.feita = 0), sem o CASE, ela viria nula: é o tipo de detalhe\n-- que só aparece quando você roda e confere a saída.",
+        "linguagem": "sql"
+      }
     },
     {
       "id": "backend3a4",
       "titulo": "Consulta parametrizada",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "O valor que veio do cliente nunca entra no texto da consulta. Ele vai por fora, num espaço reservado.",
+      "ideia": [
+        "Consulta montada com soma de texto deixa quem digita escrever parte do comando SQL. Com parâmetro, o banco recebe o comando pronto e os valores à parte.",
+        "Não é só segurança: parametrizar também resolve o nome com apóstrofo, que quebra a consulta montada na primeira vez que alguém se chama O'Brien."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "O ponto de interrogação é o espaço reservado, e o valor vai na tupla ao lado.",
+          "codigo": "import sqlite3\nfrom fastapi import Depends, FastAPI\n\napp = FastAPI()\n\ndef banco():\n    con = sqlite3.connect(\"tarefas.db\")\n    con.row_factory = sqlite3.Row\n    try:\n        yield con\n    finally:\n        con.close()\n\n@app.get(\"/tarefas/busca\")\ndef buscar(termo: str, con: sqlite3.Connection = Depends(banco)):\n    linhas = con.execute(\n        \"SELECT id, titulo FROM tarefas WHERE titulo LIKE ? ORDER BY id\",\n        (f\"%{termo}%\",),          # o % entra no valor, não na consulta\n    ).fetchall()\n    return [dict(l) for l in linhas]\n\n# ERRADO, e tentador:\n# con.execute(f\"SELECT id FROM tarefas WHERE titulo LIKE '%{termo}%'\")\n# basta alguém digitar uma aspa pra consulta virar outra coisa",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "Mesmo driver, mesma regra: o que veio na query string vai por parâmetro.",
+          "codigo": "import sqlite3\nfrom flask import Flask, g, request\n\napp = Flask(__name__)\n\ndef banco():\n    if \"banco\" not in g:\n        g.banco = sqlite3.connect(\"tarefas.db\")\n        g.banco.row_factory = sqlite3.Row\n    return g.banco\n\n@app.teardown_appcontext\ndef fechar(erro):\n    con = g.pop(\"banco\", None)\n    if con is not None:\n        con.close()\n\n@app.get(\"/tarefas/busca\")\ndef buscar():\n    termo = request.args.get(\"termo\", \"\")\n    linhas = banco().execute(\n        \"SELECT id, titulo FROM tarefas WHERE titulo LIKE ? ORDER BY id\",\n        (f\"%{termo}%\",),\n    ).fetchall()\n    return [dict(l) for l in linhas]\n\n# ERRADO, e tentador:\n# banco().execute(\"SELECT id FROM tarefas WHERE titulo LIKE '%\" + termo + \"%'\")",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "O node:sqlite vem junto com o Node desde a versão 22.5, sem instalar nada. O ponto de interrogação funciona igual.",
+          "codigo": "const express = require(\"express\");\nconst { DatabaseSync } = require(\"node:sqlite\");\n\nconst app = express();\nconst banco = new DatabaseSync(\"tarefas.db\");\n\napp.get(\"/tarefas/busca\", (req, res) => {\n  const termo = String(req.query.termo ?? \"\");\n  const linhas = banco\n    .prepare(\"SELECT id, titulo FROM tarefas WHERE titulo LIKE ? ORDER BY id\")\n    .all(`%${termo}%`);          // o % entra no valor, não na consulta\n  res.json(linhas);\n});\n\napp.listen(3000);\n\n// ERRADO, e tentador:\n// banco.prepare(`SELECT id FROM tarefas WHERE titulo LIKE '%${termo}%'`).all();\n// o acento grave engana: continua sendo texto grudado",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O que não dá pra parametrizar",
+        "linhas": [
+          "Nome de tabela e de coluna não entram por parâmetro, porque o banco precisa conhecer a estrutura da consulta antes dos valores. Quando a ordenação vier da URL, escolha numa lista de permitidos que você escreveu.",
+          "Repare que a aba do FastAPI e a do Flask são quase iguais: o driver do banco não sabe qual framework está na frente. Trocar de framework não mexe nessa camada.",
+          "ORM (SQLAlchemy, Prisma, Drizzle) parametriza sozinho no uso normal, e continua vulnerável se você escrever consulta crua concatenada dentro dele. A regra não muda."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Onde entra o sinal de porcentagem da busca com LIKE?",
+          "opcoes": [
+            "No texto da consulta, em volta do ponto de interrogação",
+            "No valor passado como parâmetro",
+            "Não precisa dele com parâmetro"
+          ],
+          "correta": 1,
+          "porque": "O parâmetro é o valor inteiro que o banco vai comparar, coringa incluído. Na consulta fica só o ponto de interrogação."
+        },
+        {
+          "pergunta": "A ordenação da listagem vem da URL, tipo ?ordem=titulo. Como tratar?",
+          "opcoes": [
+            "Por parâmetro, como qualquer valor",
+            "Grudando direto na consulta, porque é só um nome de coluna",
+            "Escolhendo numa lista de permitidos escrita por você"
+          ],
+          "correta": 2,
+          "porque": "Nome de coluna é estrutura, e estrutura não vai por parâmetro. A lista de permitidos é o que impede a URL de escrever SQL."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça a rota de busca receber o termo e a ordem pela URL, usando parâmetro para o termo e lista de permitidos para a ordem. Teste com um termo normal, um termo com apóstrofo e uma ordem inventada, e confirme que nenhum dos três quebra a API.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "import sqlite3\nfrom fastapi import Depends, FastAPI\n\napp = FastAPI()\nORDENS = {\"titulo\": \"titulo\", \"recentes\": \"id DESC\"}      # lista de permitidos\n\ndef banco():\n    con = sqlite3.connect(\"tarefas.db\")\n    con.row_factory = sqlite3.Row\n    try:\n        yield con\n    finally:\n        con.close()\n\n@app.get(\"/tarefas/busca\")\ndef buscar(termo: str = \"\", ordem: str = \"titulo\", con: sqlite3.Connection = Depends(banco)):\n    coluna = ORDENS.get(ordem, \"titulo\")      # veio algo estranho? cai no padrão\n    linhas = con.execute(\n        f\"SELECT id, titulo FROM tarefas WHERE titulo LIKE ? ORDER BY {coluna}\",\n        (f\"%{termo}%\",),\n    ).fetchall()\n    return [dict(l) for l in linhas]\n\n# os três testes:\n# ?termo=api                    lista normal\n# ?termo=O'Brien                200 e lista vazia, sem erro de sintaxe\n# ?ordem=titulo;DROP TABLE x    ignora e ordena por titulo\n#\n# o f-string aqui é seguro porque {coluna} nunca é o texto da URL:\n# é sempre um valor que eu mesmo escrevi no dicionário ORDENS.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "import sqlite3\nfrom flask import Flask, g, request\n\napp = Flask(__name__)\nORDENS = {\"titulo\": \"titulo\", \"recentes\": \"id DESC\"}\n\ndef banco():\n    if \"banco\" not in g:\n        g.banco = sqlite3.connect(\"tarefas.db\")\n        g.banco.row_factory = sqlite3.Row\n    return g.banco\n\n@app.teardown_appcontext\ndef fechar(erro):\n    con = g.pop(\"banco\", None)\n    if con is not None:\n        con.close()\n\n@app.get(\"/tarefas/busca\")\ndef buscar():\n    termo = request.args.get(\"termo\", \"\")\n    coluna = ORDENS.get(request.args.get(\"ordem\", \"titulo\"), \"titulo\")\n    linhas = banco().execute(\n        f\"SELECT id, titulo FROM tarefas WHERE titulo LIKE ? ORDER BY {coluna}\",\n        (f\"%{termo}%\",),\n    ).fetchall()\n    return [dict(l) for l in linhas]\n\n# os três testes:\n# ?termo=api                    lista normal\n# ?termo=O'Brien                200 e lista vazia, sem erro\n# ?ordem=qualquer-coisa         ignora e ordena por titulo",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\nconst { DatabaseSync } = require(\"node:sqlite\");\n\nconst app = express();\nconst banco = new DatabaseSync(\"tarefas.db\");\n\nconst ORDENS = { titulo: \"titulo\", recentes: \"id DESC\" };   // lista de permitidos\n\napp.get(\"/tarefas/busca\", (req, res) => {\n  const termo = String(req.query.termo ?? \"\");\n  const coluna = ORDENS[req.query.ordem] ?? \"titulo\";\n\n  const linhas = banco\n    .prepare(`SELECT id, titulo FROM tarefas WHERE titulo LIKE ? ORDER BY ${coluna}`)\n    .all(`%${termo}%`);\n\n  res.json(linhas);\n});\n\napp.listen(3000);\n\n// os três testes:\n// ?termo=api                    lista normal\n// ?termo=O'Brien                200 e lista vazia, sem erro\n// ?ordem=inventada              ignora e ordena por titulo\n//\n// o template aqui é seguro porque ${coluna} sai do meu objeto ORDENS,\n// nunca da URL. Essa é a única exceção, e ela precisa dessa disciplina.",
+            "linguagem": "javascript"
+          }
+        }
+      }
+    },
+    {
+      "id": "backend3a5",
+      "titulo": "A API conversando com o banco",
+      "minutos": 16,
+      "resumo": "Trocar a lista em memória pelo banco. A rota não muda, só o que está por baixo dela.",
+      "ideia": [
+        "A conexão precisa abrir e fechar do jeito certo a cada requisição, e cada framework tem o seu caminho pra isso.",
+        "Se você separou em camadas na aula 4.5, só o repositório muda. É exatamente esse o teste de que a separação valeu a pena."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "Depends com yield: o FastAPI abre a conexão antes da rota e fecha depois, mesmo quando dá erro.",
+          "codigo": "import sqlite3\nfrom fastapi import Depends, FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\ndef criar_tabela():\n    con = sqlite3.connect(\"tarefas.db\")\n    con.execute(\"\"\"CREATE TABLE IF NOT EXISTS tarefas (\n        id INTEGER PRIMARY KEY,\n        titulo TEXT NOT NULL,\n        feita INTEGER NOT NULL DEFAULT 0)\"\"\")\n    con.commit()\n    con.close()\n\ncriar_tabela()\n\ndef banco():\n    con = sqlite3.connect(\"tarefas.db\")\n    con.row_factory = sqlite3.Row\n    try:\n        yield con\n    finally:\n        con.close()\n\nclass NovaTarefa(BaseModel):\n    titulo: str = Field(min_length=3, max_length=120)\n\n@app.get(\"/tarefas\")\ndef listar(con: sqlite3.Connection = Depends(banco)):\n    linhas = con.execute(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\").fetchall()\n    return [{\"id\": l[\"id\"], \"titulo\": l[\"titulo\"], \"feita\": bool(l[\"feita\"])} for l in linhas]\n\n@app.post(\"/tarefas\", status_code=201)\ndef criar(nova: NovaTarefa, con: sqlite3.Connection = Depends(banco)):\n    cursor = con.execute(\"INSERT INTO tarefas (titulo) VALUES (?)\", (nova.titulo.strip(),))\n    con.commit()          # sem commit, nada é gravado\n    return {\"id\": cursor.lastrowid, \"titulo\": nova.titulo.strip(), \"feita\": False}\n\n@app.get(\"/tarefas/{id}\")\ndef uma(id: int, con: sqlite3.Connection = Depends(banco)):\n    linha = con.execute(\"SELECT id, titulo, feita FROM tarefas WHERE id = ?\", (id,)).fetchone()\n    if linha is None:\n        raise HTTPException(status_code=404, detail=\"tarefa não encontrada\")\n    return {\"id\": linha[\"id\"], \"titulo\": linha[\"titulo\"], \"feita\": bool(linha[\"feita\"])}",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "O g guarda a conexão durante a requisição, e o teardown fecha no fim, dando certo ou não.",
+          "codigo": "import sqlite3\nfrom flask import Flask, abort, g, request\n\napp = Flask(__name__)\nARQUIVO = \"tarefas.db\"\n\ndef banco():\n    if \"banco\" not in g:\n        g.banco = sqlite3.connect(ARQUIVO)\n        g.banco.row_factory = sqlite3.Row\n    return g.banco\n\n@app.teardown_appcontext\ndef fechar(erro):\n    con = g.pop(\"banco\", None)\n    if con is not None:\n        con.close()\n\nwith app.app_context():\n    banco().execute(\"\"\"CREATE TABLE IF NOT EXISTS tarefas (\n        id INTEGER PRIMARY KEY,\n        titulo TEXT NOT NULL,\n        feita INTEGER NOT NULL DEFAULT 0)\"\"\")\n    banco().commit()\n\n@app.get(\"/tarefas\")\ndef listar():\n    linhas = banco().execute(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\").fetchall()\n    return [{\"id\": l[\"id\"], \"titulo\": l[\"titulo\"], \"feita\": bool(l[\"feita\"])} for l in linhas]\n\n@app.post(\"/tarefas\")\ndef criar():\n    dado = request.get_json(silent=True) or {}\n    titulo = dado.get(\"titulo\", \"\")\n    if not isinstance(titulo, str) or not 3 <= len(titulo.strip()) <= 120:\n        return {\"erro\": \"dados inválidos\", \"campos\": [\"titulo\"]}, 400\n\n    con = banco()\n    cursor = con.execute(\"INSERT INTO tarefas (titulo) VALUES (?)\", (titulo.strip(),))\n    con.commit()\n    return {\"id\": cursor.lastrowid, \"titulo\": titulo.strip(), \"feita\": False}, 201\n\n@app.get(\"/tarefas/<int:id>\")\ndef uma(id):\n    linha = banco().execute(\"SELECT id, titulo, feita FROM tarefas WHERE id = ?\", (id,)).fetchone()\n    if linha is None:\n        abort(404)\n    return {\"id\": linha[\"id\"], \"titulo\": linha[\"titulo\"], \"feita\": bool(linha[\"feita\"])}",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "O node:sqlite é síncrono e a conexão vive enquanto o processo viver: abre uma vez, no topo do arquivo.",
+          "codigo": "const express = require(\"express\");\nconst { DatabaseSync } = require(\"node:sqlite\");\n\nconst app = express();\napp.use(express.json());\n\nconst banco = new DatabaseSync(\"tarefas.db\");\nbanco.exec(`CREATE TABLE IF NOT EXISTS tarefas (\n  id INTEGER PRIMARY KEY,\n  titulo TEXT NOT NULL,\n  feita INTEGER NOT NULL DEFAULT 0)`);\n\nconst emTarefa = (l) => ({ id: l.id, titulo: l.titulo, feita: Boolean(l.feita) });\n\napp.get(\"/tarefas\", (req, res) => {\n  const linhas = banco.prepare(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\").all();\n  res.json(linhas.map(emTarefa));\n});\n\napp.post(\"/tarefas\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 3) {\n    return res.status(400).json({ erro: \"dados inválidos\", campos: [\"titulo\"] });\n  }\n  const r = banco.prepare(\"INSERT INTO tarefas (titulo) VALUES (?)\").run(titulo.trim());\n  res.status(201).json({ id: Number(r.lastInsertRowid), titulo: titulo.trim(), feita: false });\n});\n\napp.get(\"/tarefas/:id\", (req, res) => {\n  const linha = banco\n    .prepare(\"SELECT id, titulo, feita FROM tarefas WHERE id = ?\")\n    .get(Number(req.params.id));\n  if (!linha) return res.status(404).json({ erro: \"tarefa não encontrada\" });\n  res.json(emTarefa(linha));\n});\n\napp.listen(3000);\n\n// até o Node 24, ele avisa que é experimental ao subir. É esperado; da versão 25.7 em diante o aviso some.\n// a alternativa madura é o pacote better-sqlite3, com a mesma cara.",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O que muda quando o dado sai da memória",
+        "linhas": [
+          "Sem commit, o INSERT some. É o primeiro susto de todo mundo, e some justamente porque a transação foi aberta e nunca fechada.",
+          "O banco guarda 0 e 1 e o JSON precisa de true e false: a conversão acontece na borda, ao montar a resposta. Deixar vazar o 0 pro cliente é o tipo de detalhe que quebra o front.",
+          "SQLite é um arquivo: ele aguenta muito mais do que parece e é ótimo pra aprender e pra projeto pequeno. PostgreSQL entra quando houver muita escrita ao mesmo tempo, vários servidores ou dado que não pode se perder."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você criou uma tarefa pela API, a resposta veio 201, e ao reiniciar o servidor ela sumiu. O que faltou?",
+          "opcoes": [
+            "Faltou o commit depois do INSERT",
+            "O SQLite não guarda INSERT",
+            "Faltou fechar a conexão"
+          ],
+          "correta": 0,
+          "porque": "A transação fica aberta até o commit. Fechar a conexão sem ele desfaz tudo."
+        },
+        {
+          "pergunta": "Por que a conexão abre e fecha a cada requisição no FastAPI e no Flask, e no Express fica aberta?",
+          "opcoes": [
+            "Porque o Node é mais rápido",
+            "Porque o driver do Node não sabe fechar",
+            "Porque o node:sqlite é síncrono e a conexão vive com o processo, enquanto no Python cada requisição pode cair numa thread diferente"
+          ],
+          "correta": 2,
+          "porque": "Conexão de SQLite no Python não gosta de atravessar threads. Por isso o padrão de cada stack é diferente, mesmo com o banco sendo o mesmo."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Troque a lista em memória da sua API pelo SQLite, mantendo as mesmas rotas e as mesmas respostas. Teste criar, listar e buscar uma tarefa que não existe, reinicie o servidor e confirme que os dados continuam lá. Anote no Caderno quantos arquivos você precisou mexer.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "# tarefas/repositorio.py, o ÚNICO arquivo que mudou\nimport sqlite3\n\nARQUIVO = \"tarefas.db\"\n\ndef conectar():\n    con = sqlite3.connect(ARQUIVO)\n    con.row_factory = sqlite3.Row\n    return con\n\ndef criar_tabela():\n    con = conectar()\n    con.execute(\"\"\"CREATE TABLE IF NOT EXISTS tarefas (\n        id INTEGER PRIMARY KEY, titulo TEXT NOT NULL, feita INTEGER NOT NULL DEFAULT 0)\"\"\")\n    con.commit()\n    con.close()\n\ndef listar():\n    con = conectar()\n    try:\n        linhas = con.execute(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\").fetchall()\n        return [{\"id\": l[\"id\"], \"titulo\": l[\"titulo\"], \"feita\": bool(l[\"feita\"])} for l in linhas]\n    finally:\n        con.close()\n\ndef salvar(tarefa):\n    con = conectar()\n    try:\n        cursor = con.execute(\"INSERT INTO tarefas (titulo, feita) VALUES (?, ?)\",\n                             (tarefa[\"titulo\"], int(tarefa.get(\"feita\", False))))\n        con.commit()\n        return {**tarefa, \"id\": cursor.lastrowid}\n    finally:\n        con.close()\n\ndef por_id(id):\n    con = conectar()\n    try:\n        l = con.execute(\"SELECT id, titulo, feita FROM tarefas WHERE id = ?\", (id,)).fetchone()\n        return None if l is None else {\"id\": l[\"id\"], \"titulo\": l[\"titulo\"], \"feita\": bool(l[\"feita\"])}\n    finally:\n        con.close()\n\n# resposta do Caderno: um arquivo.\n# servico.py e rotas.py continuaram iguais, porque eles só conhecem\n# listar(), salvar() e por_id(). Era esse o objetivo da separação.\n#\n# depois de reiniciar o servidor, GET /tarefas devolve o que estava lá:\n# o dado agora mora no arquivo tarefas.db, e não na memória do processo.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "# tarefas/repositorio.py, o ÚNICO arquivo que mudou\nimport sqlite3\nfrom flask import g\n\nARQUIVO = \"tarefas.db\"\n\ndef conectar():\n    if \"banco\" not in g:\n        g.banco = sqlite3.connect(ARQUIVO)\n        g.banco.row_factory = sqlite3.Row\n    return g.banco\n\ndef fechar(erro=None):\n    con = g.pop(\"banco\", None)\n    if con is not None:\n        con.close()\n\ndef criar_tabela():\n    con = conectar()\n    con.execute(\"\"\"CREATE TABLE IF NOT EXISTS tarefas (\n        id INTEGER PRIMARY KEY, titulo TEXT NOT NULL, feita INTEGER NOT NULL DEFAULT 0)\"\"\")\n    con.commit()\n\ndef listar():\n    linhas = conectar().execute(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\").fetchall()\n    return [{\"id\": l[\"id\"], \"titulo\": l[\"titulo\"], \"feita\": bool(l[\"feita\"])} for l in linhas]\n\ndef salvar(tarefa):\n    con = conectar()\n    cursor = con.execute(\"INSERT INTO tarefas (titulo, feita) VALUES (?, ?)\",\n                         (tarefa[\"titulo\"], int(tarefa.get(\"feita\", False))))\n    con.commit()\n    return {**tarefa, \"id\": cursor.lastrowid}\n\ndef por_id(id):\n    l = conectar().execute(\"SELECT id, titulo, feita FROM tarefas WHERE id = ?\", (id,)).fetchone()\n    return None if l is None else {\"id\": l[\"id\"], \"titulo\": l[\"titulo\"], \"feita\": bool(l[\"feita\"])}\n\n# no main.py, uma linha a mais:\n# app.teardown_appcontext(repositorio.fechar)\n#\n# resposta do Caderno: um arquivo, mais uma linha de registro no main.\n# as rotas não souberam de nada.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "// tarefas/repositorio.js, o ÚNICO arquivo que mudou\nconst { DatabaseSync } = require(\"node:sqlite\");\n\nconst banco = new DatabaseSync(\"tarefas.db\");\n\nbanco.exec(`CREATE TABLE IF NOT EXISTS tarefas (\n  id INTEGER PRIMARY KEY, titulo TEXT NOT NULL, feita INTEGER NOT NULL DEFAULT 0)`);\n\nconst emTarefa = (l) => (l ? { id: l.id, titulo: l.titulo, feita: Boolean(l.feita) } : null);\n\nconst listar = () =>\n  banco.prepare(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\").all().map(emTarefa);\n\nfunction salvar(tarefa) {\n  const r = banco\n    .prepare(\"INSERT INTO tarefas (titulo, feita) VALUES (?, ?)\")\n    .run(tarefa.titulo, tarefa.feita ? 1 : 0);\n  return { ...tarefa, id: Number(r.lastInsertRowid) };\n}\n\nconst porId = (id) =>\n  emTarefa(banco.prepare(\"SELECT id, titulo, feita FROM tarefas WHERE id = ?\").get(id));\n\nmodule.exports = { listar, salvar, porId };\n\n// resposta do Caderno: um arquivo.\n// servico.js e rotas.js continuaram iguais, porque eles só conhecem\n// listar(), salvar() e porId().\n//\n// repare no feita ? 1 : 0 na ida e no Boolean() na volta: a conversão\n// entre o jeito do banco e o jeito do JSON mora aqui, num lugar só.",
+            "linguagem": "javascript"
+          }
+        }
+      }
     }
   ]
 }

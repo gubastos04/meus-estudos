@@ -12,7 +12,8 @@
       ],
       "exemplo": {
         "nota": "Trocar uma lâmpada, em passos:",
-        "codigo": "1. desligar o disjuntor\n2. pegar a escada\n3. subir\n4. girar a lâmpada velha até soltar\n5. encaixar a lâmpada nova\n6. descer\n7. ligar o disjuntor"
+        "codigo": "1. desligar o disjuntor\n2. pegar a escada\n3. subir\n4. girar a lâmpada velha até soltar\n5. encaixar a lâmpada nova\n6. descer\n7. ligar o disjuntor",
+        "linguagem": "texto"
       },
       "mais": {
         "titulo": "Por que a ordem importa tanto",
@@ -25,17 +26,18 @@
         {
           "pergunta": "Por que o passo 1 vem antes do 4?",
           "opcoes": [
-            "Por estética",
             "Porque a ordem muda o resultado",
+            "Por estética",
             "Tanto faz"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Ordem é tudo. Dois passos trocados quebram a receita inteira."
         }
       ],
       "desafio": {
         "pergunta": "Escreva o algoritmo de fazer um café. Mínimo 6 passos, e nenhum passo pode depender de bom senso.",
-        "solucao": "1. encher a chaleira com 300ml de água\n2. ligar a chaleira\n3. colocar o filtro no suporte\n4. colocar 2 colheres de pó no filtro\n5. esperar a água ferver\n6. despejar a água aos poucos sobre o pó\n7. esperar escorrer tudo\n8. servir na xícara"
+        "solucao": "1. encher a chaleira com 300ml de água\n2. ligar a chaleira\n3. colocar o filtro no suporte\n4. colocar 2 colheres de pó no filtro\n5. esperar a água ferver\n6. despejar a água aos poucos sobre o pó\n7. esperar escorrer tudo\n8. servir na xícara",
+        "linguagem": "texto"
       }
     },
     {
@@ -49,23 +51,25 @@
       ],
       "exemplo": {
         "nota": "Problema: fazer um sistema de login.",
-        "codigo": "sistema de login\n├── cadastrar\n│   ├── receber email e senha\n│   ├── checar se o email já existe\n│   └── guardar a senha embaralhada\n├── entrar\n│   ├── comparar com o que está guardado\n│   └── liberar ou negar\n└── sair\n    └── apagar a sessão"
+        "codigo": "sistema de login\n├── cadastrar\n│   ├── receber email e senha\n│   ├── checar se o email já existe\n│   └── guardar a senha embaralhada\n├── entrar\n│   ├── comparar com o que está guardado\n│   └── liberar ou negar\n└── sair\n    └── apagar a sessão",
+        "linguagem": "texto"
       },
       "quiz": [
         {
           "pergunta": "Qual parte ainda está grande demais?",
           "opcoes": [
             "apagar a sessão",
-            "recuperar senha por email",
-            "receber email e senha"
+            "receber email e senha",
+            "recuperar senha por email"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Ela esconde vários passos: gerar token, enviar email, validar prazo, trocar a senha."
         }
       ],
       "desafio": {
         "pergunta": "Quebre em partes: organizar meus estudos. Vá até o nível em que cada parte cabe em 10 minutos.",
-        "solucao": "organizar estudos\n├── decidir o que estudar\n│   ├── listar temas\n│   └── colocar em ordem\n├── decidir quando\n│   ├── marcar os dias de folga\n│   └── escolher 1 horário fixo\n└── acompanhar\n    ├── marcar aula feita\n    └── olhar o progresso 1x por semana"
+        "solucao": "organizar estudos\n├── decidir o que estudar\n│   ├── listar temas\n│   └── colocar em ordem\n├── decidir quando\n│   ├── marcar os dias de folga\n│   └── escolher 1 horário fixo\n└── acompanhar\n    ├── marcar aula feita\n    └── olhar o progresso 1x por semana",
+        "linguagem": "texto"
       }
     },
     {
@@ -79,7 +83,8 @@
       ],
       "exemplo": {
         "nota": "Mesma conta, dois nomes:",
-        "codigo": "# ruim\nx = 3\ny = x * 12\n\n# bom\ndias_trabalhados = 3\nhoras_no_mes = dias_trabalhados * 12"
+        "codigo": "# ruim\nx = 3\ny = x * 12\n\n# bom\ndias_trabalhados = 3\nhoras_no_mes = dias_trabalhados * 12",
+        "linguagem": "texto"
       },
       "mais": {
         "titulo": "Uma armadilha",
@@ -101,7 +106,8 @@
       ],
       "desafio": {
         "pergunta": "Crie 3 variáveis com bons nomes pra calcular quanto você ganha por hora.",
-        "solucao": "salario_mensal = 2400\nhoras_no_mes = 180\nvalor_por_hora = salario_mensal / horas_no_mes"
+        "solucao": "salario_mensal = 2400\nhoras_no_mes = 180\nvalor_por_hora = salario_mensal / horas_no_mes",
+        "linguagem": "texto"
       }
     },
     {
@@ -115,23 +121,25 @@
       ],
       "exemplo": {
         "nota": "Em português estruturado:",
-        "codigo": "SE tamanho >= 8 ENTÃO\n    aceitar\nSENÃO SE tamanho >= 4 ENTÃO\n    avisar \"senha fraca\"\nSENÃO\n    recusar"
+        "codigo": "SE tamanho >= 8 ENTÃO\n    aceitar\nSENÃO SE tamanho >= 4 ENTÃO\n    avisar \"senha fraca\"\nSENÃO\n    recusar",
+        "linguagem": "texto"
       },
       "quiz": [
         {
           "pergunta": "Senha com 6 caracteres. O que acontece?",
           "opcoes": [
-            "aceitar",
             "avisar senha fraca",
+            "aceitar",
             "recusar"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Testa de cima pra baixo e para na primeira condição verdadeira."
         }
       ],
       "desafio": {
         "pergunta": "Caixa eletrônico: só libera se o valor for múltiplo de 10, menor que o saldo e menor que 1000.",
-        "solucao": "SE valor % 10 != 0 ENTÃO\n    recusar \"só múltiplos de 10\"\nSENÃO SE valor > saldo ENTÃO\n    recusar \"saldo insuficiente\"\nSENÃO SE valor > 1000 ENTÃO\n    recusar \"limite por saque\"\nSENÃO\n    liberar"
+        "solucao": "SE valor % 10 != 0 ENTÃO\n    recusar \"só múltiplos de 10\"\nSENÃO SE valor > saldo ENTÃO\n    recusar \"saldo insuficiente\"\nSENÃO SE valor > 1000 ENTÃO\n    recusar \"limite por saque\"\nSENÃO\n    liberar",
+        "linguagem": "texto"
       }
     },
     {
@@ -145,23 +153,25 @@
       ],
       "exemplo": {
         "nota": "Os dois tipos:",
-        "codigo": "# número certo de vezes\nPARA tentativa DE 1 ATÉ 3\n    pedir senha\n\n# enquanto for verdade\nENQUANTO senha errada E tentativas < 3\n    pedir senha\n    tentativas = tentativas + 1"
+        "codigo": "# número certo de vezes\nPARA tentativa DE 1 ATÉ 3\n    pedir senha\n\n# enquanto for verdade\nENQUANTO senha errada E tentativas < 3\n    pedir senha\n    tentativas = tentativas + 1",
+        "linguagem": "texto"
       },
       "quiz": [
         {
           "pergunta": "Você esquece de somar 1 em tentativas. O que acontece?",
           "opcoes": [
             "Roda 3 vezes mesmo assim",
-            "Roda pra sempre",
-            "Dá erro na hora"
+            "Dá erro na hora",
+            "Roda pra sempre"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Se a condição nunca muda, o laço nunca termina. Erro número 1 de iniciante."
         }
       ],
       "desafio": {
         "pergunta": "Escreva um laço que soma todos os números de 1 a 100.",
-        "solucao": "soma = 0\nPARA n DE 1 ATÉ 100\n    soma = soma + n\nmostrar soma   # 5050"
+        "solucao": "soma = 0\nPARA n DE 1 ATÉ 100\n    soma = soma + n\nmostrar soma   # 5050",
+        "linguagem": "texto"
       }
     },
     {
@@ -175,23 +185,25 @@
       ],
       "exemplo": {
         "nota": "Teste de mesa de um contador:",
-        "codigo": "total = 0\nPARA n DE 1 ATÉ 3\n    total = total + n\n\nvolta | n | total\n  1   | 1 |   1\n  2   | 2 |   3\n  3   | 3 |   6"
+        "codigo": "total = 0\nPARA n DE 1 ATÉ 3\n    total = total + n\n\nvolta | n | total\n  1   | 1 |   1\n  2   | 2 |   3\n  3   | 3 |   6",
+        "linguagem": "texto"
       },
       "quiz": [
         {
           "pergunta": "Pra que serve o teste de mesa?",
           "opcoes": [
-            "Deixar o código rápido",
             "Achar erro de lógica antes de rodar",
+            "Deixar o código rápido",
             "Substituir o computador"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Pega erro de raciocínio. Erro de digitação o computador acusa sozinho."
         }
       ],
       "desafio": {
         "pergunta": "Teste de mesa de: x = 10; ENQUANTO x > 0: x = x - 3. Quantas voltas e qual o x final?",
-        "solucao": "volta | x antes | x depois\n  1   |   10    |    7\n  2   |    7    |    4\n  3   |    4    |    1\n  4   |    1    |   -2  → para\n\n4 voltas, x final = -2"
+        "solucao": "volta | x antes | x depois\n  1   |   10    |    7\n  2   |    7    |    4\n  3   |    4    |    1\n  4   |    1    |   -2  → para\n\n4 voltas, x final = -2",
+        "linguagem": "texto"
       }
     }
   ]

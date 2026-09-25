@@ -462,5 +462,179 @@
     "readme": "# [nome do projeto]\n\n![verificação](https://github.com/[usuario]/[repo]/actions/workflows/verificacao.yml/badge.svg)\n\n[Uma frase sobre o que a ferramenta faz.]\n\n## Verificação automática\n\nA cada push, a esteira roda:\n\n- **Testes** com pytest\n- **Dependências** com pip-audit, procurando falha conhecida\n- **Segredos** com gitleaks, no código e no histórico\n\n## Como rodar local\n\n```bash\ncp .env.exemplo .env     # preencha com os seus valores\npip install -r requirements.txt\npython -m pytest -q\n```\n\n## A prova de que a varredura funciona\n\n[Cole aqui o print ou o link do trabalho vermelho no branch de teste, quando você\nplantou uma chave falsa de propósito.]\n\n## O que a esteira não pega\n\n[Ex: lógica errada, falha de autorização, segredo com formato que a ferramenta não\nconhece. Por isso ela não substitui revisão.]\n\n## O que aprendi\n\n[Específico. Ex: segredo apagado do arquivo continua no histórico, e a correção é\nrotacionar a chave, não apagar o commit.]\n",
     "linkedin": "Coloquei uma esteira de verificação num projeto meu: teste, dependência vulnerável e varredura de segredo, a cada push.\n\nDepois fiz questão de ver a esteira falhar.\n\nCriei um branch, plantei uma chave falsa e mandei. A verificação ficou vermelha em dois minutos e apontou a linha.\n\nVerificação que você nunca viu falhar é decoração. Você não sabe se ela está olhando de verdade.\n\nO outro aprendizado veio junto: segredo apagado do arquivo continua no histórico do Git. A correção não é apagar o commit, é trocar a chave.\n\nCódigo: [link]",
     "foco": "seguranca"
+  },
+  {
+    "id": "p9",
+    "titulo": "API de verdade no ar",
+    "nivel": 3,
+    "tempo": "10 a 16 horas",
+    "modulo": "Depois do Módulo 7",
+    "pitch": "Uma API sua, com banco, login e permissão, publicada e respondendo num endereço público.",
+    "porque": "É o projeto que responde a pergunta que toda entrevista faz: você já colocou alguma coisa no ar? O link que abre vale mais que qualquer descrição, e a seção de decisões do README é o que puxa a conversa técnica.",
+    "escopo": {
+      "faz": [
+        "CRUD completo de um recurso que você escolheu, com validação e status certos",
+        "Banco de verdade, com as consultas parametrizadas",
+        "Cadastro, login e cada pessoa alcançando só o que é dela",
+        "Publicada, com rota de saúde e testes passando"
+      ],
+      "naoFaz": [
+        "Não tem tela: é API, e o cliente é o curl ou a documentação",
+        "Não recupera senha por e-mail, nem faz upload de arquivo",
+        "Não tem painel de administração",
+        "Não promete escala: é um projeto de portfólio, e o README diz isso"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Comece pelo que já roda",
+        "descricao": "Pegue a API da aula 7.2, que já tem login, token e a checagem de dono. Ela é o esqueleto. Troque o assunto de tarefas pelo seu: treinos, leituras, gastos, plantas, o que você usa de verdade."
+      },
+      {
+        "titulo": "Escolha o assunto com cuidado",
+        "descricao": "Um recurso só, com quatro ou cinco campos, e uma regra de negócio que não seja óbvia. Regra própria é o que diferencia: não repetir título, não deixar marcar data futura, limite por pessoa."
+      },
+      {
+        "titulo": "Banco antes de tudo",
+        "descricao": "Modele a tabela com chave estrangeira pro usuário. Toda consulta parametrizada, e o dono entrando no WHERE em vez de num if depois."
+      },
+      {
+        "titulo": "Três testes e a esteira",
+        "descricao": "O caminho feliz, a entrada inválida e o acesso ao dado de outra pessoa. Se der, ligue a verificação automática a cada push, como no projeto da esteira."
+      },
+      {
+        "titulo": "Publique cedo, mesmo incompleta",
+        "descricao": "Suba pro provedor com duas rotas funcionando, antes de terminar o resto. Deploy no fim é onde os projetos morrem, porque sempre aparece algo que não roda fora da sua máquina."
+      },
+      {
+        "titulo": "README com as decisões",
+        "descricao": "Endereço no topo, como rodar local em três comandos, a tabela de rotas e a seção de por quês: por que essa stack, por que esse banco, o que ficaria diferente com mil usuários."
+      }
+    ],
+    "pronto": [
+      "O endereço público responde, e a rota de saúde diz que o banco está de pé",
+      "Sem token, nenhuma rota de dado responde; com token de outra pessoa, responde 403",
+      "Os testes passam e estão no repositório",
+      "O README abre com o link e tem a seção de decisões"
+    ],
+    "readme": "# [nome da API]\n\n**No ar:** https://[sua-api].onrender.com\n\n[Uma frase sobre o que ela faz e pra quem.]\n\n## Por que fiz\n\n[Ex: eu queria um lugar meu pra registrar [assunto], e queria a experiência inteira:\nbanco, login e deploy.]\n\n## Rodar local\n\n```bash\ncp .env.exemplo .env      # preencha APP_SEGREDO\n[instalar dependências]\n[subir a API]\n```\n\n## Rotas\n\n| Método | Caminho | O que faz | Precisa de token |\n|---|---|---|---|\n| POST | /cadastro | cria conta | não |\n| POST | /login | devolve o token | não |\n| GET | /[recurso] | lista o que é seu | sim |\n| POST | /[recurso] | cria | sim |\n| GET | /[recurso]/:id | mostra um | sim |\n| PUT | /[recurso]/:id | altera | sim |\n| DELETE | /[recurso]/:id | apaga | sim |\n| GET | /saude | diz se está de pé | não |\n\n## Decisões\n\n- **Stack:** [qual e por quê]\n- **Banco:** [qual e por quê, e quando eu trocaria]\n- **Autenticação:** [token assinado, validade, por que não usei sessão]\n- **A regra de negócio própria:** [qual é, e por que ela existe]\n\n## O que ficou de fora\n\n[Lista curta, com o motivo de cada item.]\n\n## O que eu aprendi\n\n[Específico, de preferência algo que deu errado primeiro.]\n",
+    "linkedin": "Coloquei no ar a primeira API que eu construí do zero: banco, cadastro, login e permissão.\n\nA parte que mais me ensinou não foi escrever as rotas. Foi descobrir, no deploy, tudo que funcionava só na minha máquina.\n\nO banco em arquivo que sumia a cada reinício. A porta fixa que o provedor ignorava. A variável de ambiente que eu tinha esquecido de configurar lá, e que derrubou a subida (ainda bem: ela derrubou cedo, e não no meio de um pedido).\n\nCada um desses custou uma hora e valeu por um capítulo.\n\nEndereço e código: [link]",
+    "foco": "backend"
+  },
+  {
+    "id": "p10",
+    "titulo": "Integração: consumir uma API e servir a sua",
+    "nivel": 2,
+    "tempo": "6 a 10 horas",
+    "modulo": "Depois do Módulo 5",
+    "pitch": "A sua API busca dados numa API pública, guarda no banco e serve do seu jeito, sem depender dela pra responder.",
+    "porque": "Integração é metade do trabalho de back-end no mercado, e quase ninguém tem um projeto que mostra isso. Aqui aparecem as três coisas que todo integrador precisa saber: cache, tratamento de falha do outro lado e transformação de formato.",
+    "escopo": {
+      "faz": [
+        "Busca dados numa API pública que não exige cadastro",
+        "Guarda no banco e responde a partir dele, não da API de fora",
+        "Atualiza quando o dado ficou velho, num prazo que você escolhe",
+        "Continua respondendo quando a API de fora está fora do ar"
+      ],
+      "naoFaz": [
+        "Não consulta a API de fora a cada requisição que chega",
+        "Não guarda chave de API no código, se a que você escolher pedir uma",
+        "Não copia a base inteira de ninguém: respeite o limite e os termos de uso",
+        "Não inventa dado quando a fonte está indisponível: diz que está velho"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Comece pelo verificador que você já escreveu",
+        "descricao": "A função da aula 7.1 que faz requisição e trata erro já é o esqueleto do seu cliente. Comece buscando um dado só e imprimindo, sem banco nenhum."
+      },
+      {
+        "titulo": "Escolha uma fonte pública e simples",
+        "descricao": "Cotação de moeda, dados abertos do governo, feriados nacionais, CEP. Leia os termos e o limite de requisições antes, e anote os dois no README."
+      },
+      {
+        "titulo": "Guarde, com a hora",
+        "descricao": "Toda linha que você salvar leva a hora em que foi buscada. É esse campo que decide se o dado ainda serve ou se precisa buscar de novo."
+      },
+      {
+        "titulo": "Responda do banco",
+        "descricao": "A sua rota nunca espera a API de fora: ela lê o banco. Se o dado estiver velho, atualiza depois de responder, ou na próxima chamada."
+      },
+      {
+        "titulo": "Simule o outro lado caindo",
+        "descricao": "Desligue a internet, ou aponte pra um endereço que não existe, e veja o que a sua API responde. O certo é devolver o dado guardado com um aviso de que ele é de [horário], e nunca um 500."
+      },
+      {
+        "titulo": "Documente o contrato",
+        "descricao": "No README: de onde vem o dado, de quanto em quanto tempo atualiza, e o que acontece quando a fonte cai. Quem integra com você precisa saber disso."
+      }
+    ],
+    "pronto": [
+      "A resposta sai do banco, e o tempo dela não depende da API de fora",
+      "Existe um campo dizendo quando aquele dado foi buscado",
+      "Com a fonte fora do ar, a API continua respondendo, avisando que o dado é antigo",
+      "O README traz a fonte, o limite de requisições e a política de atualização"
+    ],
+    "readme": "# [nome]: espelho de [fonte]\n\nBusca [o quê] em [fonte], guarda e serve por uma API própria.\n\n## Por que fiz\n\n[Ex: queria entender como se integra com uma API que eu não controlo, incluindo o\ndia em que ela cai.]\n\n## A fonte\n\n- **De onde vem:** [link da API pública]\n- **Limite:** [X requisições por minuto/dia, conforme os termos]\n- **Atualização:** a cada [X] minutos, sob demanda\n\n## Rotas\n\n```\nGET /[recurso]           lista, do banco\nGET /[recurso]/:chave    um item, do banco\nGET /saude               diz se está de pé e quando foi a última busca\n```\n\n## Quando a fonte cai\n\n[Descreva: respondo o último dado guardado, com o campo `buscado_em`, e registro\no erro no log. Nunca devolvo 500 por causa do outro lado.]\n\n## O que aprendi\n\n[Específico. Ex: o cache não é otimização aqui, é o que mantém a API de pé.]\n",
+    "linkedin": "Escrevi uma API que depende de outra API, e a parte interessante foi projetar o dia em que a outra cai.\n\nA primeira versão consultava a fonte a cada requisição. Funcionava rápido no teste e tinha dois problemas: estourava o limite de requisições dela e ficava fora do ar junto com ela.\n\nA segunda versão guarda no banco com a hora da busca e responde sempre do que tem, atualizando quando envelhece.\n\nCom a fonte desligada, ela continua respondendo e avisa que o dado é de tal horário. Deixou de ser otimização e virou a razão de ela funcionar.\n\nCódigo: [link]",
+    "foco": "backend"
+  },
+  {
+    "id": "p11",
+    "titulo": "Fila de trabalho: tirar o que demora da requisição",
+    "nivel": 3,
+    "tempo": "6 a 10 horas",
+    "modulo": "Depois do Módulo 7",
+    "pitch": "A API aceita o pedido em milésimos, guarda numa fila e um trabalhador processa depois. Quem pediu acompanha pelo status.",
+    "porque": "É o padrão que separa API de brinquedo de API de verdade: relatório pesado, e-mail, processamento de arquivo. E mostra que você entende que requisição HTTP não é lugar de trabalho demorado.",
+    "escopo": {
+      "faz": [
+        "Aceita o pedido, responde 202 com um id e devolve na hora",
+        "Guarda o trabalho numa tabela com status pendente",
+        "Um processo separado pega o pendente, executa e grava o resultado",
+        "Rota de consulta que devolve pendente, pronto ou falhou"
+      ],
+      "naoFaz": [
+        "Não usa fila de mensagens de verdade (Redis, RabbitMQ): a tabela basta pra aprender",
+        "Não processa em paralelo: um trabalhador por vez, com o motivo escrito no README",
+        "Não tenta pra sempre: erro tem número máximo de tentativas",
+        "Não guarda arquivo grande no banco"
+      ]
+    },
+    "passos": [
+      {
+        "titulo": "Comece medindo o que demora",
+        "descricao": "Pegue uma operação lenta de verdade na sua API (um relatório grande, uma integração externa) e cronometre. Sem número, você não tem por que mudar nada."
+      },
+      {
+        "titulo": "A tabela da fila",
+        "descricao": "id, tipo, parâmetros em JSON, status, tentativas, criado_em, terminado_em e resultado. O status é o que a rota de consulta devolve."
+      },
+      {
+        "titulo": "A rota que aceita e devolve",
+        "descricao": "POST grava pendente e responde 202 com o id e o endereço de consulta. 202 quer dizer aceito, ainda não feito, e é exatamente isso que está acontecendo."
+      },
+      {
+        "titulo": "O trabalhador",
+        "descricao": "Um script separado, em laço: pega o pendente mais antigo, marca processando, executa, grava o resultado. Rode ele numa segunda janela e veja a fila andar."
+      },
+      {
+        "titulo": "Encare a falha",
+        "descricao": "Faça um trabalho quebrar de propósito. Ele precisa marcar falhou, guardar o motivo e contar a tentativa. Depois de três, para de tentar e fica pra investigação."
+      },
+      {
+        "titulo": "Feche o ciclo",
+        "descricao": "Uma rota de consulta que devolve o status e, quando pronto, o resultado ou o link dele. No README, o desenho do fluxo em cinco linhas."
+      }
+    ],
+    "pronto": [
+      "O POST responde em milésimos, mesmo com o trabalho demorando minutos",
+      "A consulta mostra a mudança de pendente para pronto",
+      "Trabalho que quebra vira falhou, com o motivo e o número de tentativas",
+      "O README explica o fluxo e por que a fila é uma tabela, e não Redis"
+    ],
+    "readme": "# [nome]: API com fila de trabalho\n\nAceita pedidos demorados, responde na hora e processa fora da requisição.\n\n## Por que fiz\n\n[Ex: o relatório levava 40 segundos e o navegador desistia antes. Em vez de deixar\nmais rápido, tirei ele da requisição.]\n\n## O fluxo\n\n```\n1. POST /trabalhos        -> 202 { \"id\": 12, \"consulta\": \"/trabalhos/12\" }\n2. a linha nasce pendente na tabela\n3. o trabalhador pega o mais antigo, marca processando e executa\n4. grava pronto (com resultado) ou falhou (com motivo)\n5. GET /trabalhos/12      -> o status atual\n```\n\n## Rodar\n\n```bash\n[subir a API]\n[rodar o trabalhador em outra janela]\n```\n\n## Decisões\n\n- **Por que tabela e não Redis:** [o motivo real: já tenho banco, o volume é pequeno,\n  e uma peça a menos pra manter.]\n- **Quando eu trocaria:** [volume, necessidade de vários trabalhadores, prioridade.]\n- **Tentativas:** [quantas, e o que acontece depois.]\n\n## O que aprendi\n\n[Específico. Ex: 202 existe justamente pra isso, e eu nunca tinha usado.]\n",
+    "linkedin": "Tinha uma rota que levava 40 segundos. Em vez de otimizar, tirei o trabalho de dentro da requisição.\n\nAgora o POST grava o pedido numa tabela, responde 202 com um id e devolve em milésimos. Um processo separado pega os pendentes, executa e grava o resultado. Quem pediu acompanha por uma rota de consulta.\n\nO 202 foi a descoberta: eu conhecia 200 e 201, e existe um status que significa exatamente \"aceitei, ainda não terminei\".\n\nA parte que dá trabalho não é a fila: é decidir o que fazer quando o trabalho falha. Três tentativas, motivo guardado, e depois disso alguém precisa olhar.\n\nCódigo: [link]",
+    "foco": "backend"
   }
 ]

@@ -27,10 +27,10 @@
           "pergunta": "Vem 'comando não encontrado'. Causa mais provável?",
           "opcoes": [
             "O Python não existe",
-            "Não foi adicionado ao PATH",
-            "O terminal quebrou"
+            "O terminal quebrou",
+            "Não foi adicionado ao PATH"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "É quase sempre isso. Reinstale marcando a caixinha."
         }
       ],
@@ -156,11 +156,11 @@
         {
           "pergunta": "O que break faz ali?",
           "opcoes": [
-            "Pula pra próxima volta",
             "Sai do laço na hora",
+            "Pula pra próxima volta",
             "Dá erro"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Sem ele, o programa continuaria pedindo senha depois de acertar."
         }
       ],
@@ -188,10 +188,10 @@
           "pergunta": "Por que o dicionário costuma ser melhor aqui?",
           "opcoes": [
             "É mais rápido",
-            "Você não precisa lembrar que email é a posição 1",
-            "Ocupa menos memória"
+            "Ocupa menos memória",
+            "Você não precisa lembrar que email é a posição 1"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Código se lê muito mais vezes do que se escreve."
         }
       ],
@@ -225,11 +225,11 @@
         {
           "pergunta": "Diferença entre print e return?",
           "opcoes": [
-            "Nenhuma",
             "print mostra, return entrega o valor",
+            "Nenhuma",
             "return é mais novo"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Um é pra olhar, o outro é pra usar."
         }
       ],
@@ -257,10 +257,10 @@
           "pergunta": "Por que checar a lista de proibidas antes do tamanho?",
           "opcoes": [
             "É mais rápido",
-            "Senha vazada continua vazada mesmo sendo longa",
-            "Não faz diferença"
+            "Não faz diferença",
+            "Senha vazada continua vazada mesmo sendo longa"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Ataque real usa listas de senhas vazadas. Tamanho não protege contra isso."
         }
       ],

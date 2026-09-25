@@ -38,10 +38,10 @@
           "pergunta": "Duas máquinas diferentes podem usar a porta 443 ao mesmo tempo?",
           "opcoes": [
             "Não, cada porta é única na internet inteira",
-            "Sim: a porta só precisa ser única dentro de cada máquina",
-            "Só se as duas estiverem na mesma rede"
+            "Só se as duas estiverem na mesma rede",
+            "Sim: a porta só precisa ser única dentro de cada máquina"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Quem identifica a máquina é o IP. A porta identifica o programa dentro dela, então a 443 se repete em todo servidor web do planeta."
         }
       ],
@@ -77,11 +77,11 @@
         {
           "pergunta": "Você trocou o servidor do seu site e atualizou o IP no DNS. Parte das pessoas continua caindo no servidor antigo. Por quê?",
           "opcoes": [
-            "O DNS antigo foi invadido",
             "A resposta anterior ainda está em cache, e só expira quando o TTL acabar",
+            "O DNS antigo foi invadido",
             "Um mesmo nome nunca pode mudar de IP"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Cache é o motivo de mexer no TTL pra baixo dias antes de uma migração planejada."
         },
         {
@@ -128,10 +128,10 @@
           "pergunta": "O HTTP não guarda estado, mas o site sabe que você está logado. Como?",
           "opcoes": [
             "O servidor reconhece o seu IP",
-            "O navegador reenvia o cookie de sessão em toda requisição",
-            "O HTTP guarda estado, sim"
+            "O HTTP guarda estado, sim",
+            "O navegador reenvia o cookie de sessão em toda requisição"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Por isso o cookie de sessão vale tanto quanto a senha: quem rouba o cookie entra sem precisar dela."
         },
         {
@@ -177,11 +177,11 @@
         {
           "pergunta": "Um site de golpe pode ter o cadeado do HTTPS?",
           "opcoes": [
-            "Não, o cadeado só sai pra site verificado",
             "Sim: o certificado prova o domínio, não a honestidade de quem está por trás dele",
+            "Não, o cadeado só sai pra site verificado",
             "Só se ele invadir uma autoridade certificadora"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Pra emitir, a autoridade só confere que você controla aquele domínio. Golpista registra o domínio parecido e pega o certificado igual."
         },
         {
@@ -228,10 +228,10 @@
           "pergunta": "Você capturou o seu próprio login num site https e não achou a senha em lugar nenhum. Por quê?",
           "opcoes": [
             "O Wireshark não captura formulário",
-            "O TLS cifra o conteúdo: sobra o handshake e o nome do site",
-            "A senha foi enviada por outra placa de rede"
+            "A senha foi enviada por outra placa de rede",
+            "O TLS cifra o conteúdo: sobra o handshake e o nome do site"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Faça o mesmo teste em http e a senha aparece em texto puro. Essa é a diferença que o s do https faz."
         },
         {
@@ -287,11 +287,11 @@
         {
           "pergunta": "No ss -tln aparece 127.0.0.1:3306. Esse MySQL está exposto pra rede?",
           "opcoes": [
-            "Sim, qualquer aparelho da rede alcança",
             "Não: 127.0.0.1 só aceita conexão da própria máquina",
+            "Sim, qualquer aparelho da rede alcança",
             "Só se o firewall estiver desligado"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "É a diferença de uma linha de configuração. O mesmo banco em 0.0.0.0:3306 estaria aberto pra quem chegasse na rede."
         }
       ],

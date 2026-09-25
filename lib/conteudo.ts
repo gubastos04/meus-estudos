@@ -350,12 +350,6 @@ export const focoValido = (id: string | null | undefined): boolean => Boolean(id
 
 export const stacks = () => STACKS;
 export const stackValida = (id: string | null | undefined): boolean => Boolean(id) && STACKS.some((s) => s.id === id);
-/** A stack que a aula mostra: a escolhida, se a aula tiver; senão a primeira. */
-export const stackDaAula = (a: Pick<Aula, "exemplos">, escolhida: string | null | undefined): string | null => {
-  const chaves = Object.keys(a.exemplos ?? {});
-  if (!chaves.length) return null;
-  return escolhida && chaves.includes(escolhida) ? escolhida : chaves[0];
-};
 
 // Nas listas, foco opcional: com foco filtra base+foco; sem foco devolve tudo
 // (usado por generateStaticParams e por buscas por id).

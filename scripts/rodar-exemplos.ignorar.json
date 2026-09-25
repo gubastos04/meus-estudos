@@ -11,5 +11,11 @@
   "backend2a5:exemplo:flask": "mostra vários arquivos do projeto num bloco só",
   "backend2a5:solucao:flask": "mostra vários arquivos do projeto num bloco só",
   "backend2a5:exemplo:express": "mostra vários arquivos do projeto num bloco só",
-  "backend2a5:solucao:express": "mostra vários arquivos do projeto num bloco só"
+  "backend2a5:solucao:express": "mostra vários arquivos do projeto num bloco só",
+  "backend3a5:solucao:fastapi": "mostra o repositório do projeto, que é um arquivo entre vários",
+  "backend3a5:solucao:flask": "mostra o repositório do projeto, que é um arquivo entre vários",
+  "backend3a5:solucao:express": "mostra o repositório do projeto, que é um arquivo entre vários",
+  "backend5a2:solucao:fastapi": "continua o arquivo da aula 7.1: e um trecho, nao um programa inteiro",
+  "backend5a2:solucao:flask": "continua o arquivo da aula 7.1: e um trecho, nao um programa inteiro",
+  "backend5a2:solucao:express": "continua o arquivo da aula 7.1: e um trecho, nao um programa inteiro"
 }

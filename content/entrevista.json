@@ -5,7 +5,11 @@
     "querem": "Ver até onde vai sua noção de sistema. Ninguém espera a resposta completa de um iniciante, esperam que você não trave.",
     "esqueleto": "DNS traduz o nome em IP. O navegador abre conexão TCP com aquele IP na porta 443. TLS negocia a criptografia. O navegador manda uma requisição HTTP GET. O servidor responde com HTML. O navegador monta a página e busca os arquivos que faltam.",
     "cuidado": "Não invente etapa. Melhor dizer 'a partir daqui eu sei menos' do que falar errado com confiança.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "tema": "Base",
@@ -13,7 +17,11 @@
     "querem": "Saber se você usa os termos com precisão, porque muita gente troca os dois.",
     "esqueleto": "Autenticação é provar quem você é. Autorização é o que você pode fazer depois disso. Você pode estar autenticado e mesmo assim não ter permissão.",
     "cuidado": "Dê um exemplo concreto. Logar no sistema é autenticação; poder deletar um usuário é autorização.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "tema": "Base",
@@ -21,7 +29,11 @@
     "querem": "Ver se você entende hash de verdade ou só decorou a palavra.",
     "esqueleto": "Guarda-se o hash, não a senha. Hash é de mão única: não dá pra reverter. Com salt, duas senhas iguais viram hashes diferentes, o que impede tabela pré-calculada. Usa-se algoritmo lento de propósito, como bcrypt ou Argon2.",
     "cuidado": "Não diga 'criptografa a senha'. Criptografia tem volta, hash não. O entrevistador nota.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "tema": "Base",
@@ -29,7 +41,10 @@
     "querem": "Saber se você pensa em segurança como projeto, não como remendo.",
     "esqueleto": "Cada usuário, serviço ou processo recebe só o acesso necessário pra fazer sua função. Se algo for comprometido, o estrago fica limitado ao que aquela conta podia fazer.",
     "cuidado": "Bom momento pra citar um exemplo real: aplicação que conecta no banco com usuário admin quando só precisa ler uma tabela.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "tema": "Python",
@@ -61,7 +76,11 @@
     "querem": "Ver se você sabe a defesa contra SQL Injection, não só o nome do ataque.",
     "esqueleto": "É mandar a consulta e os valores separados pro banco. O banco já sabe qual parte é comando antes de ver o dado, então o dado nunca vira comando. Concatenar string é o que abre a injeção.",
     "cuidado": "Não diga que a solução é 'validar a entrada'. Ajuda, mas a defesa correta é a separação.",
-    "foco": "base"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "tema": "Segurança",
@@ -69,7 +88,11 @@
     "querem": "Sua capacidade de traduzir. Metade do trabalho em segurança é explicar risco pra quem decide orçamento.",
     "esqueleto": "Compare com um formulário em papel onde você escreve, no campo do nome, uma instrução pro funcionário. Se ele ler tudo como instrução em vez de tratar como nome, executa o que você escreveu.",
     "cuidado": "Evite jargão. Se usar 'sanitizar' ou 'query', você falhou no exercício.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "tema": "Segurança",
@@ -133,7 +156,11 @@
     "querem": "Saber se você entende que autenticação e autorização são decisões diferentes, tomadas em momentos diferentes.",
     "esqueleto": "401 é não sei quem você é: faltou login ou a sessão caiu. 403 é sei quem você é e você não pode entrar aqui. Um é identidade, o outro é permissão. Detalhe prático: o 403 confirma que a página existe, então em área sensível tem quem prefira responder 404.",
     "cuidado": "Não troque os dois, é o erro mais comum. E evite dizer que 403 é erro do servidor: erro do servidor é 5xx.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "tema": "Base",
@@ -141,7 +168,11 @@
     "querem": "Ver se você sabe o limite da ferramenta. Quem acha que https resolve segurança costuma deixar buraco em tudo o mais.",
     "esqueleto": "Ele protege o caminho: ninguém no meio lê nem altera o conteúdo, e o certificado prova que você está falando com aquele domínio. Não protege as pontas: se o servidor guarda senha em texto puro, ou se a máquina do usuário está comprometida, o https não faz nada. E o cadeado não diz que o site é honesto, porque certificado é grátis e automático.",
     "cuidado": "Não diga que https esconde tudo. O nome do site aparece na consulta de DNS e no começo do handshake.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "tema": "Segurança",
@@ -149,7 +180,10 @@
     "querem": "Método, não ferramenta. Eles querem ouvir uma sequência de perguntas, e querem ouvir você separar fato de suspeita.",
     "esqueleto": "Primeiro, o que é normal aqui: volume por hora, IPs de sempre, caminhos mais pedidos. Depois, três perguntas: quem fez mais requisições, quem colecionou 401 em pouco tempo e quem pediu caminho que não existe, tipo .env e wp-login. Com o IP suspeito na mão, eu olho a linha do tempo dele inteira e vejo se alguma tentativa terminou em 200. E registro o que é fato e o que é hipótese, separado.",
     "cuidado": "Não pule pra conclusão de ataque. Robô de backup, teste automatizado e gente esquecendo senha explicam boa parte dos picos.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "tema": "Segurança",
@@ -157,7 +191,10 @@
     "querem": "Saber se você entende que autorização é uma decisão do servidor, e não uma questão de esconder informação.",
     "esqueleto": "IDOR é acessar o dado de outra pessoa trocando um identificador na URL, porque o sistema nunca perguntou de quem é aquilo. Código aleatório só dificulta adivinhar: quem obtiver o código entra igual, e código vaza em log, histórico e link compartilhado. A correção é o servidor conferir o dono em toda requisição, de preferência na própria consulta ao banco.",
     "cuidado": "Não confunda com injeção. A consulta pode estar perfeitamente parametrizada e o IDOR continuar lá.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "tema": "Segurança",
@@ -181,7 +218,10 @@
     "querem": "Prática, não teoria. Eles querem ouvir variável de ambiente, .gitignore e, principalmente, a palavra rotacionar.",
     "esqueleto": "Segredo entra pelo ambiente, e o programa para logo no começo se faltar. O .env fica no .gitignore, com um .env.exemplo versionado só com os nomes. Se vazou, a primeira ação é gerar chave nova e revogar a antiga; depois olho o log de uso da chave velha, aviso quem precisa saber e só então limpo o histórico, sabendo que qualquer clone antigo continua com a cópia.",
     "cuidado": "Não diga que basta apagar o commit. Segredo commitado é segredo vazado, e quem responde isso mostra que nunca passou por um.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "tema": "Python",
@@ -189,6 +229,9 @@
     "querem": "Método de otimização: medir antes de mexer, e reconhecer o padrão que aparece em 80% dos casos.",
     "esqueleto": "Primeiro meço, pra saber onde o tempo vai. O padrão mais comum é busca em lista dentro de um laço, que é O(n²): trocar a lista por conjunto ou dicionário resolve e vira O(n). Se for consulta ao banco, procuro a consulta feita dentro do laço e o índice que falta. Depois meço de novo, porque otimização sem medida é chute.",
     "cuidado": "Não comece dizendo que vai reescrever em outra linguagem ou adicionar cache. Primeiro descubra a causa; quase sempre é uma linha.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   }
 ]

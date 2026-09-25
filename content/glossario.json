@@ -129,31 +129,50 @@
     "termo": "Terminal",
     "area": "Sistema",
     "definicao": "Onde você digita comandos em vez de clicar. Também chamado de shell ou console.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend",
+      "dados"
+    ]
   },
   {
     "termo": "PATH",
     "area": "Sistema",
     "definicao": "Lista de pastas onde o sistema procura programas quando você digita um nome.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend",
+      "dados"
+    ]
   },
   {
     "termo": "Processo",
     "area": "Sistema",
     "definicao": "Um programa em execução, com sua própria memória.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Thread",
     "area": "Sistema",
     "definicao": "Linha de execução dentro de um processo. Várias threads dividem a mesma memória.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Permissão",
     "area": "Sistema",
     "definicao": "Define quem pode ler, escrever ou executar um arquivo.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "root",
@@ -171,7 +190,11 @@
     "termo": "Log",
     "area": "Sistema",
     "definicao": "Registro do que aconteceu no sistema, com data e hora. A primeira coisa que se olha num incidente.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Stack",
@@ -195,61 +218,100 @@
     "termo": "IP",
     "area": "Rede",
     "definicao": "Endereço que identifica uma máquina na rede.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Porta",
     "area": "Rede",
     "definicao": "Número que identifica um serviço específico dentro da máquina. 80 é HTTP, 443 é HTTPS, 22 é SSH.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Protocolo",
     "area": "Rede",
     "definicao": "Conjunto de regras sobre como duas máquinas conversam.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "TCP",
     "area": "Rede",
     "definicao": "Protocolo que garante entrega e ordem. Mais lento, mais confiável.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "UDP",
     "area": "Rede",
     "definicao": "Protocolo que manda e não confere. Mais rápido, sem garantia.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "DNS",
     "area": "Rede",
     "definicao": "Traduz nome de site em endereço IP.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "HTTP",
     "area": "Rede",
     "definicao": "Protocolo da web. Cliente faz uma requisição, servidor devolve uma resposta.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "HTTPS",
     "area": "Rede",
     "definicao": "HTTP dentro de um túnel criptografado com TLS.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "TLS",
     "area": "Rede",
     "definicao": "Camada que criptografa a conexão e prova que o servidor é quem diz ser.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Handshake",
     "area": "Rede",
     "definicao": "Troca inicial de mensagens que estabelece uma conexão antes dos dados começarem.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Firewall",
@@ -261,7 +323,11 @@
     "termo": "Proxy",
     "area": "Rede",
     "definicao": "Intermediário que recebe sua requisição e repassa. Usado pra filtrar, cachear ou interceptar.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "VPN",
@@ -273,49 +339,81 @@
     "termo": "Front-end",
     "area": "Web",
     "definicao": "A parte que roda no navegador e o usuário vê.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Back-end",
     "area": "Web",
     "definicao": "A parte que roda no servidor, processa e guarda os dados.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Endpoint",
     "area": "Web",
     "definicao": "Um endereço específico da API que faz uma coisa. Ex: /usuarios/42.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Cookie",
     "area": "Web",
     "definicao": "Pedacinho de dado que o servidor pede pro navegador guardar e devolver a cada requisição.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Sessão",
     "area": "Web",
     "definicao": "O estado de 'este usuário está logado', mantido entre requisições.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Token",
     "area": "Web",
     "definicao": "Credencial temporária que prova quem você é, sem reenviar a senha.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "JWT",
     "area": "Web",
     "definicao": "Formato de token que carrega os dados dentro dele, assinado pelo servidor.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "CORS",
     "area": "Web",
     "definicao": "Regra do navegador que controla quais sites podem chamar sua API.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "CIA",
@@ -333,13 +431,21 @@
     "termo": "Vulnerabilidade",
     "area": "Segurança",
     "definicao": "A falha que permite o dano acontecer.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Risco",
     "area": "Segurança",
     "definicao": "A chance da ameaça explorar a vulnerabilidade, vezes o estrago.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Exploit",
@@ -357,73 +463,117 @@
     "termo": "Hash",
     "area": "Segurança",
     "definicao": "Função de mão única: transforma um dado em um código fixo, sem volta. Usada pra guardar senha.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Salt",
     "area": "Segurança",
     "definicao": "Valor aleatório somado à senha antes do hash, pra duas senhas iguais não gerarem o mesmo resultado.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Criptografia simétrica",
     "area": "Segurança",
     "definicao": "Mesma chave criptografa e descriptografa. Rápida, mas a chave precisa ser combinada antes.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Criptografia assimétrica",
     "area": "Segurança",
     "definicao": "Par de chaves: a pública criptografa, a privada descriptografa. Resolve o problema de combinar a chave.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Autenticação",
     "area": "Segurança",
     "definicao": "Provar quem você é.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Autorização",
     "area": "Segurança",
     "definicao": "Decidir o que você pode fazer, depois de já saber quem você é.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "MFA",
     "area": "Segurança",
     "definicao": "Exigir dois ou mais fatores: algo que você sabe, algo que você tem, algo que você é.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Força bruta",
     "area": "Segurança",
     "definicao": "Tentar todas as combinações até acertar.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "SQL Injection",
     "area": "Segurança",
     "definicao": "Fazer o dado enviado virar comando no banco, por falta de separação entre consulta e valor.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "XSS",
     "area": "Segurança",
     "definicao": "Injetar script que roda no navegador de outro usuário.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "CSRF",
     "area": "Segurança",
     "definicao": "Fazer o navegador da vítima enviar uma ação sem ela querer, aproveitando que ela já está logada.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "IDOR",
     "area": "Segurança",
     "definicao": "Trocar um identificador na URL e acessar dado de outra pessoa, porque ninguém checou a permissão.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Phishing",
@@ -441,7 +591,10 @@
     "termo": "CVE",
     "area": "Segurança",
     "definicao": "Identificador público de uma vulnerabilidade conhecida. Ex: CVE-2021-44228.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Zero-day",
@@ -471,13 +624,20 @@
     "termo": "OWASP",
     "area": "Segurança",
     "definicao": "Organização que publica o Top 10, a lista das falhas web mais comuns.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Menor privilégio",
     "area": "Segurança",
     "definicao": "Cada um recebe só o acesso que precisa pra fazer o trabalho, nada além.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Defesa em profundidade",
@@ -495,13 +655,21 @@
     "termo": "LGPD",
     "area": "Segurança",
     "definicao": "Lei brasileira de proteção de dados pessoais. Define o que pode ser coletado, por quê e por quanto tempo.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "dados"
+    ]
   },
   {
     "termo": "TTL",
     "area": "Rede",
     "definicao": "Quanto tempo uma resposta de DNS pode ficar guardada em cache antes de ser perguntada de novo.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "SNI",
@@ -519,25 +687,41 @@
     "termo": "HSTS",
     "area": "Web",
     "definicao": "Cabeçalho que manda o navegador nunca mais falar http com aquele domínio, só https.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Content-Security-Policy",
     "area": "Web",
     "definicao": "Cabeçalho que diz de onde a página pode carregar script e quem pode colocá-la dentro de um quadro. Camada extra contra XSS e clickjacking.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Clickjacking",
     "area": "Web",
     "definicao": "Carregar o site da vítima num quadro transparente por cima de outra coisa, pra ela clicar onde não pretendia.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Travessia de diretório",
     "area": "Web",
     "definicao": "Usar .. num nome de arquivo pra sair da pasta permitida e ler o que não era pra ler.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "CVSS",
@@ -549,13 +733,20 @@
     "termo": "Enumeração de usuário",
     "area": "Segurança",
     "definicao": "Descobrir quais contas existem porque o sistema responde diferente pra usuário inexistente e pra senha errada.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Fixação de sessão",
     "area": "Segurança",
     "definicao": "Ataque em que o identificador de sessão não muda no login, então quem o plantou antes continua dentro depois.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Divulgação responsável",
@@ -573,60 +764,97 @@
     "termo": "Hash lento",
     "area": "Segurança",
     "definicao": "Algoritmo feito de propósito pra demorar, como bcrypt, scrypt e Argon2. É com ele que senha se guarda.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Lista de permitidos",
     "area": "Segurança",
     "definicao": "Aceitar só o que está numa lista conhecida, em vez de tentar bloquear o que é ruim. A lista de proibidos sempre esquece um caso.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "web",
+      "backend"
+    ]
   },
   {
     "termo": "Responsabilidade compartilhada",
     "area": "Segurança",
     "definicao": "Na nuvem, o provedor cuida da infraestrutura e você cuida da configuração, do acesso e do dado.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "dados"
+    ]
   },
   {
     "termo": "Consulta parametrizada",
     "area": "Banco",
     "definicao": "Mandar o comando SQL e os valores por caminhos separados, com ? no lugar do valor. É a defesa real contra SQL Injection.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Chave primária",
     "area": "Banco",
     "definicao": "A coluna que identifica cada linha da tabela sem repetir.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "dados"
+    ]
   },
   {
     "termo": "Chave estrangeira",
     "area": "Banco",
     "definicao": "Coluna que aponta pra chave primária de outra tabela, e impede que o dado aponte pro vazio.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "dados"
+    ]
   },
   {
     "termo": "Tabela hash",
     "area": "Código",
     "definicao": "Estrutura por trás de dicionário e conjunto: calcula onde a chave deveria estar em vez de procurar item por item.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend"
+    ]
   },
   {
     "termo": "Contêiner",
     "area": "Sistema",
     "definicao": "Processo isolado rodando a partir de uma imagem, com as próprias bibliotecas, mas dividindo o núcleo do sistema com a máquina.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "termo": "Imagem",
     "area": "Sistema",
     "definicao": "A receita empacotada de um contêiner, em camadas. O que entra numa camada fica lá, inclusive segredo copiado por engano.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   },
   {
     "termo": "Esteira",
     "area": "Sistema",
     "definicao": "A sequência de verificações que roda sozinha a cada envio de código: teste, dependência vulnerável, varredura de segredo.",
-    "foco": "seguranca"
+    "foco": [
+      "seguranca",
+      "backend",
+      "web"
+    ]
   }
 ]

@@ -71,6 +71,42 @@
       "quando": "Meta de médio prazo, não agora",
       "porque": "O nome mais pesado da área ofensiva. Exame de 24 horas. Só faz sentido depois de meses de laboratório constante.",
       "foco": "seguranca"
+    },
+    {
+      "nome": "freeCodeCamp: Back End Development and APIs",
+      "orgao": "freeCodeCamp",
+      "custo": "Gratuito",
+      "ordem": 1,
+      "quando": "Em paralelo aos módulos 4 e 5",
+      "porque": "Node com Express, do zero ao projeto, com certificado gratuito no fim. Cobre a mesma matéria da trilha por outro ângulo, e ângulo diferente é o que fixa. No back-end, vale lembrar: projeto no ar pesa mais que certificado, e este serve de reforço, não de atalho.",
+      "foco": "backend"
+    },
+    {
+      "nome": "freeCodeCamp: Relational Databases",
+      "orgao": "freeCodeCamp",
+      "custo": "Gratuito",
+      "ordem": 2,
+      "quando": "Junto com o módulo 5",
+      "porque": "PostgreSQL de verdade, no terminal, com Linux e Git no caminho. É o passo natural depois do SQLite da trilha, e o certificado também é gratuito.",
+      "foco": "backend"
+    },
+    {
+      "nome": "AWS Certified Cloud Practitioner",
+      "orgao": "Amazon Web Services",
+      "custo": "Pago, veja o valor no site",
+      "ordem": 3,
+      "quando": "Depois de ter a sua API publicada",
+      "porque": "Dá o vocabulário de nuvem que aparece em quase toda vaga de back-end. Fazer depois de publicar alguma coisa é o que transforma o conteúdo em algo concreto, e não em decoreba.",
+      "foco": "backend"
+    },
+    {
+      "nome": "AWS Certified Developer Associate",
+      "orgao": "Amazon Web Services",
+      "custo": "Pago, veja o valor no site",
+      "ordem": 4,
+      "quando": "Quando a nuvem já fizer parte do seu dia",
+      "porque": "É a certificação de quem escreve código que roda na AWS. O código do exame muda de tempos em tempos (a versão DVA-C02 está sendo substituída pela DVA-C03), então confira no site da AWS qual está valendo antes de estudar por material antigo.",
+      "foco": "backend"
     }
   ],
   "labs": [
@@ -119,14 +155,43 @@
     {
       "nome": "Exercism",
       "tema": "Python",
-      "descricao": "Exercícios de Python com revisão de código por mentor voluntário. Gratuito.",
-      "foco": "seguranca"
+      "descricao": "Exercícios com correção automática e mentoria voluntária, em Python, JavaScript e mais de 60 linguagens. Gratuito.",
+      "foco": [
+        "seguranca",
+        "backend",
+        "web",
+        "dados"
+      ]
     },
     {
       "nome": "scanme.nmap.org",
       "tema": "Rede",
       "descricao": "Host que autoriza explicitamente varredura, pra treinar scanner sem cometer crime.",
       "foco": "seguranca"
+    },
+    {
+      "nome": "PostgreSQL Exercises",
+      "tema": "Banco",
+      "descricao": "Mais de 80 exercícios de SQL no navegador, do SELECT às funções de janela. Gratuito e sem cadastro.",
+      "foco": "backend"
+    },
+    {
+      "nome": "SQLBolt",
+      "tema": "Banco",
+      "descricao": "Lições curtas de SQL com exercício em cada uma, direto no navegador. Bom pra revisar antes de uma entrevista.",
+      "foco": "backend"
+    },
+    {
+      "nome": "public-apis (GitHub)",
+      "tema": "Integração",
+      "descricao": "Lista enorme de APIs públicas, muitas sem cadastro. É onde escolher a fonte do projeto de integração.",
+      "foco": "backend"
+    },
+    {
+      "nome": "The Odin Project",
+      "tema": "Geral",
+      "descricao": "Currículo gratuito e completo, com trilha de Node. Serve de caminho alternativo quando um assunto não entrar pela trilha daqui.",
+      "foco": "backend"
     }
   ]
 }

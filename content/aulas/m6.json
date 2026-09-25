@@ -88,10 +88,10 @@
           "pergunta": "Qual a diferença entre vulnerabilidade e risco?",
           "opcoes": [
             "Nenhuma, são sinônimos no mercado",
-            "Vulnerabilidade é a falha que existe; risco é a chance de ela ser explorada vezes o estrago que causaria",
-            "Vulnerabilidade é interna, risco é externo"
+            "Vulnerabilidade é interna, risco é externo",
+            "Vulnerabilidade é a falha que existe; risco é a chance de ela ser explorada vezes o estrago que causaria"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Uma falha grave num sistema desligado e sem rede é risco baixo. Uma falha média no login público é risco alto."
         }
       ],
@@ -127,21 +127,21 @@
         {
           "pergunta": "O sistema te conhece, você está logado, e mesmo assim /admin responde 403. O que faltou?",
           "opcoes": [
-            "Autenticação: o login não valeu",
             "Autorização: você é quem diz ser, mas esse perfil não pode entrar ali",
+            "Autenticação: o login não valeu",
             "A sessão expirou"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Sessão expirada daria 401 de novo. O 403 é a decisão de permissão, tomada depois de saber quem você é."
         },
         {
           "pergunta": "Alguém copiou o seu cookie de sessão. O que essa pessoa consegue?",
           "opcoes": [
             "Nada sem a senha",
-            "Agir como você até a sessão expirar ou você sair",
-            "Só ler páginas públicas"
+            "Só ler páginas públicas",
+            "Agir como você até a sessão expirar ou você sair"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "É por isso que HttpOnly, Secure e SameSite existem, e por isso o logout precisa realmente destruir a sessão no servidor."
         }
       ],
@@ -237,11 +237,11 @@
         {
           "pergunta": "Por que o https não usa só criptografia assimétrica do começo ao fim?",
           "opcoes": [
-            "Porque ela é menos segura",
             "Porque ela é lenta demais pro volume de uma página inteira",
+            "Porque ela é menos segura",
             "Porque ela não funciona em navegador"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Ela resolve o problema difícil, que é combinar a chave com quem você nunca viu. O trabalho pesado fica com a simétrica."
         }
       ],

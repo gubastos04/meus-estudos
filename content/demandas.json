@@ -315,5 +315,169 @@
     "solucao": "import time\n\ndef ativos_lento(usuarios, acessos):        # O(n * m): varre a lista inteira pra cada usuário\n    return [u for u in usuarios if u in acessos]\n\ndef resumo(usuarios, acessos):              # O(n + m): conjunto responde na hora\n    com_acesso = set(acessos)\n    ativos, nunca = [], []\n    for usuario in usuarios:\n        (ativos if usuario in com_acesso else nunca).append(usuario)\n    return ativos, nunca\n\nusuarios = [f\"usuario{n}\" for n in range(20_000)]\nacessos = [f\"usuario{n}\" for n in range(0, 20_000, 2)]   # metade acessou\n\ninicio = time.perf_counter()\nativos_lento(usuarios, acessos)\nprint(\"com lista:   \", round(time.perf_counter() - inicio, 3), \"s\")\n\ninicio = time.perf_counter()\nativos, nunca = resumo(usuarios, acessos)\nprint(\"com conjunto:\", round(time.perf_counter() - inicio, 3), \"s\")\nprint(len(ativos), \"ativos e\", len(nunca), \"que nunca acessaram\")\n\n# aqui deu 2,186 s contra 0,005 s. A conta é a mesma, o que mudou foi\n# onde a pergunta 'esse item existe?' é feita: em lista é uma varredura,\n# em conjunto é um cálculo (aula 10.4).",
     "aprendizado": "Uma linha, set(acessos), derrubou quarenta minutos. O padrão se repete a vida toda: quando aparecer o item em lista dentro de um laço, troque a lista por conjunto e meça de novo.",
     "foco": "seguranca"
+  },
+  {
+    "id": "d13",
+    "nivel": 1,
+    "titulo": "O monitoramento precisa de uma rota de saúde",
+    "de": "Rafa, infraestrutura",
+    "canal": "Slack",
+    "prazo": "hoje, se der",
+    "depois": "Publicar (aula 7.4)",
+    "mensagem": "opa\n\ncoloquei a API no monitoramento e ele precisa de uma URL pra bater de minuto em minuto\n\nme faz uma /saude que responda 200 quando tá tudo bem. quero saber a versão que está no ar também, porque semana passada a gente ficou meia hora achando que o deploy tinha subido e não tinha",
+    "criterios": [
+      "Responde a versão da aplicação",
+      "Responde 200 quando está tudo bem",
+      "Não devolve nada sensível: sem segredo, sem caminho de arquivo, sem versão de biblioteca",
+      "A função devolve o corpo e o status, sem depender do framework"
+    ],
+    "reviravolta": {
+      "texto": "boa, já tá batendo\n\nsó que hoje o banco caiu e a /saude continuou dizendo 200, então o monitoramento não acusou nada. ela precisa olhar o banco também, e responder erro quando ele estiver fora",
+      "criterios": [
+        "Recebe o estado do banco e responde 503 quando ele está fora",
+        "O corpo diz qual parte falhou",
+        "Continua respondendo 200 quando está tudo certo"
+      ]
+    },
+    "solucao": "import time\n\nINICIO = time.time()\n\ndef saude(versao, banco_ok, agora=None):\n    corpo = {\n        \"ok\": banco_ok,\n        \"versao\": versao,\n        \"banco\": \"ok\" if banco_ok else \"fora\",\n        \"no_ar_ha\": int((agora or time.time()) - INICIO),\n    }\n    # 503 é \"serviço indisponível\": o monitoramento entende e avisa\n    return corpo, 200 if banco_ok else 503\n\nprint(saude(\"1.2.0\", True, INICIO + 65))\n# ({'ok': True, 'versao': '1.2.0', 'banco': 'ok', 'no_ar_ha': 65}, 200)\n\nprint(saude(\"1.2.0\", False, INICIO + 65))\n# ({'ok': False, 'versao': '1.2.0', 'banco': 'fora', 'no_ar_ha': 65}, 503)\n\n# na rota, vira uma linha:\n#   corpo, status = saude(VERSAO, banco_responde())\n#\n# o que NÃO vai nessa resposta: nome do servidor, versão do Python,\n# string de conexão, caminho de arquivo. Rota de saúde é pública na prática.",
+    "aprendizado": "Rota de saúde que só responde 200 porque o processo está vivo não serve pra nada: ela precisa tocar a dependência que costuma cair. E o status certo importa, porque quem lê é uma máquina.",
+    "foco": "backend"
+  },
+  {
+    "id": "d14",
+    "nivel": 1,
+    "titulo": "A listagem trava a tela",
+    "de": "Dani, produto",
+    "canal": "Ticket",
+    "numero": "#5120",
+    "prazo": "essa semana",
+    "depois": "SELECT e WHERE (aula 5.2)",
+    "mensagem": "oi! a tela de tarefas está demorando uns 8 segundos pra abrir na conta de um cliente grande\n\nvi que a API devolve tudo de uma vez, e lá são 4 mil tarefas\n\ndá pra devolver de 20 em 20? o front precisa saber também quantas existem no total, pra desenhar a paginação",
+    "criterios": [
+      "Aceita a página e a quantidade por página",
+      "Devolve os itens da página, o total e quantas páginas existem",
+      "Pedir uma página que não existe devolve lista vazia, sem erro",
+      "Lista vazia devolve total 0 e 1 página"
+    ],
+    "reviravolta": {
+      "texto": "ficou rápido, obrigado\n\nagora o pessoal pediu um filtro: a tela vai ter um botão de \"só as pendentes\". o filtro precisa funcionar junto com a paginação, e o total tem que ser o total do filtro, não o geral",
+      "criterios": [
+        "Aceita o filtro por feita verdadeiro ou falso",
+        "Sem filtro, continua listando tudo",
+        "O total considera o filtro"
+      ]
+    },
+    "solucao": "def listar(tarefas, feita=None, pagina=1, por_pagina=20):\n    filtradas = tarefas if feita is None else [t for t in tarefas if t[\"feita\"] == feita]\n\n    inicio = (pagina - 1) * por_pagina\n    total = len(filtradas)      # o total é DEPOIS do filtro\n    return {\n        \"itens\": filtradas[inicio:inicio + por_pagina],\n        \"total\": total,\n        \"pagina\": pagina,\n        \"paginas\": max(1, -(-total // por_pagina)),\n    }\n\nTAREFAS = [{\"id\": n, \"titulo\": f\"Tarefa {n}\", \"feita\": n % 2 == 0} for n in range(1, 6)]\n\nprint(listar(TAREFAS, por_pagina=2)[\"total\"])            # 5\nprint(listar(TAREFAS, feita=True, por_pagina=2)[\"total\"])  # 2\nprint(listar(TAREFAS, pagina=3, por_pagina=2)[\"itens\"])  # a tarefa 5\nprint(listar(TAREFAS, pagina=9, por_pagina=2)[\"itens\"])  # []\n\n# no banco isso vira LIMIT e OFFSET, e o total sai de um COUNT(*) com o\n# MESMO WHERE da listagem. Duas consultas, e elas precisam concordar.",
+    "aprendizado": "O total é do filtro, não da tabela. Parece detalhe e é o bug que faz a paginação mostrar páginas que não existem, aquele que só aparece quando o cliente filtra.",
+    "foco": "backend"
+  },
+  {
+    "id": "d15",
+    "nivel": 2,
+    "titulo": "Cada rota erra de um jeito diferente",
+    "de": "Léo, suporte",
+    "canal": "E-mail",
+    "prazo": "essa sprint",
+    "depois": "Respostas e erros (aula 4.4)",
+    "mensagem": "boa tarde\n\no pessoal do aplicativo reclamou e eu concordo: cada rota da API devolve erro num formato diferente. uma manda {\"erro\": \"...\"}, outra manda {\"message\": ...}, outra manda texto puro, e teve uma que mandou o rastro do Python inteiro.\n\neles precisam de um formato só pra tratar. e pelo amor, tira o rastro de erro da resposta",
+    "criterios": [
+      "Um formato único de erro pra toda a API",
+      "Erro de validação inclui a lista dos campos com problema",
+      "Erro inesperado responde 500 com mensagem genérica, sem rastro",
+      "O status sai do tipo do erro, e não é escolhido rota por rota"
+    ],
+    "reviravolta": {
+      "texto": "perfeito, ficou padronizado\n\nfalta uma coisa que vai me salvar: quando alguém reclamar, eu preciso conseguir achar o pedido no log. dá pra devolver um código junto do erro, e esse mesmo código aparecer no log?",
+      "criterios": [
+        "A resposta de erro traz o identificador do pedido",
+        "O mesmo identificador serve pra procurar no log",
+        "Funciona nos quatro tipos de erro"
+      ]
+    },
+    "solucao": "class NaoEncontrado(Exception): pass\nclass SemPermissao(Exception): pass\n\nclass DadosInvalidos(Exception):\n    def __init__(self, campos):\n        super().__init__(\"dados inválidos\")\n        self.campos = campos\n\nSTATUS = {NaoEncontrado: 404, SemPermissao: 403, DadosInvalidos: 400}\n\ndef resposta_de_erro(exc, pedido_id=None):\n    status = STATUS.get(type(exc), 500)\n\n    # erro que eu não previ nunca conta o que aconteceu\n    corpo = {\"erro\": str(exc) if status != 500 else \"erro interno\"}\n\n    campos = getattr(exc, \"campos\", None)\n    if campos:\n        corpo[\"campos\"] = campos\n    if pedido_id:\n        corpo[\"pedido\"] = pedido_id\n    return corpo, status\n\nfor erro in (NaoEncontrado(\"tarefa não encontrada\"),\n             SemPermissao(\"sem permissão\"),\n             DadosInvalidos([\"titulo\"]),\n             ValueError(\"detalhe interno que não pode vazar\")):\n    print(resposta_de_erro(erro, \"9f2c1a7b\"))\n\n# ({'erro': 'tarefa não encontrada', 'pedido': '9f2c1a7b'}, 404)\n# ({'erro': 'sem permissão', 'pedido': '9f2c1a7b'}, 403)\n# ({'erro': 'dados inválidos', 'campos': ['titulo'], 'pedido': '9f2c1a7b'}, 400)\n# ({'erro': 'erro interno', 'pedido': '9f2c1a7b'}, 500)\n\n# repare no último: a mensagem do ValueError sumiu da resposta.\n# ela vai inteira pro log, junto com o mesmo 9f2c1a7b.",
+    "aprendizado": "Exceção própria por caso, e um tradutor só que decide o status. Assim a regra de negócio não fala em HTTP e nenhuma rota inventa um formato novo de erro.",
+    "foco": "backend"
+  },
+  {
+    "id": "d16",
+    "nivel": 2,
+    "titulo": "Clicou duas vezes, comprou duas vezes",
+    "de": "Marcos, seu gestor",
+    "canal": "Slack",
+    "prazo": "pra ontem",
+    "depois": "Verbos e status (aula 3.3)",
+    "mensagem": "temos um problema chato\n\ntrês clientes reclamaram de pedido duplicado hoje. olhei o log e é sempre a mesma coisa: a pessoa clica em confirmar, a internet dela demora, ela clica de novo\n\nchegam dois POST iguais e a gente cria dois pedidos\n\no aplicativo já manda um cabeçalho com um código único por tentativa. usa ele pra não repetir",
+    "criterios": [
+      "A mesma chave executa a operação uma vez só",
+      "A repetição devolve o mesmo resultado da primeira vez",
+      "Informa se aquela chamada foi repetição",
+      "Chaves diferentes seguem executando normalmente"
+    ],
+    "reviravolta": {
+      "texto": "resolveu\n\nsó que agora essa tabela de chaves vai crescer pra sempre. guarda por um tempo e depois esquece, tipo 10 minutos, que é mais que suficiente pro clique duplo",
+      "criterios": [
+        "Chave mais velha que o prazo é descartada",
+        "Depois do prazo, a mesma chave executa de novo",
+        "A limpeza acontece sozinha, sem tarefa separada"
+      ]
+    },
+    "solucao": "class Registro:\n    def __init__(self, validade=600):        # 10 minutos\n        self.validade = validade\n        self.feitos = {}\n\n    def aplicar(self, chave, funcao, agora):\n        self.limpar(agora)\n        if chave in self.feitos:\n            return self.feitos[chave][1], True       # repetido: devolve o de antes\n\n        resultado = funcao()\n        self.feitos[chave] = (agora, resultado)\n        return resultado, False\n\n    def limpar(self, agora):\n        vencidas = [c for c, (quando, _) in self.feitos.items() if agora - quando > self.validade]\n        for c in vencidas:\n            del self.feitos[c]\n\nregistro = Registro(validade=600)\n\ncontador = {\"n\": 0}\ndef criar_pedido():\n    contador[\"n\"] += 1\n    return {\"pedido\": contador[\"n\"]}\n\nprint(registro.aplicar(\"abc-123\", criar_pedido, agora=0))    # ({'pedido': 1}, False)\nprint(registro.aplicar(\"abc-123\", criar_pedido, agora=10))   # ({'pedido': 1}, True)\nprint(registro.aplicar(\"abc-123\", criar_pedido, agora=700))  # ({'pedido': 2}, False)\nprint(\"criou\", contador[\"n\"], \"pedidos\")                     # criou 2 pedidos\n\n# na API: a chave vem do cabeçalho Idempotency-Key e o registro vai pro banco,\n# senão cada processo do servidor tem a sua memória e o truque não funciona.\n# receber o tempo como parâmetro é o que deixa isso testável sem esperar 10 minutos.",
+    "aprendizado": "POST não é idempotente por natureza, então a gente faz virar, com uma chave que o cliente manda. E receber o relógio como parâmetro, em vez de chamar time.time() lá dentro, é o que torna o prazo testável.",
+    "foco": "backend"
+  },
+  {
+    "id": "d17",
+    "nivel": 3,
+    "titulo": "O relatório derruba o banco",
+    "de": "Rafa, infraestrutura",
+    "canal": "Slack",
+    "prazo": "antes do fechamento do mês",
+    "depois": "JOIN (aula 5.3)",
+    "mensagem": "fala\n\no relatório de uso está fazendo 3 mil consultas por chamada. o banco fica no talo e as outras telas ficam lentas junto\n\nolhei o código: ele busca os usuários e depois, pra cada usuário, busca as tarefas dele\n\ntrouxe o resultado do JOIN pra você. cada linha é um par usuário e tarefa, com o usuário repetido. monta o relatório em cima disso",
+    "criterios": [
+      "Monta o resultado numa passada só pelas linhas",
+      "Devolve, por usuário, o total e quantas estão pendentes",
+      "Ordena de quem tem mais pendência pra quem tem menos",
+      "Nenhuma consulta nova é feita dentro do laço"
+    ],
+    "reviravolta": {
+      "texto": "show, ficou instantâneo\n\no RH viu e pediu pra incluir quem não tem tarefa nenhuma, que é justamente quem eles querem cobrar. o JOIN virou LEFT JOIN, então agora vem linha com a tarefa vazia",
+      "criterios": [
+        "Quem não tem tarefa aparece com total 0",
+        "Linha com tarefa vazia não conta como tarefa",
+        "A ordenação continua valendo"
+      ]
+    },
+    "solucao": "from collections import defaultdict\n\ndef relatorio(linhas):\n    por_usuario = defaultdict(lambda: {\"total\": 0, \"pendentes\": 0})\n\n    for l in linhas:\n        dados = por_usuario[l[\"nome\"]]       # a chave nasce aqui, mesmo sem tarefa\n        if l[\"tarefa_id\"] is None:           # veio do LEFT JOIN: usuário sem tarefa\n            continue\n        dados[\"total\"] += 1\n        if not l[\"feita\"]:\n            dados[\"pendentes\"] += 1\n\n    return sorted(\n        ({\"nome\": nome, **d} for nome, d in por_usuario.items()),\n        key=lambda x: (-x[\"pendentes\"], x[\"nome\"]),\n    )\n\nLINHAS = [\n    {\"nome\": \"Ana\", \"tarefa_id\": 1, \"feita\": 0},\n    {\"nome\": \"Ana\", \"tarefa_id\": 2, \"feita\": 1},\n    {\"nome\": \"Ana\", \"tarefa_id\": 3, \"feita\": 0},\n    {\"nome\": \"Bruno\", \"tarefa_id\": 4, \"feita\": 0},\n    {\"nome\": \"Carla\", \"tarefa_id\": None, \"feita\": None},   # LEFT JOIN, sem tarefa\n]\n\nfor linha in relatorio(LINHAS):\n    print(linha)\n# {'nome': 'Ana', 'total': 3, 'pendentes': 2}\n# {'nome': 'Bruno', 'total': 1, 'pendentes': 1}\n# {'nome': 'Carla', 'total': 0, 'pendentes': 0}\n\n# de 3 mil consultas pra uma. O nome disso é problema N+1, e ele sempre\n# aparece como \"buscar a lista e depois buscar um por um\".",
+    "aprendizado": "Tocar no dicionário antes do if é o truque que faz a Carla existir no relatório mesmo sem tarefa. E ordenar por tupla, com o menos na frente, dá ordem decrescente sem inverter a lista depois.",
+    "foco": "backend"
+  },
+  {
+    "id": "d18",
+    "nivel": 3,
+    "titulo": "Exportar o relatório em CSV",
+    "de": "Dani, produto",
+    "canal": "Ticket",
+    "numero": "#5188",
+    "prazo": "quinta",
+    "depois": "A API conversando com o banco (aula 5.5)",
+    "mensagem": "oi! o financeiro pediu pra baixar as tarefas em planilha\n\nfiz um teste juntando os campos com vírgula e deu ruim: título com vírgula dentro quebrou as colunas, e um título com aspas ficou bizarro\n\ndá pra fazer direito? eles abrem no Excel",
+    "criterios": [
+      "Usa o módulo csv, e não junção de texto na mão",
+      "Título com vírgula não quebra as colunas",
+      "Título com aspas sai escapado corretamente",
+      "A primeira linha traz o cabeçalho das colunas"
+    ],
+    "reviravolta": {
+      "texto": "quase lá: o financeiro abriu no Excel e os acentos viraram símbolo, e tudo ficou numa coluna só\n\nno computador deles o Excel usa ponto e vírgula como separador, e ele precisa de uma marca no começo do arquivo pra entender que é UTF-8",
+      "criterios": [
+        "Aceita escolher o separador",
+        "Aceita gerar o arquivo com a marca de UTF-8 (BOM)",
+        "Sem a marca, o conteúdo continua igual ao de antes"
+      ]
+    },
+    "solucao": "import csv, io\n\ndef exportar(tarefas, separador=\";\", com_bom=False):\n    buffer = io.StringIO()\n    escritor = csv.writer(buffer, delimiter=separador, lineterminator=\"\\n\")\n\n    escritor.writerow([\"id\", \"titulo\", \"feita\"])\n    for t in tarefas:\n        escritor.writerow([t[\"id\"], t[\"titulo\"], \"sim\" if t[\"feita\"] else \"não\"])\n\n    texto = buffer.getvalue()\n    return (\"\\ufeff\" + texto) if com_bom else texto     # BOM: o Excel entende UTF-8\n\nsaida = exportar([\n    {\"id\": 1, \"titulo\": 'Ler \"o plano\"; com ponto e vírgula', \"feita\": False},\n    {\"id\": 2, \"titulo\": \"Revisar, com vírgula\", \"feita\": True},\n])\nprint(saida)\n# id;titulo;feita\n# 1;\"Ler \"\"o plano\"\"; com ponto e vírgula\";não\n# 2;Revisar, com vírgula;sim\n\n# repare: o módulo csv colocou aspas em volta do campo que tinha o separador,\n# e dobrou as aspas de dentro. É exatamente o que a junção na mão não faz.\n\nprint(repr(exportar([{\"id\": 1, \"titulo\": \"x\", \"feita\": 0}], com_bom=True)[:3]))\n# '\\ufeffid'\n\n# na rota, a resposta precisa de dois cabeçalhos:\n#   Content-Type: text/csv; charset=utf-8\n#   Content-Disposition: attachment; filename=\"tarefas.csv\"",
+    "aprendizado": "Formato de arquivo tem biblioteca porque os casos de borda são muitos: separador dentro do campo, aspas, quebra de linha no meio do texto. Escrever CSV com join é a armadilha mais repetida do ofício.",
+    "foco": "backend"
   }
 ]

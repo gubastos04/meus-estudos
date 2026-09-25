@@ -37,11 +37,11 @@
         {
           "pergunta": "Uma tabela pode ter duas colunas UNIQUE?",
           "opcoes": [
-            "Não, só a chave primária é única",
             "Sim: UNIQUE só proíbe repetição, e pode valer pra quantas colunas você quiser",
+            "Não, só a chave primária é única",
             "Só se as duas forem texto"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Chave primária é uma por tabela. Restrição de unicidade, quantas fizerem sentido: e-mail, CPF, número de pedido."
         }
       ],
@@ -78,10 +78,10 @@
           "pergunta": "O que o JOIN faz?",
           "opcoes": [
             "Copia uma tabela pra dentro da outra",
-            "Junta linhas de duas tabelas que combinam pela chave",
-            "Soma os valores das colunas"
+            "Soma os valores das colunas",
+            "Junta linhas de duas tabelas que combinam pela chave"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Ele casa pedido com usuário pelo usuario_id. Sem JOIN, você teria o número do usuário e não o nome."
         },
         {
@@ -137,11 +137,11 @@
         {
           "pergunta": "Por que passar o valor no ? em vez de montar o texto da consulta?",
           "opcoes": [
-            "Porque fica mais curto",
             "Porque o valor viaja separado do comando, então ele nunca vira parte do SQL",
+            "Porque fica mais curto",
             "Porque o Python exige"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "É a diferença entre dado e instrução, a mesma ideia da aula 7.2. A próxima aula mostra o que acontece quando ela é ignorada."
         }
       ],

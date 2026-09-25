@@ -4,7 +4,9 @@
 
 > **Reforma visual de 21/09/2026 (design system "Estúdio").** O visual "Caderno" (papel morno, âmbar) foi substituído por um SaaS de estudo premium e frio: base slate neutra (claro/escuro), acento indigo/violeta (`--acento`), profundidade por borda sutil (sombra com parcimônia), e tokens de espaço/raio/sombra. Navegação virou shell: **sidebar no desktop** e barra inferior no mobile (`components/Sidebar.tsx`, `Nav.tsx`, `itensNav.ts`). A home virou **dashboard** (uma próxima ação em destaque + métricas de progresso em cards). Isso relaxou as antigas anti-referências "sem dashboard / sem métricas em grade"; a meta semanal calma (dias ativos, sem punição) permanece. Seções de design abaixo são o registro original.
 
-> **Plano de conteúdo (22/09/2026).** Só a base (módulos 1 e 2) tem aulas escritas. As decisões e o andamento da escrita das aulas e do conteúdo de apoio de cada foco estão em `docs/plano-conteudo.md`.
+> **Plano de conteúdo (23/09/2026).** Base (14 aulas), segurança (54) e back-end (25) escritos, com prática, projetos, provas, glossário, entrevista e certificados próprios. Web e dados seguem como outline. As decisões e o andamento estão em `docs/plano-conteudo.md`.
+>
+> **O modelo de etiqueta saiu de cena.** As seções abaixo falam em `etiqueta: base | fullstack | seguranca` e em "trilha única, não crie uma trilha paralela de full stack". Isso foi substituído pelo modelo de **foco** da reforma de 21/09: cada conteúdo tem `foco` ("base" ou o id de um foco) e o conteúdo de apoio aceita vários focos numa lista. O princípio que gerou a regra continua valendo e é o motivo de ela ter mudado de forma: **a pessoa vê uma trilha só por vez**, a base mais o foco ativo. O que não existe é o usuário enxergando duas trilhas ao mesmo tempo.
 
 Documento de entrada para a construção. Contém tudo que foi decidido no protótipo: princípios, arquitetura, modelo de dados, telas, prompts de IA, design system e ordem de construção.
 
@@ -499,7 +501,9 @@ Proibido: emoji na interface, exclamação em excesso, "Parabéns!", confete, me
 11. Python para segurança — Desenvolvimento Rápido de Aplicações em Python — *etiqueta seguranca*
 12. Nuvem, deploy e DevSecOps — Computação em Nuvem / Engenharia de Software — *etiqueta fullstack*
 
-**Trilha única.** Não crie uma trilha paralela de full stack. Os módulos 5, 8 e 12 carregam o conteúdo full stack e recebem a etiqueta correspondente. Dividir em duas trilhas divide a atenção, que é o ponto fraco do usuário.
+**Trilha única.** *(Registro original; hoje vale na forma do foco, veja a nota do topo.)* Não crie uma trilha paralela de full stack. Os módulos 5, 8 e 12 carregam o conteúdo full stack e recebem a etiqueta correspondente. Dividir em duas trilhas divide a atenção, que é o ponto fraco do usuário.
+
+**Como ficou.** A lista acima é a trilha do foco segurança (módulos 3 a 12). Cada outro foco tem os seus 5 módulos, com ordem 3 a 7, e o usuário só enxerga a base mais o foco ativo. A regra virou: uma trilha visível por vez.
 
 ---
 

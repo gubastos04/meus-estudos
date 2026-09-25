@@ -85,6 +85,11 @@ export function EscolherFoco({ focos, stacks, atual, stackAtual }: {
               </button>
             );
           })}
+
+          {/* uma decisão por vez: dá pra começar sem escolher, e a primeira stack abre por padrão */}
+          <button type="button" className="bt-2" style={{ marginTop: 12 }} disabled={pendente} onClick={sair}>
+            Decidir depois
+          </button>
         </>
       )}
 

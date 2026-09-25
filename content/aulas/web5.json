@@ -3,23 +3,253 @@
   "aulas": [
     {
       "id": "web5a1",
-      "titulo": "Um servidor Node",
-      "minutos": 12
+      "titulo": "Um servidor Node com Express",
+      "minutos": 14,
+      "resumo": "O mesmo JavaScript, do outro lado. Agora você escreve quem responde, e não quem pede.",
+      "ideia": [
+        "Node roda JavaScript fora do navegador. Não existe document nem window ali: existem arquivos, rede e processo.",
+        "Express é uma camada fina em cima disso: você diz qual caminho responde o quê, e ele cuida do resto do HTTP."
+      ],
+      "exemplo": {
+        "nota": "Numa pasta nova: npm init -y, npm install express, e rode com node servidor.js",
+        "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());              // entende corpo em JSON\napp.use(express.static(\"public\"));    // serve os arquivos da pasta public\n\napp.get(\"/api/tarefas\", (req, res) => {\n  res.json([\n    { id: 1, titulo: \"Estudar Node\", feita: false },\n    { id: 2, titulo: \"Servir a página\", feita: true },\n  ]);\n});\n\nconst PORTA = process.env.PORT ?? 3000;\napp.listen(PORTA, () => console.log(`de pé em http://127.0.0.1:${PORTA}`));\n\n// duas coisas acontecem aqui:\n// 1. http://127.0.0.1:3000/            entrega public/index.html\n// 2. http://127.0.0.1:3000/api/tarefas devolve o JSON\n//\n// é a mesma origem pros dois, e isso resolve o CORS antes de ele existir",
+        "linguagem": "javascript"
+      },
+      "mais": {
+        "titulo": "O que muda do navegador pro servidor",
+        "linhas": [
+          "No servidor não existe document, window nem localStorage. Existem require, process.env, arquivos e conexões. O código de front não roda ali e vice-versa.",
+          "express.static é o que faz um projeto pequeno viver num processo só: a API e a página saindo do mesmo endereço, sem configurar nada de CORS.",
+          "A porta vem de process.env.PORT com um padrão. Quando você publicar, é o provedor que escolhe a porta, e essa linha já deixa a API pronta pra isso."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que não existe document no Node?",
+          "opcoes": [
+            "Porque o Node usa outra linguagem",
+            "Porque não há página: document é do navegador, e o Node só tem arquivos, rede e processo",
+            "Porque é preciso instalar um pacote pra ele existir"
+          ],
+          "correta": 1,
+          "porque": "É a mesma linguagem, outro ambiente. Por isso o código de front não roda no servidor sem adaptação."
+        },
+        {
+          "pergunta": "Para que serve express.static(\"public\")?",
+          "opcoes": [
+            "Entregar os arquivos da pasta public (HTML, CSS, imagens) pelo mesmo servidor da API",
+            "Guardar o estado do servidor",
+            "Deixar as rotas mais rápidas"
+          ],
+          "correta": 0,
+          "porque": "Com a página e a API no mesmo endereço, o navegador nem levanta a questão do CORS."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte um servidor que sirva a sua página de tarefas na raiz e responda uma lista em /api/tarefas. Abra a página no navegador e, na aba Network do F12, confirme que os dois vieram do mesmo endereço.",
+        "solucao": "// servidor.js\nconst express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\napp.use(express.static(\"public\"));    // coloque aqui o index.html do módulo 5\n\nconst TAREFAS = [\n  { id: 1, titulo: \"Estudar Node\", feita: false },\n  { id: 2, titulo: \"Servir a página\", feita: true },\n  { id: 3, titulo: \"Ligar o front no back\", feita: false },\n];\n\napp.get(\"/api/tarefas\", (req, res) => {\n  res.json(TAREFAS);\n});\n\napp.get(\"/api/saude\", (req, res) => {\n  res.json({ ok: true });\n});\n\nconst PORTA = process.env.PORT ?? 3000;\napp.listen(PORTA, () => console.log(`http://127.0.0.1:${PORTA}`));\n\n/*\n  a estrutura da pasta:\n    servidor.js\n    package.json\n    public/\n      index.html\n      estilo.css\n\n  no F12 > Network, você vai ver:\n    /             document   200\n    /estilo.css   stylesheet 200\n    /api/tarefas  fetch      200\n\n  os três com a mesma origem (127.0.0.1:3000). Guarde essa imagem:\n  é a diferença entre um projeto que funciona e uma tarde brigando com CORS.\n*/",
+        "linguagem": "javascript"
+      }
     },
     {
       "id": "web5a2",
       "titulo": "Rotas e API REST",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "Cada caminho responde por um recurso, e o verbo diz a intenção. É o combinado que o mundo inteiro usa.",
+      "ideia": [
+        "GET lê, POST cria, PUT altera e DELETE apaga. O caminho é o recurso no plural: /api/tarefas e /api/tarefas/3.",
+        "O status conta o que aconteceu: 200 deu certo, 201 criei, 400 o pedido veio errado, 404 não existe."
+      ],
+      "exemplo": {
+        "nota": "O CRUD completo em memória, que é o esqueleto de qualquer API:",
+        "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nlet tarefas = [{ id: 1, titulo: \"Primeira\", feita: false }];\nlet proximoId = 2;\n\n// listar\napp.get(\"/api/tarefas\", (req, res) => {\n  res.json(tarefas);\n});\n\n// criar\napp.post(\"/api/tarefas\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 2) {\n    return res.status(400).json({ erro: \"titulo: texto de 2 caracteres ou mais\" });\n  }\n\n  const tarefa = { id: proximoId++, titulo: titulo.trim(), feita: false };\n  tarefas.push(tarefa);\n  res.status(201).json(tarefa);\n});\n\n// alterar\napp.put(\"/api/tarefas/:id\", (req, res) => {\n  const id = Number(req.params.id);\n  const tarefa = tarefas.find((t) => t.id === id);\n  if (!tarefa) return res.status(404).json({ erro: \"não encontrada\" });\n\n  if (typeof req.body?.feita === \"boolean\") tarefa.feita = req.body.feita;\n  res.json(tarefa);\n});\n\n// apagar\napp.delete(\"/api/tarefas/:id\", (req, res) => {\n  const id = Number(req.params.id);\n  const antes = tarefas.length;\n  tarefas = tarefas.filter((t) => t.id !== id);\n\n  if (tarefas.length === antes) return res.status(404).json({ erro: \"não encontrada\" });\n  res.status(204).end();          // deu certo e não tem corpo pra devolver\n});\n\napp.listen(3000);",
+        "linguagem": "javascript"
+      },
+      "mais": {
+        "titulo": "Testar sem escrever tela",
+        "linhas": [
+          "curl faz qualquer requisição: curl -X POST -H \"Content-Type: application/json\" -d '{\"titulo\":\"Nova\"}' http://127.0.0.1:3000/api/tarefas. Dá pra ter a API inteira pronta antes de existir botão.",
+          "O caminho é substantivo no plural, sempre. /api/criarTarefa é verbo no lugar errado: quem diz a ação é o método HTTP.",
+          "Quer se aprofundar em API, banco, login e deploy? É exatamente isso que o foco de back-end e APIs faz, com três stacks. Aqui a gente vê o suficiente pra ligar o seu front num servidor seu."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual verbo e status pra criar uma tarefa?",
+          "opcoes": [
+            "POST, respondendo 201",
+            "GET, respondendo 200",
+            "PUT, respondendo 204"
+          ],
+          "correta": 0,
+          "porque": "201 quer dizer \"criei\". O 204 é pra quando deu certo e não há nada pra devolver, como no apagar."
+        },
+        {
+          "pergunta": "Alguém chama /api/tarefas/999, que não existe. O que responder?",
+          "opcoes": [
+            "200 com uma lista vazia",
+            "500, porque deu erro",
+            "404, porque o recurso não existe"
+          ],
+          "correta": 2,
+          "porque": "500 diz que o servidor falhou, e não foi o caso. 200 com vazio faz quem consome achar que deu certo."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva a API completa de tarefas com as quatro operações e teste cada uma com curl, sem abrir o navegador. Confirme os status: 200 ao listar, 201 ao criar, 404 num id que não existe e 204 ao apagar.",
+        "solucao": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nlet tarefas = [];\nlet proximoId = 1;\n\nconst achar = (id) => tarefas.find((t) => t.id === Number(id));\n\napp.get(\"/api/tarefas\", (req, res) => res.json(tarefas));\n\napp.get(\"/api/tarefas/:id\", (req, res) => {\n  const tarefa = achar(req.params.id);\n  if (!tarefa) return res.status(404).json({ erro: \"não encontrada\" });\n  res.json(tarefa);\n});\n\napp.post(\"/api/tarefas\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 2) {\n    return res.status(400).json({ erro: \"titulo: texto de 2 caracteres ou mais\" });\n  }\n  const tarefa = { id: proximoId++, titulo: titulo.trim(), feita: false };\n  tarefas.push(tarefa);\n  res.status(201).location(`/api/tarefas/${tarefa.id}`).json(tarefa);\n});\n\napp.put(\"/api/tarefas/:id\", (req, res) => {\n  const tarefa = achar(req.params.id);\n  if (!tarefa) return res.status(404).json({ erro: \"não encontrada\" });\n  if (typeof req.body?.feita === \"boolean\") tarefa.feita = req.body.feita;\n  if (typeof req.body?.titulo === \"string\") tarefa.titulo = req.body.titulo.trim();\n  res.json(tarefa);\n});\n\napp.delete(\"/api/tarefas/:id\", (req, res) => {\n  const antes = tarefas.length;\n  tarefas = tarefas.filter((t) => t.id !== Number(req.params.id));\n  if (tarefas.length === antes) return res.status(404).json({ erro: \"não encontrada\" });\n  res.status(204).end();\n});\n\napp.listen(3000);\n\n/*\n  os testes, em outra janela:\n\n  curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:3000/api/tarefas\n  200\n\n  curl -s -o /dev/null -w \"%{http_code}\\n\" -X POST \\\n    -H \"Content-Type: application/json\" -d '{\"titulo\":\"Nova\"}' \\\n    http://127.0.0.1:3000/api/tarefas\n  201\n\n  curl -s -o /dev/null -w \"%{http_code}\\n\" http://127.0.0.1:3000/api/tarefas/999\n  404\n\n  curl -s -o /dev/null -w \"%{http_code}\\n\" -X DELETE http://127.0.0.1:3000/api/tarefas/1\n  204\n*/",
+        "linguagem": "javascript"
+      }
     },
     {
       "id": "web5a3",
-      "titulo": "Banco de dados",
-      "minutos": 12
+      "titulo": "Banco de dados com SQLite",
+      "minutos": 16,
+      "resumo": "Array na memória some quando o servidor reinicia. O banco é onde o dado fica de verdade.",
+      "ideia": [
+        "SQLite é um banco inteiro num arquivo só, e o Node já traz um módulo pra ele: nada pra instalar, nada de servidor separado.",
+        "Valor que veio de fora nunca entra grudado no texto da consulta. Ele vai pelo ponto de interrogação, e o banco recebe comando e dado separados."
+      ],
+      "exemplo": {
+        "nota": "Precisa do Node 22.5 ou mais novo. Ele avisa que o módulo é experimental ao subir, e isso é esperado:",
+        "codigo": "const express = require(\"express\");\nconst { DatabaseSync } = require(\"node:sqlite\");\n\nconst app = express();\napp.use(express.json());\napp.use(express.static(\"public\"));\n\nconst banco = new DatabaseSync(\"tarefas.db\");\nbanco.exec(`CREATE TABLE IF NOT EXISTS tarefas (\n  id INTEGER PRIMARY KEY,\n  titulo TEXT NOT NULL,\n  feita INTEGER NOT NULL DEFAULT 0\n)`);\n\n// o banco guarda 0 e 1; o JSON quer true e false\nconst emTarefa = (l) => ({ id: l.id, titulo: l.titulo, feita: Boolean(l.feita) });\n\napp.get(\"/api/tarefas\", (req, res) => {\n  const linhas = banco.prepare(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\").all();\n  res.json(linhas.map(emTarefa));\n});\n\napp.post(\"/api/tarefas\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 2) {\n    return res.status(400).json({ erro: \"titulo: texto de 2 caracteres ou mais\" });\n  }\n\n  // o ? é o espaço reservado: o valor viaja separado do comando\n  const r = banco.prepare(\"INSERT INTO tarefas (titulo) VALUES (?)\").run(titulo.trim());\n  res.status(201).json({ id: Number(r.lastInsertRowid), titulo: titulo.trim(), feita: false });\n});\n\napp.put(\"/api/tarefas/:id\", (req, res) => {\n  const r = banco\n    .prepare(\"UPDATE tarefas SET feita = ? WHERE id = ?\")\n    .run(req.body?.feita ? 1 : 0, Number(req.params.id));\n\n  if (r.changes === 0) return res.status(404).json({ erro: \"não encontrada\" });\n  res.json({ ok: true });\n});\n\napp.listen(3000);",
+        "linguagem": "javascript"
+      },
+      "mais": {
+        "titulo": "As três regras do banco",
+        "linhas": [
+          "Nunca monte a consulta grudando texto. `WHERE titulo = '${busca}'` quebra no primeiro nome com apóstrofo e abre a porta pra SQL Injection. Com o ?, os dois problemas somem.",
+          "Escreva as colunas no SELECT em vez de usar *. Assim a resposta não passa a carregar coluna nova que alguém acrescentou, e o front não quebra quando a tabela muda.",
+          "SQLite é um arquivo: guarde-o fora da pasta que o servidor entrega ao público, e lembre que em alguns provedores o disco é descartável, e o arquivo some no reinício."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que passar o valor pelo ponto de interrogação em vez de juntar no texto da consulta?",
+          "opcoes": [
+            "Porque fica mais curto de escrever",
+            "Porque o valor viaja separado do comando, e aí ele nunca vira parte do SQL",
+            "Porque o SQLite não aceita texto longo"
+          ],
+          "correta": 1,
+          "porque": "É o que impede SQL Injection e, de quebra, faz o nome com apóstrofo funcionar."
+        },
+        {
+          "pergunta": "A tabela guarda feita como 0 ou 1. O que a API deve devolver no JSON?",
+          "opcoes": [
+            "O 0 ou 1, que é o que está no banco",
+            "true ou false, convertidos na hora de montar a resposta",
+            "A string \"sim\" ou \"não\""
+          ],
+          "correta": 1,
+          "porque": "A conversão acontece na borda. Deixar o 0 vazar pro front é o tipo de detalhe que quebra um if lá na frente."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Troque o array em memória da sua API pelo SQLite, mantendo as mesmas rotas e respostas. Crie duas tarefas, reinicie o servidor e confirme que elas continuam lá. Anote no Caderno onde o arquivo do banco foi parar.",
+        "solucao": "const express = require(\"express\");\nconst { mkdirSync } = require(\"node:fs\");\nconst { DatabaseSync } = require(\"node:sqlite\");\n\nconst app = express();\napp.use(express.json());\napp.use(express.static(\"public\"));\n\nmkdirSync(\"dados\", { recursive: true });              // o sqlite não cria a pasta\nconst banco = new DatabaseSync(\"dados/tarefas.db\");   // fora da pasta pública\nbanco.exec(`CREATE TABLE IF NOT EXISTS tarefas (\n  id INTEGER PRIMARY KEY, titulo TEXT NOT NULL, feita INTEGER NOT NULL DEFAULT 0)`);\n\nconst emTarefa = (l) => ({ id: l.id, titulo: l.titulo, feita: Boolean(l.feita) });\n\nconst consultas = {\n  listar: banco.prepare(\"SELECT id, titulo, feita FROM tarefas ORDER BY id\"),\n  criar: banco.prepare(\"INSERT INTO tarefas (titulo) VALUES (?)\"),\n  marcar: banco.prepare(\"UPDATE tarefas SET feita = ? WHERE id = ?\"),\n  apagar: banco.prepare(\"DELETE FROM tarefas WHERE id = ?\"),\n};\n\napp.get(\"/api/tarefas\", (req, res) => res.json(consultas.listar.all().map(emTarefa)));\n\napp.post(\"/api/tarefas\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 2) {\n    return res.status(400).json({ erro: \"titulo: texto de 2 caracteres ou mais\" });\n  }\n  const r = consultas.criar.run(titulo.trim());\n  res.status(201).json({ id: Number(r.lastInsertRowid), titulo: titulo.trim(), feita: false });\n});\n\napp.put(\"/api/tarefas/:id\", (req, res) => {\n  const r = consultas.marcar.run(req.body?.feita ? 1 : 0, Number(req.params.id));\n  if (r.changes === 0) return res.status(404).json({ erro: \"não encontrada\" });\n  res.json({ ok: true });\n});\n\napp.delete(\"/api/tarefas/:id\", (req, res) => {\n  const r = consultas.apagar.run(Number(req.params.id));\n  if (r.changes === 0) return res.status(404).json({ erro: \"não encontrada\" });\n  res.status(204).end();\n});\n\napp.listen(process.env.PORT ?? 3000);\n\n/*\n  no Caderno: o arquivo ficou em dados/tarefas.db, ao lado do servidor.js,\n  e NÃO dentro de public/. Se estivesse em public, qualquer pessoa baixaria\n  o banco inteiro digitando o endereço dele.\n\n  preparar as consultas uma vez, no topo, é mais rápido e deixa claro,\n  num lugar só, tudo que a API faz com o banco.\n*/",
+        "linguagem": "javascript"
+      }
     },
     {
       "id": "web5a4",
+      "titulo": "Ligar o front no back",
+      "minutos": 16,
+      "resumo": "A página conversando com a sua API: buscar, criar e atualizar, sem recarregar nada.",
+      "ideia": [
+        "No navegador é o mesmo fetch da aula 5.4, agora apontando pra sua API. O que muda é que agora existe POST, PUT e DELETE.",
+        "Servindo a página pelo mesmo Express, a origem é a mesma e não existe CORS. Em projeto separado (Vite numa porta, API em outra), o servidor precisa autorizar."
+      ],
+      "exemplo": {
+        "nota": "O public/index.html que conversa com a API das aulas anteriores:",
+        "codigo": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>Tarefas</title></head>\n  <body>\n    <h1>Tarefas</h1>\n\n    <form id=\"form\">\n      <label for=\"texto\">Nova tarefa</label>\n      <input id=\"texto\" required minlength=\"2\">\n      <button>Adicionar</button>\n    </form>\n\n    <p id=\"estado\" aria-live=\"polite\"></p>\n    <ul id=\"lista\"></ul>\n\n    <script>\n      const lista = document.querySelector(\"#lista\");\n      const estado = document.querySelector(\"#estado\");\n\n      async function carregar() {\n        estado.textContent = \"Carregando...\";\n        try {\n          const r = await fetch(\"/api/tarefas\");\n          if (!r.ok) throw new Error(`status ${r.status}`);\n\n          const tarefas = await r.json();\n          lista.replaceChildren();\n\n          for (const t of tarefas) {\n            const item = document.createElement(\"li\");\n            item.textContent = t.titulo + (t.feita ? \" (feita)\" : \"\");\n            lista.append(item);\n          }\n          estado.textContent = `${tarefas.length} tarefas`;\n        } catch (e) {\n          estado.textContent = \"Não consegui falar com o servidor.\";\n          console.error(e);\n        }\n      }\n\n      document.querySelector(\"#form\").addEventListener(\"submit\", async (evento) => {\n        evento.preventDefault();\n        const campo = document.querySelector(\"#texto\");\n\n        const r = await fetch(\"/api/tarefas\", {\n          method: \"POST\",\n          headers: { \"Content-Type\": \"application/json\" },\n          body: JSON.stringify({ titulo: campo.value }),\n        });\n\n        if (!r.ok) {\n          const erro = await r.json();\n          estado.textContent = erro.erro ?? \"Não deu pra criar.\";\n          return;\n        }\n\n        campo.value = \"\";\n        carregar();            // recarrega a lista do servidor\n      });\n\n      carregar();\n    </script>\n  </body>\n</html>",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "CORS, em duas frases",
+        "linhas": [
+          "Se a página e a API saem do mesmo endereço, não existe assunto. É por isso que o express.static resolve tanta dor de cabeça em projeto pequeno.",
+          "Em endereços diferentes, o navegador exige que o servidor autorize, por cabeçalho. No Express: npm install cors e app.use(cors({ origin: \"http://localhost:5173\" })). Libere o endereço que você conhece, nunca o asterisco em produção.",
+          "O erro de CORS aparece no console do navegador, e não na resposta. Quando o fetch falhar sem status nenhum, olhe lá antes de mexer no código."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Sua página em localhost:5173 chama a API em localhost:3000 e o navegador bloqueia. O que resolve?",
+          "opcoes": [
+            "Trocar fetch por XMLHttpRequest",
+            "O servidor da API autorizar aquela origem, por cabeçalho CORS",
+            "Colocar a chamada dentro de um try"
+          ],
+          "correta": 1,
+          "porque": "É decisão do servidor, e não tem como contornar pelo JavaScript da página. Servindo os dois do mesmo endereço, o assunto nem aparece."
+        },
+        {
+          "pergunta": "Depois de criar uma tarefa pelo POST, o que a página deve fazer?",
+          "opcoes": [
+            "Buscar a lista de novo, ou acrescentar o item devolvido pela resposta",
+            "Recarregar a página inteira",
+            "Nada: o servidor atualiza a tela"
+          ],
+          "correta": 0,
+          "porque": "Quem manda no que aparece é a página. O servidor devolveu o item criado justamente pra você não precisar adivinhar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Ligue a sua página na sua API: listar ao abrir, criar pelo formulário e marcar como feita ao clicar, cada ação conversando com o servidor. Depois derrube o servidor e confirme que a página avisa em vez de ficar em branco.",
+        "solucao": "<script>\n  const lista = document.querySelector(\"#lista\");\n  const estado = document.querySelector(\"#estado\");\n\n  async function pedir(url, opcoes) {\n    const r = await fetch(url, opcoes);\n    if (!r.ok) throw new Error(`status ${r.status}`);\n    return r.status === 204 ? null : r.json();\n  }\n\n  async function carregar() {\n    estado.textContent = \"Carregando...\";\n    try {\n      const tarefas = await pedir(\"/api/tarefas\");\n      lista.replaceChildren();\n\n      for (const t of tarefas) {\n        const item = document.createElement(\"li\");\n        item.dataset.id = t.id;\n\n        const caixa = document.createElement(\"input\");\n        caixa.type = \"checkbox\";\n        caixa.checked = t.feita;\n\n        const texto = document.createElement(\"span\");\n        texto.textContent = t.titulo;\n\n        item.append(caixa, texto);\n        lista.append(item);\n      }\n      estado.textContent = `${tarefas.length} tarefas`;\n    } catch (e) {\n      estado.textContent = \"Não consegui falar com o servidor. Ele está rodando?\";\n      console.error(e);\n    }\n  }\n\n  document.querySelector(\"#form\").addEventListener(\"submit\", async (evento) => {\n    evento.preventDefault();\n    const campo = document.querySelector(\"#texto\");\n    try {\n      await pedir(\"/api/tarefas\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ titulo: campo.value }),\n      });\n      campo.value = \"\";\n      carregar();\n    } catch (e) {\n      estado.textContent = \"Não deu pra criar. Confira o título.\";\n    }\n  });\n\n  // delegação: um ouvinte pra lista inteira\n  lista.addEventListener(\"change\", async (evento) => {\n    if (evento.target.type !== \"checkbox\") return;\n    const id = evento.target.closest(\"li\").dataset.id;\n\n    try {\n      await pedir(`/api/tarefas/${id}`, {\n        method: \"PUT\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ feita: evento.target.checked }),\n      });\n    } catch (e) {\n      estado.textContent = \"Não consegui salvar essa mudança.\";\n      evento.target.checked = !evento.target.checked;   // desfaz na tela\n    }\n  });\n\n  carregar();\n</script>\n\n<!--\n  o detalhe que separa app amador de app decente está no catch do checkbox:\n  se o servidor recusou, a marcação volta atrás. Sem isso, a tela mostra\n  uma coisa e o banco guarda outra.\n\n  com o servidor desligado, o fetch falha e a mensagem aparece.\n  nunca deixe a tela em branco sem explicação.\n-->",
+        "linguagem": "html"
+      }
+    },
+    {
+      "id": "web5a5",
       "titulo": "Publicar na web",
-      "minutos": 12
+      "minutos": 16,
+      "resumo": "Sair do seu computador. Um endereço que você manda pra alguém abrir.",
+      "ideia": [
+        "Site sem servidor (HTML, CSS e JS, ou o build do Vite) vai pra uma hospedagem de estáticos e é quase instantâneo.",
+        "Site com servidor precisa de um provedor que rode Node: você diz como instalar, como subir e em que porta escutar."
+      ],
+      "exemplo": {
+        "nota": "Os dois caminhos, lado a lado:",
+        "codigo": "# ── 1. só front (HTML/CSS/JS ou Vite) ────────────────────────\n# hospedagens de estático: Netlify, Vercel, GitHub Pages, Cloudflare Pages\n\nnpm run build          # no projeto Vite, gera dist/\n# depois é arrastar a pasta dist, ou ligar o repositório do GitHub\n\n# no GitHub Pages, o build precisa saber que o site não fica na raiz:\n# vite.config.js -> export default { base: \"/nome-do-repositorio/\" }\n\n# ── 2. com servidor Node ─────────────────────────────────────\n# provedores com camada gratuita: Render, Railway, Fly\n\n# package.json\n#   \"scripts\": { \"start\": \"node servidor.js\" }\n#   \"engines\": { \"node\": \">=22\" }\n\n# o provedor roda:\nnpm ci --omit=dev\nnpm start\n\n# e no código, a porta vem dele:\n#   const PORTA = process.env.PORT ?? 3000;\n#   app.listen(PORTA, \"0.0.0.0\");\n\n# antes de publicar, a lista curta:\n#   [ ] npm run build passou sem erro\n#   [ ] nada de segredo no código: tudo em variável de ambiente\n#   [ ] o .env está no .gitignore\n#   [ ] existe uma rota de saúde respondendo\n#   [ ] o README abre com o endereço do site no ar",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O que quebra na primeira publicação",
+        "linhas": [
+          "Porta fixa: em produção quem escolhe é o provedor, pela variável PORT. E o listen precisa ser em 0.0.0.0, porque dentro do contêiner o 127.0.0.1 não recebe nada de fora.",
+          "Banco em arquivo no disco do contêiner some no reinício em vários provedores. Pra dado que precisa durar, use um banco gerenciado, que todos oferecem com camada gratuita.",
+          "Caminho com maiúscula: o seu Windows não diferencia Foto.JPG de foto.jpg, e o servidor Linux diferencia. É a causa da imagem que sumiu só depois de publicar."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Seu site é só HTML, CSS e JavaScript. Onde publicar?",
+          "opcoes": [
+            "Numa hospedagem de arquivos estáticos, como Netlify, Vercel ou GitHub Pages",
+            "Num provedor que rode Node, obrigatoriamente",
+            "Só num servidor próprio"
+          ],
+          "correta": 0,
+          "porque": "Sem servidor no seu código, não há nada pra rodar: é só entregar arquivo, e isso é de graça em vários lugares."
+        },
+        {
+          "pergunta": "A API funciona na sua máquina e o provedor diz que não consegue alcançá-la. Qual o suspeito número um?",
+          "opcoes": [
+            "Falta de HTTPS",
+            "A porta fixa no código, em vez de process.env.PORT, ou o listen preso em 127.0.0.1",
+            "O tamanho da pasta node_modules"
+          ],
+          "correta": 1,
+          "porque": "São as duas linhas que todo provedor exige e que ninguém precisa ter na máquina local."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Publique alguma coisa sua hoje: se for só front, mande o build pra uma hospedagem de estáticos; se tiver servidor, suba num provedor com camada gratuita. Depois abra o endereço no celular, pelo 4G, e anote no Caderno o que quebrou na primeira tentativa.",
+        "solucao": "# ── caminho 1: só front ──────────────────────────────────────\nnpm run build\n# arraste a pasta dist na hospedagem, ou ligue o repositório do GitHub\n# e configure: comando de build \"npm run build\", pasta \"dist\"\n\n# ── caminho 2: com servidor ──────────────────────────────────\n# package.json\n#   \"scripts\": { \"start\": \"node servidor.js\" },\n#   \"engines\": { \"node\": \">=22\" }\n\n# servidor.js, as duas linhas que o provedor exige:\n#   const PORTA = process.env.PORT ?? 3000;\n#   app.listen(PORTA, \"0.0.0.0\");\n\ngit init -b main\ngit add .\ngit commit -m \"primeira versão no ar\"\n# suba pro GitHub e ligue o repositório no provedor\n\n# depois de publicar:\ncurl -s https://meu-site.exemplo.com/api/saude\n# {\"ok\":true}\n\n# ── o que costuma quebrar, e é normal quebrar ────────────────\n#   porta fixa no código: o provedor não acha a aplicação\n#   listen em 127.0.0.1: mesma coisa\n#   caminho de arquivo com maiúscula diferente: some só no Linux\n#   variável de ambiente que existia só na sua máquina\n#   o banco em arquivo que sumiu no primeiro reinício\n#\n# anote no Caderno qual foi o seu. Esse é o aprendizado da aula:\n# publicar cedo, quebrar cedo e descobrir que a lista é sempre a mesma.",
+        "linguagem": "bash"
+      }
     }
   ]
 }

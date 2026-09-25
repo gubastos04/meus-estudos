@@ -3,23 +3,253 @@
   "aulas": [
     {
       "id": "web2a1",
-      "titulo": "Seletores e box model",
-      "minutos": 12
+      "titulo": "Seletores e cascata",
+      "minutos": 12,
+      "resumo": "O seletor escolhe quem recebe o estilo. A cascata decide quem ganha quando duas regras brigam.",
+      "ideia": [
+        "Você escolhe por tag, por classe ou por id, e classe é o que se usa no dia a dia. Id é único demais, tag é geral demais.",
+        "Quando duas regras mexem na mesma coisa, ganha a mais específica; empatou, ganha a que vem depois no arquivo."
+      ],
+      "exemplo": {
+        "nota": "Salve como estilo.css e ligue no head com <link rel=\"stylesheet\" href=\"estilo.css\">:",
+        "codigo": ":root {\n  --cor-texto: #1f2937;\n  --cor-acento: #4f46e5;\n  --espaco: 16px;\n}\n\nbody {\n  font-family: system-ui, sans-serif;\n  color: var(--cor-texto);\n  line-height: 1.6;\n  margin: 0;\n  padding: var(--espaco);\n}\n\n.cartao {                     /* classe: o seletor do dia a dia */\n  border: 1px solid #e5e7eb;\n  padding: var(--espaco);\n}\n\n.cartao h2 {                  /* h2 que esteja dentro de .cartao */\n  margin-top: 0;\n}\n\n.cartao a:hover,\n.cartao a:focus-visible {     /* estado: passar o mouse ou chegar pelo teclado */\n  color: var(--cor-acento);\n}\n\n/* quem ganha:\n   p            { color: black }   1 tag\n   .aviso       { color: red }     1 classe  -> ganha da tag\n   #primeiro    { color: blue }    1 id      -> ganha da classe\n   empate: vence a última que aparecer no arquivo */",
+        "linguagem": "css"
+      },
+      "mais": {
+        "titulo": "As variáveis e o !important",
+        "linhas": [
+          "As variáveis no :root valem na página inteira. Trocar uma cor em um lugar e ela mudar em toda parte é o que faz um site parecer feito por alguém que sabe o que está fazendo.",
+          "!important ganha de tudo e por isso vicia: usou uma vez, a próxima briga precisa de outro. Quase sempre o problema é seletor específico demais, e a saída é simplificar, não gritar mais alto.",
+          "Prefira classe a id no CSS. Id serve pra âncora de link e pra JavaScript achar o elemento; pra estilo, ele só complica a cascata."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Duas regras mexem na cor do mesmo parágrafo: uma por tag e outra por classe. Qual vence?",
+          "opcoes": [
+            "A que vem primeiro no arquivo",
+            "A da classe, que é mais específica",
+            "A da tag, porque é mais direta"
+          ],
+          "correta": 1,
+          "porque": "Ordem só decide quando a especificidade empata. Classe ganha de tag, e id ganha de classe."
+        },
+        {
+          "pergunta": "Você precisou de !important pra uma regra funcionar. O que isso costuma indicar?",
+          "opcoes": [
+            "Que o navegador está com erro",
+            "Que falta uma variável no :root",
+            "Que existe um seletor específico demais em outro lugar brigando com o seu"
+          ],
+          "correta": 2,
+          "porque": "O conserto é simplificar o outro seletor. Cada !important obriga o próximo a ser ainda mais forte."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Estilize a página que você fez no módulo 3 usando só classes e variáveis: defina cor de texto, cor de acento e um espaçamento no :root, e aplique em pelo menos três lugares. Depois mude uma variável e confira que a página inteira acompanhou.",
+        "solucao": "/* estilo.css */\n:root {\n  --cor-texto: #1f2937;\n  --cor-fundo: #ffffff;\n  --cor-acento: #4f46e5;\n  --espaco: 16px;\n  --borda: 1px solid #e5e7eb;\n}\n\nbody {\n  font-family: system-ui, sans-serif;\n  color: var(--cor-texto);\n  background: var(--cor-fundo);\n  line-height: 1.6;\n  margin: 0 auto;\n  max-width: 60ch;          /* largura confortável de leitura */\n  padding: var(--espaco);\n}\n\na { color: var(--cor-acento); }\n\n.menu {\n  display: flex;\n  gap: var(--espaco);\n  padding: 0;\n  list-style: none;\n}\n\n.artigo {\n  border: var(--borda);\n  padding: var(--espaco);\n  margin-bottom: var(--espaco);\n}\n\n.artigo h2 { margin-top: 0; }\n\n/*\n  o teste: troque --cor-acento por #b91c1c e recarregue.\n  os links e tudo que usa o acento mudam de uma vez.\n\n  max-width com a unidade ch é largura em caracteres: 60ch é mais ou menos\n  60 letras por linha, que é a faixa em que ler cansa menos.\n*/",
+        "linguagem": "css"
+      }
     },
     {
       "id": "web2a2",
-      "titulo": "Flexbox",
-      "minutos": 12
+      "titulo": "Box model",
+      "minutos": 12,
+      "resumo": "Todo elemento é uma caixa: conteúdo, recheio, borda e margem. Entender isso resolve metade dos bugs de layout.",
+      "ideia": [
+        "De dentro pra fora: content, padding (recheio, dentro da borda), border e margin (espaço do lado de fora).",
+        "Por padrão, width mede só o conteúdo, então padding e borda somam por cima. box-sizing: border-box faz a largura valer pela caixa inteira, que é o que quase todo mundo espera."
+      ],
+      "exemplo": {
+        "nota": "A mesma caixa, com e sem border-box. Abra no navegador e meça com o F12:",
+        "codigo": "* { box-sizing: border-box; }   /* a primeira linha de quase todo projeto */\n\n.caixa-a {\n  box-sizing: content-box;      /* o padrão do navegador */\n  width: 300px;\n  padding: 20px;\n  border: 5px solid #333;\n}\n/* largura real: 300 + 20 + 20 + 5 + 5 = 350px */\n\n.caixa-b {\n  box-sizing: border-box;\n  width: 300px;\n  padding: 20px;\n  border: 5px solid #333;\n}\n/* largura real: 300px, com o recheio e a borda cabendo dentro */\n\n.caixa-a, .caixa-b {\n  margin-bottom: 16px;          /* margem fica por fora, sempre */\n  background: #eef2ff;\n}",
+        "linguagem": "css"
+      },
+      "mais": {
+        "titulo": "As duas armadilhas da margem",
+        "linhas": [
+          "Margem vertical entre irmãos colapsa: um com 20px embaixo e o outro com 30px em cima resultam em 30px, não 50. Não é bug, é regra antiga do CSS. Com gap, no flex ou no grid, isso não acontece.",
+          "Margem não conta pra largura do elemento, mas conta pro espaço que ele ocupa na linha. É por isso que um bloco de width: 100% com margem lateral estoura o pai.",
+          "O painel de Computed do F12 desenha a caixa com os quatro valores. Quando o layout estiver estranho, abra ele antes de sair chutando CSS."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Um elemento tem width: 300px, padding: 20px e border: 5px, sem border-box. Quanto ele ocupa de largura?",
+          "opcoes": [
+            "350px, porque padding e borda somam dos dois lados",
+            "300px, porque a largura foi definida",
+            "325px"
+          ],
+          "correta": 0,
+          "porque": "300 + 40 de padding + 10 de borda. Com box-sizing: border-box, daria os 300px que você pediu."
+        },
+        {
+          "pergunta": "Dois parágrafos, um com margin-bottom: 20px e o outro com margin-top: 30px. Qual o espaço entre eles?",
+          "opcoes": [
+            "50px, a soma dos dois",
+            "30px: margens verticais colapsam e vale a maior",
+            "20px, vale a do primeiro"
+          ],
+          "correta": 1,
+          "porque": "É o colapso de margem. Usando gap num container flex ou grid, o espaço vira exatamente o que você pediu."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte três cartões lado a lado com largura fixa, recheio e borda, e faça os três caberem exatamente na largura que você definiu. Depois abra o F12 no Computed e confira a caixa desenhada de um deles.",
+        "solucao": "* { box-sizing: border-box; }\n\n.lista {\n  display: flex;\n  gap: 16px;                 /* espaço entre os cartões, sem margem */\n  padding: 16px;\n}\n\n.cartao {\n  width: 220px;              /* com border-box, é a largura final mesmo */\n  padding: 16px;\n  border: 1px solid #e5e7eb;\n  border-radius: 8px;\n  background: #fff;\n}\n\n.cartao h3 {\n  margin-top: 0;             /* mata a margem de cima que o h3 traz de fábrica */\n}\n\n/*\n  no F12 > Computed, o desenho da caixa mostra:\n    content 186 x N     (220 menos os 16 de padding de cada lado e a borda)\n    padding 16\n    border  1\n    margin  0\n\n  se você tirar o border-box, o mesmo cartão passa a ocupar 254px e os três\n  deixam de caber. Foi por isso que essa linha virou padrão de projeto.\n*/",
+        "linguagem": "css"
+      }
     },
     {
       "id": "web2a3",
-      "titulo": "Grid",
-      "minutos": 12
+      "titulo": "Flexbox",
+      "minutos": 14,
+      "resumo": "Alinhar coisas numa linha ou numa coluna. É o que resolve menu, barra de topo e lista de cartões.",
+      "ideia": [
+        "display: flex no pai muda o comportamento dos filhos. O pai manda: direção, espaçamento e alinhamento.",
+        "justify-content alinha no eixo principal (a direção que você escolheu) e align-items no eixo cruzado. Trocar os dois é o erro mais comum, e o conserto é lembrar disso."
+      ],
+      "exemplo": {
+        "nota": "Uma barra de topo e uma lista de cartões, que é 80% do uso de flex:",
+        "codigo": "/* barra de topo: logo na esquerda, menu na direita */\n.topo {\n  display: flex;\n  justify-content: space-between;   /* joga um pra cada ponta */\n  align-items: center;              /* alinha pelo meio na vertical */\n  gap: 16px;\n  padding: 16px;\n}\n\n.menu {\n  display: flex;\n  gap: 16px;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n/* lista de cartões que quebra a linha quando não cabe */\n.cartoes {\n  display: flex;\n  flex-wrap: wrap;                  /* sem isso, eles espremem em vez de quebrar */\n  gap: 16px;\n}\n\n.cartoes > * {\n  flex: 1 1 220px;                  /* cresce, encolhe, e parte de 220px */\n}\n\n/* centralizar no meio da tela, na horizontal e na vertical */\n.centro {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 50vh;\n}",
+        "linguagem": "css"
+      },
+      "mais": {
+        "titulo": "gap, flex e o eixo",
+        "linhas": [
+          "gap é o jeito moderno de espaçar: ele só entra entre os itens, nunca nas pontas, e não colapsa como margem. Depois dele, margin-right no último item vira coisa do passado.",
+          "flex: 1 1 220px quer dizer: pode crescer, pode encolher, e comece com 220px. É a linha que faz cartão virar coluna no celular sem nenhuma media query.",
+          "Se você trocar para flex-direction: column, o eixo principal vira o vertical, e aí justify-content passa a alinhar de cima pra baixo. É a mesma propriedade fazendo outra coisa, e é por isso que confunde."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Numa linha flex, o que justify-content: space-between faz?",
+          "opcoes": [
+            "Centraliza todos os itens",
+            "Empurra o primeiro pro começo, o último pro fim, e distribui o resto no meio",
+            "Alinha os itens pelo topo"
+          ],
+          "correta": 1,
+          "porque": "É a receita da barra de topo: logo de um lado, menu do outro, sem nenhuma margem inventada."
+        },
+        {
+          "pergunta": "Os cartões estão espremendo em vez de quebrar a linha. O que falta?",
+          "opcoes": [
+            "align-items: center",
+            "gap maior",
+            "flex-wrap: wrap"
+          ],
+          "correta": 2,
+          "porque": "Por padrão o flex tenta caber tudo numa linha só, encolhendo todo mundo. O wrap é o que autoriza a quebra."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte o topo do seu site com o nome à esquerda e três links à direita, alinhados pelo meio, e uma lista de cartões embaixo que vire uma coluna quando a janela ficar estreita. Teste arrastando a borda da janela.",
+        "solucao": "* { box-sizing: border-box; }\n\n.topo {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  flex-wrap: wrap;            /* no celular, o menu desce em vez de espremer */\n  gap: 12px;\n  padding: 16px;\n  border-bottom: 1px solid #e5e7eb;\n}\n\n.topo h1 { margin: 0; font-size: 1.25rem; }\n\n.menu {\n  display: flex;\n  gap: 16px;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n.cartoes {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n  padding: 16px;\n}\n\n.cartao {\n  flex: 1 1 260px;            /* três numa tela larga, um só no celular */\n  border: 1px solid #e5e7eb;\n  border-radius: 8px;\n  padding: 16px;\n}\n\n/*\n  repare que não tem nenhuma media query aqui.\n  o flex: 1 1 260px já diz \"cada cartão quer 260px; se não couber, quebre\".\n  arraste a janela devagar e veja a hora em que eles pulam de linha.\n*/",
+        "linguagem": "css"
+      }
     },
     {
       "id": "web2a4",
+      "titulo": "Grid",
+      "minutos": 14,
+      "resumo": "Duas dimensões de uma vez: linhas e colunas. É o que resolve galeria, painel e layout de página.",
+      "ideia": [
+        "display: grid mais grid-template-columns define as colunas. A unidade fr é a fração do espaço que sobrou.",
+        "Uma linha só resolve galeria responsiva: repeat(auto-fit, minmax(220px, 1fr)) cria quantas colunas couberem, sem media query nenhuma."
+      ],
+      "exemplo": {
+        "nota": "A linha mágica e um layout de página inteiro:",
+        "codigo": "/* galeria que se ajusta sozinha */\n.galeria {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 16px;\n}\n/* lê-se: quantas colunas couberem, cada uma com no mínimo 220px,\n   dividindo o espaço que sobrar por igual */\n\n/* três colunas fixas, a do meio maior */\n.tres {\n  display: grid;\n  grid-template-columns: 1fr 2fr 1fr;\n  gap: 16px;\n}\n\n/* layout de página com áreas com nome */\n.pagina {\n  display: grid;\n  grid-template-columns: 220px 1fr;\n  grid-template-areas:\n    \"cabecalho cabecalho\"\n    \"lateral   conteudo\"\n    \"rodape    rodape\";\n  gap: 16px;\n  min-height: 100vh;\n}\n\n.pagina > header { grid-area: cabecalho; }\n.pagina > nav    { grid-area: lateral; }\n.pagina > main   { grid-area: conteudo; }\n.pagina > footer { grid-area: rodape; }",
+        "linguagem": "css"
+      },
+      "mais": {
+        "titulo": "Grid ou flex, e quando cada um",
+        "linhas": [
+          "Flex é uma dimensão: uma fila que pode quebrar. Grid é duas: você desenha linhas e colunas. Na dúvida, se você consegue descrever o layout como \"uma fila de coisas\", é flex; se é uma malha, é grid.",
+          "auto-fit e auto-fill parecem iguais e diferem no vazio: com auto-fit as colunas que sobraram somem e os itens esticam; com auto-fill elas ficam lá, vazias. Pra galeria, auto-fit é quase sempre o que você quer.",
+          "grid-template-areas deixa o layout legível: o desenho no CSS é literalmente o desenho na tela. Pra mudar tudo no celular, basta redesenhar as áreas dentro de uma media query."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que repeat(auto-fit, minmax(220px, 1fr)) faz?",
+          "opcoes": [
+            "Cria exatamente 3 colunas de 220px",
+            "Cria quantas colunas couberem, com no mínimo 220px cada, dividindo a sobra",
+            "Repete a primeira coluna até o fim da página"
+          ],
+          "correta": 1,
+          "porque": "É a galeria responsiva numa linha, sem nenhuma media query. Vale a pena decorar esta."
+        },
+        {
+          "pergunta": "Você precisa alinhar quatro itens numa fila que quebra quando não cabe. Flex ou grid?",
+          "opcoes": [
+            "Flex: é uma dimensão só",
+            "Grid, sempre que houver mais de dois itens",
+            "Tanto faz, os dois fazem a mesma coisa"
+          ],
+          "correta": 0,
+          "porque": "Fila é flex. Grid entra quando você precisa controlar linhas e colunas ao mesmo tempo."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte uma galeria de seis cartões que mostre três por linha numa tela larga, dois numa média e um no celular, sem escrever nenhuma media query. Depois monte o esqueleto de uma página com cabeçalho, lateral, conteúdo e rodapé usando áreas com nome.",
+        "solucao": "* { box-sizing: border-box; }\n\n/* 1. a galeria, sem media query */\n.galeria {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));\n  gap: 16px;\n  padding: 16px;\n}\n\n.galeria article {\n  border: 1px solid #e5e7eb;\n  border-radius: 8px;\n  padding: 16px;\n}\n\n/*\n  com 260px de mínimo:\n  janela de 900px  -> 3 colunas\n  janela de 600px  -> 2 colunas\n  janela de 400px  -> 1 coluna\n  quem decide é a conta, não uma faixa que você escolheu na unha.\n*/\n\n/* 2. o esqueleto da página */\n.pagina {\n  display: grid;\n  grid-template-columns: 220px 1fr;\n  grid-template-areas:\n    \"cabecalho cabecalho\"\n    \"lateral   conteudo\"\n    \"rodape    rodape\";\n  gap: 16px;\n  min-height: 100vh;\n}\n\n.pagina > header { grid-area: cabecalho; }\n.pagina > nav    { grid-area: lateral; }\n.pagina > main   { grid-area: conteudo; }\n.pagina > footer { grid-area: rodape; }\n\n/* no celular, uma coluna só: o desenho muda, o HTML não */\n@media (max-width: 640px) {\n  .pagina {\n    grid-template-columns: 1fr;\n    grid-template-areas:\n      \"cabecalho\"\n      \"conteudo\"\n      \"lateral\"\n      \"rodape\";\n  }\n}",
+        "linguagem": "css"
+      }
+    },
+    {
+      "id": "web2a5",
       "titulo": "Responsivo",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "A mesma página servindo de um celular estreito a um monitor largo, sem duas versões do site.",
+      "ideia": [
+        "Comece pelo celular: escreva o layout simples primeiro e use media query só pra acrescentar o que a tela grande permite.",
+        "Largura fixa é o inimigo. Trabalhe com max-width, porcentagem, fr e clamp, e deixe o navegador fazer a conta."
+      ],
+      "exemplo": {
+        "nota": "As quatro ferramentas que resolvem a maior parte:",
+        "codigo": "/* 1. nada pode estourar a tela */\nimg, video { max-width: 100%; height: auto; }\n\n/* 2. largura máxima, e não largura fixa */\n.conteudo {\n  max-width: 65ch;\n  margin: 0 auto;\n  padding: 16px;\n}\n\n/* 3. tipografia que acompanha a tela, com limite dos dois lados */\nh1 { font-size: clamp(1.5rem, 4vw, 2.5rem); }\n/* nunca menor que 1.5rem, nunca maior que 2.5rem, e no meio segue 4% da largura */\n\n/* 4. mobile primeiro: o básico vale sempre, o extra vem depois */\n.painel {\n  display: grid;\n  gap: 16px;\n}\n\n@media (min-width: 768px) {     /* daqui pra cima, duas colunas */\n  .painel {\n    grid-template-columns: 1fr 1fr;\n  }\n}\n\n/* respeite quem pediu menos movimento */\n@media (prefers-reduced-motion: reduce) {\n  * { animation: none !important; transition: none !important; }\n}",
+        "linguagem": "css"
+      },
+      "mais": {
+        "titulo": "Como testar sem ter dez aparelhos",
+        "linhas": [
+          "No F12 existe o modo dispositivo (o ícone de celular). Dá pra escolher tamanhos e girar a tela. O teste mínimo é 320px de largura, que é o celular pequeno que ainda existe.",
+          "Rolagem horizontal é o sintoma clássico: quase sempre é uma imagem sem max-width, uma largura fixa em px ou um texto comprido sem quebra. Procure nessa ordem.",
+          "Escolha os pontos de quebra pelo conteúdo, não pelo aparelho da moda. Arraste a janela até o layout ficar feio: ali é onde entra a media query."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que significa escrever CSS \"mobile first\"?",
+          "opcoes": [
+            "Escrever o layout simples primeiro e usar min-width pra acrescentar o que a tela grande permite",
+            "Fazer uma versão separada do site pro celular",
+            "Usar sempre max-width nas media queries"
+          ],
+          "correta": 0,
+          "porque": "O caminho contrário obriga a desfazer estilo dentro de cada media query, e é aí que o CSS vira bagunça."
+        },
+        {
+          "pergunta": "Sua página tem rolagem horizontal no celular. Qual o primeiro suspeito?",
+          "opcoes": [
+            "Falta de media query",
+            "Algo com largura fixa ou imagem sem max-width: 100%",
+            "O uso de grid em vez de flex"
+          ],
+          "correta": 1,
+          "porque": "Alguma coisa é mais larga que a tela. Imagem sem limite e largura em px são as causas mais comuns."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça a sua página funcionar de 320px até uma tela larga, sem rolagem horizontal em nenhum tamanho: imagens fluidas, largura máxima no conteúdo, título com clamp e uma única media query pra ganhar colunas na tela grande. Teste no modo dispositivo do F12.",
+        "solucao": "* { box-sizing: border-box; }\n\nimg, video { max-width: 100%; height: auto; }\n\nbody {\n  margin: 0;\n  font-family: system-ui, sans-serif;\n  line-height: 1.6;\n}\n\n.conteudo {\n  max-width: 65ch;\n  margin: 0 auto;\n  padding: 16px;\n}\n\nh1 { font-size: clamp(1.5rem, 4vw, 2.5rem); }\n\n.cartoes {\n  display: grid;\n  gap: 16px;\n}\n\n@media (min-width: 768px) {\n  .cartoes { grid-template-columns: repeat(2, 1fr); }\n}\n\n@media (min-width: 1100px) {\n  .cartoes { grid-template-columns: repeat(3, 1fr); }\n}\n\n/*\n  o roteiro do teste, no F12 > modo dispositivo:\n  320px   uma coluna, sem barra de rolagem na horizontal\n  768px   duas colunas\n  1100px  três colunas\n  2000px  o conteúdo para de crescer e fica centralizado (max-width)\n\n  se aparecer rolagem lateral em algum tamanho, procure nesta ordem:\n  imagem sem max-width, largura em px, e palavra gigante sem espaço\n  (essa se resolve com overflow-wrap: anywhere no bloco de texto).\n*/",
+        "linguagem": "css"
+      }
     }
   ]
 }

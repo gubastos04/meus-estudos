@@ -17,7 +17,7 @@ Cena física: fim do dia, cansado, celular na mão, pouca energia, tentando uma 
 
 ## Foco selecionável
 
-A trilha tem uma **base comum** (lógica e Python) que todo mundo faz, e um **foco** que a pessoa escolhe: segurança da informação, desenvolvimento web, dados e IA, ou back-end e APIs. O foco define os módulos avançados, os projetos, o glossário e a voz da IA. Um foco por vez, trocável a qualquer momento sem perder o progresso da base. Hoje só a base tem aulas escritas; as aulas dos focos estão sendo escritas, começando por segurança (que já tem projetos, demandas, glossário, entrevista e certificados), depois back-end, web e dados. No back-end, o conceito é ensinado uma vez e o código vem em três stacks (FastAPI, Flask e Express) pra não prender ninguém a uma linguagem. O andamento fica em `docs/plano-conteudo.md`.
+A trilha tem uma **base comum** (lógica e Python) que todo mundo faz, e um **foco** que a pessoa escolhe: segurança da informação, desenvolvimento web, dados e IA, ou back-end e APIs. O foco define os módulos avançados, os projetos, o glossário e a voz da IA. Um foco por vez, trocável a qualquer momento sem perder o progresso da base. Hoje a base (14 aulas), segurança (54) e back-end (25) estão escritos, com prática, projetos, provas, glossário, entrevista e certificados próprios. Web e dados ainda não têm aulas: quem escolher esses focos vê a base e um aviso em cada módulo. No back-end, o conceito é ensinado uma vez e o código vem em três stacks (FastAPI, Flask e Express) pra não prender ninguém a uma linguagem. O andamento fica em `docs/plano-conteudo.md`.
 
 ## Propósito
 

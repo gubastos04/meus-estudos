@@ -495,5 +495,159 @@
       }
     ],
     "foco": "seguranca"
+  },
+  {
+    "id": "pa4",
+    "tipo": "alternativas",
+    "titulo": "API: do pedido ao banco",
+    "escopo": "Módulos 3 a 5",
+    "tempo": 15,
+    "questoes": [
+      {
+        "pergunta": "Qual verbo e qual status de sucesso para criar um recurso?",
+        "opcoes": [
+          "POST, respondendo 201 com o endereço do que nasceu no cabeçalho Location",
+          "PUT, respondendo 200",
+          "POST, respondendo 200 com a mensagem \"criado\" no corpo"
+        ],
+        "correta": 0,
+        "porque": "201 diz que algo passou a existir, e o Location aponta onde. O 200 com mensagem obriga quem consome a ler texto pra saber o que houve."
+      },
+      {
+        "pergunta": "A sua API recebe um pedido sem um campo obrigatório. O que responder?",
+        "opcoes": [
+          "500, porque deu erro no processamento",
+          "200, com a lista de problemas no corpo",
+          "400, dizendo qual campo faltou e o que se espera dele"
+        ],
+        "correta": 2,
+        "porque": "5xx é culpa do servidor, e não foi o caso. E 200 com erro dentro engana quem chamou, que vai tratar como sucesso."
+      },
+      {
+        "pergunta": "Onde vai o filtro que mostra só os itens pendentes?",
+        "opcoes": [
+          "Na query: /tarefas?feita=false",
+          "No caminho: /tarefas/pendentes",
+          "No corpo da requisição GET"
+        ],
+        "correta": 0,
+        "porque": "O recurso é o mesmo, a lista de tarefas; o que muda é o recorte. Caminho é identidade, query é recorte."
+      },
+      {
+        "pergunta": "Qual destes é JSON válido?",
+        "opcoes": [
+          "{'titulo': 'Estudar', 'feita': False}",
+          "{\"titulo\": \"Estudar\", \"feita\": false}",
+          "{\"titulo\": \"Estudar\", \"feita\": false,}"
+        ],
+        "correta": 1,
+        "porque": "Aspas duplas, false em minúscula e nada de vírgula sobrando antes de fechar. O primeiro é dicionário de Python, não JSON."
+      },
+      {
+        "pergunta": "O cliente manda {\"titulo\": \"Ler\", \"usuario_id\": 9} na criação. O que a API faz com o usuario_id?",
+        "opcoes": [
+          "Usa, porque o cliente sabe de quem é",
+          "Responde 400 acusando campo desconhecido",
+          "Ignora: dono é decisão do servidor, e vem de quem está logado"
+        ],
+        "correta": 2,
+        "porque": "Aceitar o dono vindo do corpo deixa qualquer um criar coisa em nome de outro. Recusar com 400 também serve, mas ignorar é o mínimo."
+      },
+      {
+        "pergunta": "Qual camada deve conhecer o conceito de status HTTP?",
+        "opcoes": [
+          "Só a de rotas",
+          "A de regra de negócio, que sabe o que deu errado",
+          "A de banco, que sabe se achou a linha"
+        ],
+        "correta": 0,
+        "porque": "Regra que fala em 404 fica presa ao HTTP. A mesma regra precisa servir pra um teste, uma tarefa agendada ou outra interface."
+      },
+      {
+        "pergunta": "Sua listagem usa LIMIT e OFFSET e um item aparece em duas páginas. Qual a causa mais provável?",
+        "opcoes": [
+          "O OFFSET começa em 1, e não em 0",
+          "Falta ORDER BY: sem ordem definida, o banco não garante quem vem primeiro",
+          "O LIMIT está maior que o total"
+        ],
+        "correta": 1,
+        "porque": "Sem ordem explícita, a ordem é detalhe interno do banco e pode mudar entre uma consulta e outra."
+      },
+      {
+        "pergunta": "Como entra na consulta o termo de busca digitado pela pessoa?",
+        "opcoes": [
+          "Por parâmetro, com o coringa % dentro do valor",
+          "Grudado no texto da consulta, entre aspas simples",
+          "Escapado com uma função que troca aspas por duas aspas"
+        ],
+        "correta": 0,
+        "porque": "O parâmetro é o valor inteiro que o banco compara, coringa incluído. Escapar à mão depende de você lembrar sempre, e uma consulta esquecida basta."
+      },
+      {
+        "pergunta": "A rota busca 50 tarefas e depois consulta o banco uma vez por tarefa pra pegar o nome do dono. Qual o problema?",
+        "opcoes": [
+          "Nenhum, fica mais organizado",
+          "O banco recusa tantas consultas seguidas",
+          "São 51 viagens onde bastaria uma com JOIN: é o problema N+1"
+        ],
+        "correta": 2,
+        "porque": "Funciona com 50 linhas na sua máquina e derruba a API com 5 mil em produção. É a causa número um de lentidão que aparece só depois."
+      },
+      {
+        "pergunta": "Sua API responde 500 com o rastro do erro no corpo. Qual o risco?",
+        "opcoes": [
+          "A resposta fica grande demais",
+          "Nenhum, o rastro ajuda quem está integrando",
+          "O rastro entrega caminho de arquivo, biblioteca e versão pra quem estiver procurando brecha"
+        ],
+        "correta": 2,
+        "porque": "Rastro é pra você, no log. Na resposta, ele serve principalmente pra quem está mapeando o seu sistema."
+      }
+    ],
+    "foco": "backend"
+  },
+  {
+    "id": "pp5",
+    "tipo": "pratica",
+    "titulo": "Acesso e dados, sem framework",
+    "escopo": "Módulos 6 e 7",
+    "tempo": 60,
+    "aviso": "Tudo aqui é Python puro, sem framework: são as regras que ficam iguais no FastAPI, no Flask e no Express. Resolva no seu editor, rodando, e depois marque só os critérios que o SEU código cumpre.",
+    "tarefas": [
+      {
+        "titulo": "Token assinado, com validade",
+        "enunciado": "Escreva criar_token(usuario_id, agora, horas) e ler_token(token, agora). O token tem corpo e assinatura separados por ponto. ler_token devolve o id quando está tudo certo e None quando a assinatura não bate, quando o formato está errado ou quando venceu.",
+        "criterios": [
+          "A assinatura é verificada com comparação em tempo constante",
+          "Token com um caractere alterado devolve None",
+          "Token vencido devolve None",
+          "O horário entra como parâmetro, pra dar pra testar sem esperar"
+        ],
+        "solucao": "import base64, hashlib, hmac, json\n\nSEGREDO = b\"segredo-de-teste\"        # em produção vem do ambiente\n\ndef _b64(dados):\n    return base64.urlsafe_b64encode(dados).decode().rstrip(\"=\")\n\ndef _de_b64(texto):\n    return base64.urlsafe_b64decode(texto + \"=\" * (-len(texto) % 4))\n\ndef criar_token(usuario_id, agora, horas=12):\n    corpo = _b64(json.dumps({\"sub\": usuario_id, \"exp\": int(agora) + horas * 3600}).encode())\n    return f\"{corpo}.{_b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())}\"\n\ndef ler_token(token, agora):\n    partes = str(token).split(\".\")\n    if len(partes) != 2:\n        return None\n\n    corpo, assinatura = partes\n    esperada = _b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())\n    if not hmac.compare_digest(assinatura, esperada):\n        return None\n\n    dados = json.loads(_de_b64(corpo))\n    return None if dados[\"exp\"] < agora else dados[\"sub\"]\n\nagora = 1_000_000\ntoken = criar_token(7, agora)\n\nprint(ler_token(token, agora))                  # 7\nprint(ler_token(token, agora + 13 * 3600))      # None, venceu\nprint(ler_token(token[:-2] + \"xx\", agora))      # None, assinatura não bate\nprint(ler_token(\"lixo\", agora))                 # None, formato errado\n\n# receber o \"agora\" como parâmetro é o que permite testar o vencimento\n# sem dormir 12 horas. Toda regra que depende de tempo se escreve assim."
+      },
+      {
+        "titulo": "Quem pode o quê",
+        "enunciado": "Escreva pode(usuario, recurso, acao) que devolva uma dupla com a permissão e o status HTTP: 401 sem usuário, 404 quando o recurso não existe, 403 quando não é dele, 409 quando a ação bate com o estado (apagar algo bloqueado) e 200 quando pode. Admin passa por cima da checagem de dono.",
+        "criterios": [
+          "Sem usuário devolve 401, antes de qualquer outra checagem",
+          "Recurso de outra pessoa devolve 403, e não 404",
+          "Recurso inexistente devolve 404",
+          "Admin enxerga o recurso de qualquer pessoa"
+        ],
+        "solucao": "def pode(usuario, recurso, acao):\n    if usuario is None:\n        return False, 401                 # não sei quem é você\n\n    if usuario.get(\"perfil\") == \"admin\":\n        return True, 200                  # admin passa por cima da checagem de dono\n\n    if recurso is None:\n        return False, 404\n\n    if recurso.get(\"usuario_id\") != usuario[\"id\"]:\n        return False, 403                 # sei quem é você, e não é seu\n\n    if acao == \"apagar\" and recurso.get(\"bloqueada\"):\n        return False, 409                 # conflito com o estado atual\n\n    return True, 200\n\nana = {\"id\": 7, \"perfil\": \"comum\"}\nadmin = {\"id\": 1, \"perfil\": \"admin\"}\nminha = {\"id\": 10, \"usuario_id\": 7}\nde_outro = {\"id\": 11, \"usuario_id\": 9}\nbloqueada = {\"id\": 12, \"usuario_id\": 7, \"bloqueada\": True}\n\nprint(pode(None, minha, \"ver\"))          # (False, 401)\nprint(pode(ana, minha, \"ver\"))           # (True, 200)\nprint(pode(ana, de_outro, \"ver\"))        # (False, 403)\nprint(pode(ana, None, \"ver\"))            # (False, 404)\nprint(pode(ana, bloqueada, \"apagar\"))    # (False, 409)\nprint(pode(admin, de_outro, \"ver\"))      # (True, 200)\n\n# devolver 403 em vez de 404 entrega que o recurso existe. Em área sensível\n# tem quem prefira 404 pros dois casos; o importante é decidir e ser coerente."
+      },
+      {
+        "titulo": "O repositório do CRUD",
+        "enunciado": "Escreva uma classe Repositorio com listar(dono), criar(dono, titulo), alterar(dono, id, campos) e apagar(dono, id). Ninguém alcança o que não é seu, e alterar só aceita os campos que o cliente pode mudar.",
+        "criterios": [
+          "listar devolve só os itens do dono",
+          "criar corta o espaço em volta do título e gera o id no servidor",
+          "alterar e apagar de outra pessoa não fazem nada e avisam com None ou False",
+          "alterar ignora campos que o cliente não deveria mudar, como usuario_id"
+        ],
+        "solucao": "class Repositorio:\n    ALTERAVEIS = (\"titulo\", \"feita\")      # o que o cliente pode mudar, e só isso\n\n    def __init__(self):\n        self._itens = {}\n        self._proximo = 1\n\n    def listar(self, dono):\n        return [i for i in self._itens.values() if i[\"usuario_id\"] == dono]\n\n    def criar(self, dono, titulo):\n        item = {\"id\": self._proximo, \"usuario_id\": dono, \"titulo\": titulo.strip(), \"feita\": False}\n        self._itens[self._proximo] = item\n        self._proximo += 1\n        return item\n\n    def _meu(self, dono, id):\n        item = self._itens.get(id)\n        return item if item and item[\"usuario_id\"] == dono else None\n\n    def alterar(self, dono, id, campos):\n        item = self._meu(dono, id)\n        if item is None:\n            return None\n        for campo in self.ALTERAVEIS:\n            if campo in campos:\n                item[campo] = campos[campo]\n        return item\n\n    def apagar(self, dono, id):\n        if self._meu(dono, id) is None:\n            return False\n        del self._itens[id]\n        return True\n\nrepo = Repositorio()\nminha = repo.criar(7, \"  Minha tarefa \")\nde_outro = repo.criar(9, \"De outra pessoa\")\n\nprint(minha)                    # {'id': 1, 'usuario_id': 7, 'titulo': 'Minha tarefa', 'feita': False}\nprint(len(repo.listar(7)))      # 1\nprint(repo.alterar(7, minha[\"id\"], {\"feita\": True, \"usuario_id\": 999})[\"usuario_id\"])   # 7\nprint(repo.alterar(7, de_outro[\"id\"], {\"feita\": True}))   # None\nprint(repo.apagar(7, de_outro[\"id\"]))                     # False\nprint(repo.apagar(7, minha[\"id\"]), repo.listar(7))        # True []\n\n# o usuario_id 999 que o cliente mandou foi ignorado: é a lista de campos\n# alteráveis fazendo o trabalho. Sem ela, um PUT troca o dono do registro."
+      }
+    ],
+    "foco": "backend"
   }
 ]

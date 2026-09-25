@@ -4,22 +4,348 @@
     {
       "id": "backend5a1",
       "titulo": "Escrever um teste",
-      "minutos": 12
+      "minutos": 16,
+      "resumo": "Um teste é um programa que usa o seu programa e reclama quando a resposta muda.",
+      "ideia": [
+        "O teste chama a rota sem subir servidor nenhum e confere o status e o corpo. Roda em milésimos, quantas vezes você quiser.",
+        "Comece por três: o caminho feliz, o caso vazio e a entrada inválida. Eles pegam a maior parte do que quebra."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "pip install pytest. O TestClient conversa com o app direto, sem rede no meio. Rode com pytest -q.",
+          "codigo": "from fastapi import FastAPI\nfrom fastapi.testclient import TestClient\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nTAREFAS = []\n\nclass NovaTarefa(BaseModel):\n    titulo: str = Field(min_length=3, max_length=120)\n\n@app.get(\"/tarefas\")\ndef listar():\n    return TAREFAS\n\n@app.post(\"/tarefas\", status_code=201)\ndef criar(nova: NovaTarefa):\n    tarefa = {\"id\": len(TAREFAS) + 1, \"titulo\": nova.titulo.strip(), \"feita\": False}\n    TAREFAS.append(tarefa)\n    return tarefa\n\n# ── os testes ────────────────────────────────────────────\ncliente = TestClient(app)\n\ndef test_comeca_vazia():\n    TAREFAS.clear()\n    resposta = cliente.get(\"/tarefas\")\n    assert resposta.status_code == 200\n    assert resposta.json() == []\n\ndef test_cria_e_aparece_na_lista():\n    TAREFAS.clear()\n    criada = cliente.post(\"/tarefas\", json={\"titulo\": \"Escrever teste\"})\n    assert criada.status_code == 201\n    assert cliente.get(\"/tarefas\").json() == [criada.json()]\n\ndef test_titulo_curto_nao_passa():\n    TAREFAS.clear()\n    resposta = cliente.post(\"/tarefas\", json={\"titulo\": \"ab\"})\n    assert resposta.status_code == 422\n    assert cliente.get(\"/tarefas\").json() == []\n\nif __name__ == \"__main__\":\n    import sys, pytest\n    sys.exit(pytest.main([__file__, \"-q\"]))       # 3 passed",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "pip install pytest. O test_client faz o papel do navegador, sem rede. Rode com pytest -q.",
+          "codigo": "from flask import Flask, request\n\napp = Flask(__name__)\nTAREFAS = []\n\n@app.get(\"/tarefas\")\ndef listar():\n    return TAREFAS\n\n@app.post(\"/tarefas\")\ndef criar():\n    dado = request.get_json(silent=True) or {}\n    titulo = dado.get(\"titulo\", \"\")\n    if not isinstance(titulo, str) or not 3 <= len(titulo.strip()) <= 120:\n        return {\"erro\": \"dados inválidos\", \"campos\": [\"titulo\"]}, 400\n    tarefa = {\"id\": len(TAREFAS) + 1, \"titulo\": titulo.strip(), \"feita\": False}\n    TAREFAS.append(tarefa)\n    return tarefa, 201\n\n# ── os testes ────────────────────────────────────────────\ndef test_comeca_vazia():\n    TAREFAS.clear()\n    cliente = app.test_client()\n    resposta = cliente.get(\"/tarefas\")\n    assert resposta.status_code == 200\n    assert resposta.get_json() == []\n\ndef test_cria_e_aparece_na_lista():\n    TAREFAS.clear()\n    cliente = app.test_client()\n    criada = cliente.post(\"/tarefas\", json={\"titulo\": \"Escrever teste\"})\n    assert criada.status_code == 201\n    assert cliente.get(\"/tarefas\").get_json() == [criada.get_json()]\n\ndef test_titulo_curto_nao_passa():\n    TAREFAS.clear()\n    cliente = app.test_client()\n    resposta = cliente.post(\"/tarefas\", json={\"titulo\": \"ab\"})\n    assert resposta.status_code == 400\n    assert cliente.get(\"/tarefas\").get_json() == []\n\nif __name__ == \"__main__\":\n    import sys, pytest\n    sys.exit(pytest.main([__file__, \"-q\"]))       # 3 passed",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "node:test já vem com o Node, sem instalar nada. Rode com node --test.",
+          "codigo": "const test = require(\"node:test\");\nconst assert = require(\"node:assert/strict\");\nconst express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nconst TAREFAS = [];\n\napp.get(\"/tarefas\", (req, res) => res.json(TAREFAS));\n\napp.post(\"/tarefas\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 3) {\n    return res.status(400).json({ erro: \"dados inválidos\", campos: [\"titulo\"] });\n  }\n  const tarefa = { id: TAREFAS.length + 1, titulo: titulo.trim(), feita: false };\n  TAREFAS.push(tarefa);\n  res.status(201).json(tarefa);\n});\n\n// ── os testes ────────────────────────────────────────────\n// sobe numa porta sorteada (o 0), usa e derruba\nasync function comServidor(usar) {\n  const servidor = app.listen(0);\n  try {\n    await usar(`http://127.0.0.1:${servidor.address().port}`);\n  } finally {\n    servidor.close();\n  }\n}\n\nconst postar = (base, corpo) =>\n  fetch(`${base}/tarefas`, {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify(corpo),\n  });\n\ntest(\"começa vazia\", async () => {\n  TAREFAS.length = 0;\n  await comServidor(async (base) => {\n    const r = await fetch(`${base}/tarefas`);\n    assert.equal(r.status, 200);\n    assert.deepEqual(await r.json(), []);\n  });\n});\n\ntest(\"cria e aparece na lista\", async () => {\n  TAREFAS.length = 0;\n  await comServidor(async (base) => {\n    const criada = await postar(base, { titulo: \"Escrever teste\" });\n    assert.equal(criada.status, 201);\n    const lista = await fetch(`${base}/tarefas`);\n    assert.deepEqual(await lista.json(), [await criada.json()]);\n  });\n});\n\ntest(\"titulo curto não passa\", async () => {\n  TAREFAS.length = 0;\n  await comServidor(async (base) => {\n    const r = await postar(base, { titulo: \"ab\" });\n    assert.equal(r.status, 400);\n  });\n});",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O que faz um teste prestar",
+        "linhas": [
+          "Cada teste limpa o estado antes de começar. Teste que depende do que o anterior deixou passa sozinho e falha no conjunto, e caçar isso custa uma tarde.",
+          "Teste bom afirma o status e o corpo. Só conferir se não deu erro deixa passar a API que responde 200 com o dado errado.",
+          "Não persiga porcentagem de cobertura. Persiga os caminhos que doem: o que valida entrada, o que decide permissão e o que mexe em dinheiro."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que o teste chama a rota pelo cliente do framework em vez de subir o servidor e usar a rede?",
+          "opcoes": [
+            "Porque só assim dá pra testar POST",
+            "Porque é muito mais rápido e não depende de porta livre nem de rede",
+            "Porque o servidor não aceita conexão de teste"
+          ],
+          "correta": 1,
+          "porque": "Teste rápido é teste que você roda o tempo todo. Teste lento vira teste que ninguém roda."
+        },
+        {
+          "pergunta": "Quais três testes escrever primeiro numa rota nova?",
+          "opcoes": [
+            "Um por linha de código",
+            "Só o caminho feliz, o resto é exagero",
+            "O caminho feliz, o caso vazio e a entrada inválida"
+          ],
+          "correta": 2,
+          "porque": "São os três que mais quebram e os mais baratos de escrever. O resto vem quando aparecer um bug de verdade."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva três testes para a sua rota de criar tarefa: um que cria e confere o status e o corpo, um que recusa título curto e um que garante que a recusa não deixou lixo na lista. Faça um deles falhar de propósito, veja a mensagem e conserte.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "from fastapi import FastAPI\nfrom fastapi.testclient import TestClient\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nTAREFAS = []\n\nclass NovaTarefa(BaseModel):\n    titulo: str = Field(min_length=3, max_length=120)\n\n@app.get(\"/tarefas\")\ndef listar():\n    return TAREFAS\n\n@app.post(\"/tarefas\", status_code=201)\ndef criar(nova: NovaTarefa):\n    tarefa = {\"id\": len(TAREFAS) + 1, \"titulo\": nova.titulo.strip(), \"feita\": False}\n    TAREFAS.append(tarefa)\n    return tarefa\n\ncliente = TestClient(app)\n\ndef test_cria_com_status_e_corpo():\n    TAREFAS.clear()\n    resposta = cliente.post(\"/tarefas\", json={\"titulo\": \"  Estudar teste  \"})\n    assert resposta.status_code == 201\n    assert resposta.json() == {\"id\": 1, \"titulo\": \"Estudar teste\", \"feita\": False}\n\ndef test_recusa_titulo_curto():\n    TAREFAS.clear()\n    assert cliente.post(\"/tarefas\", json={\"titulo\": \"ab\"}).status_code == 422\n\ndef test_recusa_nao_deixa_lixo():\n    TAREFAS.clear()\n    cliente.post(\"/tarefas\", json={\"titulo\": \"ab\"})\n    assert cliente.get(\"/tarefas\").json() == []\n\nif __name__ == \"__main__\":\n    import sys, pytest\n    sys.exit(pytest.main([__file__, \"-q\"]))\n\n# pra ver o teste falhando, troque o titulo esperado por \"Estudar\" e rode:\n# o pytest mostra o esperado e o recebido lado a lado, com a linha exata.\n# repare que o primeiro teste também prova que o espaço em volta foi cortado:\n# um assert de corpo inteiro vale por três asserts soltos.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "from flask import Flask, request\n\napp = Flask(__name__)\nTAREFAS = []\n\n@app.get(\"/tarefas\")\ndef listar():\n    return TAREFAS\n\n@app.post(\"/tarefas\")\ndef criar():\n    dado = request.get_json(silent=True) or {}\n    titulo = dado.get(\"titulo\", \"\")\n    if not isinstance(titulo, str) or not 3 <= len(titulo.strip()) <= 120:\n        return {\"erro\": \"dados inválidos\", \"campos\": [\"titulo\"]}, 400\n    tarefa = {\"id\": len(TAREFAS) + 1, \"titulo\": titulo.strip(), \"feita\": False}\n    TAREFAS.append(tarefa)\n    return tarefa, 201\n\ndef test_cria_com_status_e_corpo():\n    TAREFAS.clear()\n    resposta = app.test_client().post(\"/tarefas\", json={\"titulo\": \"  Estudar teste  \"})\n    assert resposta.status_code == 201\n    assert resposta.get_json() == {\"id\": 1, \"titulo\": \"Estudar teste\", \"feita\": False}\n\ndef test_recusa_titulo_curto():\n    TAREFAS.clear()\n    assert app.test_client().post(\"/tarefas\", json={\"titulo\": \"ab\"}).status_code == 400\n\ndef test_recusa_nao_deixa_lixo():\n    TAREFAS.clear()\n    cliente = app.test_client()\n    cliente.post(\"/tarefas\", json={\"titulo\": \"ab\"})\n    assert cliente.get(\"/tarefas\").get_json() == []\n\nif __name__ == \"__main__\":\n    import sys, pytest\n    sys.exit(pytest.main([__file__, \"-q\"]))\n\n# pra ver falhando, troque 400 por 201 no segundo teste.\n# o pytest imprime a linha, o valor esperado e o recebido.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const test = require(\"node:test\");\nconst assert = require(\"node:assert/strict\");\nconst express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nconst TAREFAS = [];\n\napp.get(\"/tarefas\", (req, res) => res.json(TAREFAS));\n\napp.post(\"/tarefas\", (req, res) => {\n  const titulo = req.body?.titulo;\n  if (typeof titulo !== \"string\" || titulo.trim().length < 3) {\n    return res.status(400).json({ erro: \"dados inválidos\", campos: [\"titulo\"] });\n  }\n  const tarefa = { id: TAREFAS.length + 1, titulo: titulo.trim(), feita: false };\n  TAREFAS.push(tarefa);\n  res.status(201).json(tarefa);\n});\n\nasync function comServidor(usar) {\n  const servidor = app.listen(0);\n  try {\n    await usar(`http://127.0.0.1:${servidor.address().port}`);\n  } finally {\n    servidor.close();\n  }\n}\n\nconst postar = (base, corpo) =>\n  fetch(`${base}/tarefas`, {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify(corpo),\n  });\n\ntest(\"cria com status e corpo\", async () => {\n  TAREFAS.length = 0;\n  await comServidor(async (base) => {\n    const r = await postar(base, { titulo: \"  Estudar teste  \" });\n    assert.equal(r.status, 201);\n    assert.deepEqual(await r.json(), { id: 1, titulo: \"Estudar teste\", feita: false });\n  });\n});\n\ntest(\"recusa titulo curto\", async () => {\n  TAREFAS.length = 0;\n  await comServidor(async (base) => {\n    assert.equal((await postar(base, { titulo: \"ab\" })).status, 400);\n  });\n});\n\ntest(\"recusa não deixa lixo\", async () => {\n  TAREFAS.length = 0;\n  await comServidor(async (base) => {\n    await postar(base, { titulo: \"ab\" });\n    const lista = await fetch(`${base}/tarefas`);\n    assert.deepEqual(await lista.json(), []);\n  });\n});\n\n// pra ver falhando, troque 400 por 201 no segundo teste.\n// o node:test mostra esperado, recebido e o arquivo com a linha.",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend5a2",
-      "titulo": "Tratar erro de verdade",
-      "minutos": 12
+      "titulo": "Testar a API de ponta a ponta",
+      "minutos": 16,
+      "resumo": "Um teste que faz o caminho inteiro: cadastrar, entrar, usar o token e tentar o que não pode.",
+      "ideia": [
+        "Teste de rota confere um pedaço. Teste de ponta a ponta confere o encaixe: login que gera token, token que abre a rota, e a porta que continua fechada pra quem não é dono.",
+        "É o teste que mais economiza tempo depois, porque ele quebra na hora em que alguém mexe na autenticação sem perceber o efeito."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "Versão curta da API dos módulos 6 e 7, com o fluxo inteiro testado de uma vez:",
+          "codigo": "import base64, hashlib, hmac, json, os, secrets, time\nfrom fastapi import Depends, FastAPI, Header, HTTPException\nfrom fastapi.testclient import TestClient\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\nSEGREDO = os.environ.get(\"APP_SEGREDO\", \"so-para-teste\").encode()\nUSUARIOS = {\"ana@exemplo.com\": {\"id\": 7, \"senha\": \"senha-boa-123\"}}   # simplificado\nTAREFAS = [{\"id\": 1, \"usuario_id\": 9, \"titulo\": \"De outra pessoa\"}]\n\ndef _b64(d): return base64.urlsafe_b64encode(d).decode().rstrip(\"=\")\n\ndef criar_token(uid):\n    corpo = _b64(json.dumps({\"sub\": uid, \"exp\": int(time.time()) + 3600}).encode())\n    return f\"{corpo}.{_b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())}\"\n\ndef ler_token(token):\n    try:\n        corpo, assinatura = token.split(\".\")\n    except ValueError:\n        return None\n    esperada = _b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())\n    if not hmac.compare_digest(assinatura, esperada):\n        return None\n    dados = json.loads(base64.urlsafe_b64decode(corpo + \"=\" * (-len(corpo) % 4)))\n    return None if dados[\"exp\"] < time.time() else dados[\"sub\"]\n\ndef usuario_atual(authorization: str = Header(default=\"\")) -> int:\n    uid = ler_token(authorization.removeprefix(\"Bearer \")) if authorization.startswith(\"Bearer \") else None\n    if uid is None:\n        raise HTTPException(status_code=401, detail=\"faça login\")\n    return uid\n\nclass Credenciais(BaseModel):\n    email: str\n    senha: str\n\n@app.post(\"/login\")\ndef entrar(dados: Credenciais):\n    u = USUARIOS.get(dados.email)\n    if u is None or not hmac.compare_digest(u[\"senha\"], dados.senha):\n        raise HTTPException(status_code=401, detail=\"e-mail ou senha inválidos\")\n    return {\"token\": criar_token(u[\"id\"])}\n\n@app.get(\"/tarefas\")\ndef listar(uid: int = Depends(usuario_atual)):\n    return [t for t in TAREFAS if t[\"usuario_id\"] == uid]\n\n@app.get(\"/tarefas/{id}\")\ndef uma(id: int, uid: int = Depends(usuario_atual)):\n    t = next((t for t in TAREFAS if t[\"id\"] == id), None)\n    if t is None:\n        raise HTTPException(status_code=404, detail=\"não encontrada\")\n    if t[\"usuario_id\"] != uid:\n        raise HTTPException(status_code=403, detail=\"sem permissão\")\n    return t\n\n# ── o caminho inteiro, num teste só ───────────────────────\ncliente = TestClient(app)\n\ndef test_fluxo_completo():\n    assert cliente.get(\"/tarefas\").status_code == 401            # sem token\n\n    errado = cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"chute\"})\n    assert errado.status_code == 401                             # senha errada\n\n    entrada = cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"senha-boa-123\"})\n    assert entrada.status_code == 200\n    cabecalho = {\"Authorization\": f\"Bearer {entrada.json()['token']}\"}\n\n    assert cliente.get(\"/tarefas\", headers=cabecalho).json() == []   # nada meu ainda\n    assert cliente.get(\"/tarefas/1\", headers=cabecalho).status_code == 403   # é de outro\n    assert cliente.get(\"/tarefas/99\", headers=cabecalho).status_code == 404\n\nif __name__ == \"__main__\":\n    import sys, pytest\n    sys.exit(pytest.main([__file__, \"-q\"]))       # 1 passed",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "Mesmo fluxo, com o test_client do Flask:",
+          "codigo": "import base64, hashlib, hmac, json, os, time\nfrom functools import wraps\nfrom flask import Flask, g, request\n\napp = Flask(__name__)\nSEGREDO = os.environ.get(\"APP_SEGREDO\", \"so-para-teste\").encode()\nUSUARIOS = {\"ana@exemplo.com\": {\"id\": 7, \"senha\": \"senha-boa-123\"}}   # simplificado\nTAREFAS = [{\"id\": 1, \"usuario_id\": 9, \"titulo\": \"De outra pessoa\"}]\n\ndef _b64(d): return base64.urlsafe_b64encode(d).decode().rstrip(\"=\")\n\ndef criar_token(uid):\n    corpo = _b64(json.dumps({\"sub\": uid, \"exp\": int(time.time()) + 3600}).encode())\n    return f\"{corpo}.{_b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())}\"\n\ndef ler_token(token):\n    try:\n        corpo, assinatura = token.split(\".\")\n    except ValueError:\n        return None\n    esperada = _b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())\n    if not hmac.compare_digest(assinatura, esperada):\n        return None\n    dados = json.loads(base64.urlsafe_b64decode(corpo + \"=\" * (-len(corpo) % 4)))\n    return None if dados[\"exp\"] < time.time() else dados[\"sub\"]\n\ndef exige_login(rota):\n    @wraps(rota)\n    def dentro(*args, **kwargs):\n        cabecalho = request.headers.get(\"Authorization\", \"\")\n        uid = ler_token(cabecalho.removeprefix(\"Bearer \")) if cabecalho.startswith(\"Bearer \") else None\n        if uid is None:\n            return {\"erro\": \"faça login\"}, 401\n        g.uid = uid\n        return rota(*args, **kwargs)\n    return dentro\n\n@app.post(\"/login\")\ndef entrar():\n    dado = request.get_json(silent=True) or {}\n    u = USUARIOS.get(dado.get(\"email\", \"\"))\n    if u is None or not hmac.compare_digest(u[\"senha\"], dado.get(\"senha\", \"\")):\n        return {\"erro\": \"e-mail ou senha inválidos\"}, 401\n    return {\"token\": criar_token(u[\"id\"])}\n\n@app.get(\"/tarefas\")\n@exige_login\ndef listar():\n    return [t for t in TAREFAS if t[\"usuario_id\"] == g.uid]\n\n@app.get(\"/tarefas/<int:id>\")\n@exige_login\ndef uma(id):\n    t = next((t for t in TAREFAS if t[\"id\"] == id), None)\n    if t is None:\n        return {\"erro\": \"não encontrada\"}, 404\n    if t[\"usuario_id\"] != g.uid:\n        return {\"erro\": \"sem permissão\"}, 403\n    return t\n\n# ── o caminho inteiro, num teste só ───────────────────────\ndef test_fluxo_completo():\n    cliente = app.test_client()\n    assert cliente.get(\"/tarefas\").status_code == 401\n    assert cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"chute\"}).status_code == 401\n\n    entrada = cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"senha-boa-123\"})\n    assert entrada.status_code == 200\n    cabecalho = {\"Authorization\": f\"Bearer {entrada.get_json()['token']}\"}\n\n    assert cliente.get(\"/tarefas\", headers=cabecalho).get_json() == []\n    assert cliente.get(\"/tarefas/1\", headers=cabecalho).status_code == 403\n    assert cliente.get(\"/tarefas/99\", headers=cabecalho).status_code == 404\n\nif __name__ == \"__main__\":\n    import sys, pytest\n    sys.exit(pytest.main([__file__, \"-q\"]))       # 1 passed",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "Mesmo fluxo com node:test e fetch, num servidor de porta sorteada:",
+          "codigo": "const test = require(\"node:test\");\nconst assert = require(\"node:assert/strict\");\nconst crypto = require(\"node:crypto\");\nconst express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nconst SEGREDO = process.env.APP_SEGREDO ?? \"so-para-teste\";\nconst USUARIOS = { \"ana@exemplo.com\": { id: 7, senha: \"senha-boa-123\" } };   // simplificado\nconst TAREFAS = [{ id: 1, usuario_id: 9, titulo: \"De outra pessoa\" }];\n\nconst assinar = (c) => crypto.createHmac(\"sha256\", SEGREDO).update(c).digest(\"base64url\");\n\nfunction criarToken(uid) {\n  const corpo = Buffer.from(JSON.stringify({ sub: uid, exp: Math.floor(Date.now() / 1000) + 3600 })).toString(\"base64url\");\n  return `${corpo}.${assinar(corpo)}`;\n}\n\nfunction lerToken(token) {\n  const [corpo, assinatura] = String(token).split(\".\");\n  if (!corpo || !assinatura) return null;\n  const esperada = Buffer.from(assinar(corpo));\n  const recebida = Buffer.from(assinatura);\n  if (recebida.length !== esperada.length || !crypto.timingSafeEqual(recebida, esperada)) return null;\n  const dados = JSON.parse(Buffer.from(corpo, \"base64url\").toString());\n  return dados.exp < Math.floor(Date.now() / 1000) ? null : dados.sub;\n}\n\nfunction exigeLogin(req, res, proximo) {\n  const cabecalho = req.headers.authorization ?? \"\";\n  const uid = cabecalho.startsWith(\"Bearer \") ? lerToken(cabecalho.slice(7)) : null;\n  if (uid === null) return res.status(401).json({ erro: \"faça login\" });\n  req.uid = uid;\n  proximo();\n}\n\napp.post(\"/login\", (req, res) => {\n  const u = USUARIOS[req.body?.email];\n  if (!u || u.senha !== req.body?.senha) return res.status(401).json({ erro: \"e-mail ou senha inválidos\" });\n  res.json({ token: criarToken(u.id) });\n});\n\napp.get(\"/tarefas\", exigeLogin, (req, res) => {\n  res.json(TAREFAS.filter((t) => t.usuario_id === req.uid));\n});\n\napp.get(\"/tarefas/:id\", exigeLogin, (req, res) => {\n  const t = TAREFAS.find((x) => x.id === Number(req.params.id));\n  if (!t) return res.status(404).json({ erro: \"não encontrada\" });\n  if (t.usuario_id !== req.uid) return res.status(403).json({ erro: \"sem permissão\" });\n  res.json(t);\n});\n\n// ── o caminho inteiro, num teste só ───────────────────────\ntest(\"fluxo completo\", async () => {\n  const servidor = app.listen(0);\n  const base = `http://127.0.0.1:${servidor.address().port}`;\n  try {\n    assert.equal((await fetch(`${base}/tarefas`)).status, 401);\n\n    const entrar = (senha) =>\n      fetch(`${base}/login`, {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ email: \"ana@exemplo.com\", senha }),\n      });\n\n    assert.equal((await entrar(\"chute\")).status, 401);\n\n    const entrada = await entrar(\"senha-boa-123\");\n    assert.equal(entrada.status, 200);\n    const cabecalho = { Authorization: `Bearer ${(await entrada.json()).token}` };\n\n    const minhas = await fetch(`${base}/tarefas`, { headers: cabecalho });\n    assert.deepEqual(await minhas.json(), []);\n    assert.equal((await fetch(`${base}/tarefas/1`, { headers: cabecalho })).status, 403);\n    assert.equal((await fetch(`${base}/tarefas/99`, { headers: cabecalho })).status, 404);\n  } finally {\n    servidor.close();\n  }\n});",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "Isolamento, o detalhe que decide",
+        "linhas": [
+          "O teste não pode encostar no banco de produção, nem no seu de desenvolvimento. Use um banco separado, de preferência em memória, criado e destruído a cada rodada.",
+          "Aqui a senha está guardada em texto pra deixar o exemplo curto. No seu projeto ela continua com hash: teste também passa com hash, só demora alguns milésimos a mais por causa do algoritmo lento.",
+          "Teste de ponta a ponta é caro de escrever e valioso de manter. Um ou dois, cobrindo o fluxo principal, valem mais que vinte cobrindo detalhe."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que o teste de ponta a ponta pega que o teste de rota sozinho não pega?",
+          "opcoes": [
+            "Erro de digitação no código",
+            "O encaixe entre as partes: login que gera token, token que abre a rota, permissão que continua fechada",
+            "Problema de desempenho"
+          ],
+          "correta": 1,
+          "porque": "Cada peça pode estar certa sozinha e o encaixe estar errado. É onde mora o bug que ninguém vê em revisão."
+        },
+        {
+          "pergunta": "Por que o teste precisa de um banco separado?",
+          "opcoes": [
+            "Pra rodar mais rápido, só isso",
+            "Porque senão ele apaga ou suja dado de verdade, e passa a depender do que estiver lá",
+            "Porque o framework exige"
+          ],
+          "correta": 1,
+          "porque": "Teste precisa começar sempre do mesmo estado. E um teste que apaga dado de produção já aconteceu com muita gente."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Escreva um teste de ponta a ponta da sua API: sem token dá 401, login com senha errada dá 401, login certo devolve token, com o token a listagem funciona e a tarefa de outra pessoa dá 403. Rode e anote no Caderno quanto tempo a rodada levou.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "# reaproveite o app da aula 7.1 e acrescente este teste no mesmo arquivo\n# (ou importe o app, que é como fica no projeto de verdade).\n\ndef test_fluxo_completo():\n    cliente = TestClient(app)\n\n    # 1. porta fechada\n    assert cliente.get(\"/tarefas\").status_code == 401\n\n    # 2. senha errada não abre\n    assert cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"chute\"}).status_code == 401\n\n    # 3. login certo devolve token\n    entrada = cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"senha-boa-123\"})\n    assert entrada.status_code == 200\n    token = entrada.json()[\"token\"]\n    assert token.count(\".\") == 1          # corpo e assinatura\n\n    cabecalho = {\"Authorization\": f\"Bearer {token}\"}\n\n    # 4. com o token, a listagem abre\n    assert cliente.get(\"/tarefas\", headers=cabecalho).status_code == 200\n\n    # 5. a tarefa de outra pessoa continua fechada\n    assert cliente.get(\"/tarefas/1\", headers=cabecalho).status_code == 403\n\n# rodando: pytest -q\n# 1 passed in 0.06s\n#\n# no Caderno: a rodada inteira leva menos de um segundo.\n# é por isso que dá pra rodar a cada salvamento, e é isso que muda\n# a relação com o próprio código: você deixa de ter medo de mexer.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "# reaproveite o app da aula 7.1 e acrescente este teste no mesmo arquivo.\n\ndef test_fluxo_completo():\n    cliente = app.test_client()\n\n    # 1. porta fechada\n    assert cliente.get(\"/tarefas\").status_code == 401\n\n    # 2. senha errada não abre\n    assert cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"chute\"}).status_code == 401\n\n    # 3. login certo devolve token\n    entrada = cliente.post(\"/login\", json={\"email\": \"ana@exemplo.com\", \"senha\": \"senha-boa-123\"})\n    assert entrada.status_code == 200\n    token = entrada.get_json()[\"token\"]\n    assert token.count(\".\") == 1\n\n    cabecalho = {\"Authorization\": f\"Bearer {token}\"}\n\n    # 4. com o token, a listagem abre\n    assert cliente.get(\"/tarefas\", headers=cabecalho).status_code == 200\n\n    # 5. a tarefa de outra pessoa continua fechada\n    assert cliente.get(\"/tarefas/1\", headers=cabecalho).status_code == 403\n\n# rodando: pytest -q\n# 1 passed in 0.05s",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "// reaproveite o app da aula 7.1 e acrescente este teste no mesmo arquivo.\n\ntest(\"fluxo completo\", async () => {\n  const servidor = app.listen(0);\n  const base = `http://127.0.0.1:${servidor.address().port}`;\n\n  try {\n    // 1. porta fechada\n    assert.equal((await fetch(`${base}/tarefas`)).status, 401);\n\n    const entrar = (senha) =>\n      fetch(`${base}/login`, {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ email: \"ana@exemplo.com\", senha }),\n      });\n\n    // 2. senha errada não abre\n    assert.equal((await entrar(\"chute\")).status, 401);\n\n    // 3. login certo devolve token\n    const entrada = await entrar(\"senha-boa-123\");\n    assert.equal(entrada.status, 200);\n    const { token } = await entrada.json();\n    assert.equal(token.split(\".\").length, 2);\n\n    const cabecalho = { Authorization: `Bearer ${token}` };\n\n    // 4. com o token, a listagem abre\n    assert.equal((await fetch(`${base}/tarefas`, { headers: cabecalho })).status, 200);\n\n    // 5. a tarefa de outra pessoa continua fechada\n    assert.equal((await fetch(`${base}/tarefas/1`, { headers: cabecalho })).status, 403);\n  } finally {\n    servidor.close();\n  }\n});\n\n// rodando: node --test\n// duration_ms 130\n//\n// o finally com servidor.close() não é opcional: sem ele o teste passa\n// e o processo fica pendurado, porque o servidor nunca soltou a porta.",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend5a3",
-      "titulo": "Variáveis de ambiente",
-      "minutos": 12
+      "titulo": "Tratar erro e registrar log",
+      "minutos": 14,
+      "resumo": "Em produção você não vê a tela de ninguém. O log é o seu único par de olhos.",
+      "ideia": [
+        "Log não é print: ele tem nível (info, aviso, erro), horário e vai pra saída padrão, que o provedor recolhe.",
+        "Registre o que ajuda a investigar depois: rota, status, tempo e quem fez. Nunca senha, token ou dado pessoal inteiro."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "logging já vem com o Python. Um middleware registra toda requisição com o tempo dela:",
+          "codigo": "import logging, time, uuid\nfrom fastapi import FastAPI, Request\n\nlogging.basicConfig(\n    level=logging.INFO,\n    format='%(asctime)s %(levelname)s %(name)s %(message)s',\n)\nlog = logging.getLogger(\"api\")\n\napp = FastAPI()\n\n@app.middleware(\"http\")\nasync def registrar(req: Request, seguir):\n    inicio = time.perf_counter()\n    pedido_id = uuid.uuid4().hex[:8]        # liga as linhas de um mesmo pedido\n    resposta = await seguir(req)\n    ms = round((time.perf_counter() - inicio) * 1000)\n    log.info(\"%s %s %s %s %sms\", pedido_id, req.method, req.url.path, resposta.status_code, ms)\n    resposta.headers[\"X-Pedido-Id\"] = pedido_id\n    return resposta\n\n@app.get(\"/tarefas\")\ndef listar():\n    return []\n\n# 2026-09-23 10:40:12,003 INFO api 9f2c1a7b GET /tarefas 200 3ms\n#\n# o id do pedido também volta no cabeçalho: quando alguém reclamar,\n# você pede esse código e acha a linha exata no log.",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "O Flask tem ganchos pra antes e depois de cada requisição:",
+          "codigo": "import logging, time, uuid\nfrom flask import Flask, g, request\n\nlogging.basicConfig(\n    level=logging.INFO,\n    format='%(asctime)s %(levelname)s %(name)s %(message)s',\n)\nlog = logging.getLogger(\"api\")\n\napp = Flask(__name__)\n\n@app.before_request\ndef comecar():\n    g.inicio = time.perf_counter()\n    g.pedido_id = uuid.uuid4().hex[:8]\n\n@app.after_request\ndef registrar(resposta):\n    ms = round((time.perf_counter() - g.inicio) * 1000)\n    log.info(\"%s %s %s %s %sms\", g.pedido_id, request.method, request.path, resposta.status_code, ms)\n    resposta.headers[\"X-Pedido-Id\"] = g.pedido_id\n    return resposta\n\n@app.get(\"/tarefas\")\ndef listar():\n    return []\n\n# 2026-09-23 10:40:12,003 INFO api 9f2c1a7b GET /tarefas 200 2ms",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "Um middleware no topo, e o log sai na saída padrão:",
+          "codigo": "const express = require(\"express\");\nconst crypto = require(\"node:crypto\");\n\nconst app = express();\napp.use(express.json());\n\napp.use((req, res, proximo) => {\n  const inicio = process.hrtime.bigint();\n  const pedidoId = crypto.randomUUID().slice(0, 8);\n  res.setHeader(\"X-Pedido-Id\", pedidoId);\n\n  res.on(\"finish\", () => {\n    const ms = Number(process.hrtime.bigint() - inicio) / 1e6;\n    console.log(\n      JSON.stringify({\n        nivel: \"info\",\n        quando: new Date().toISOString(),\n        pedido: pedidoId,\n        metodo: req.method,\n        caminho: req.path,\n        status: res.statusCode,\n        ms: Math.round(ms),\n      })\n    );\n  });\n\n  proximo();\n});\n\napp.get(\"/tarefas\", (req, res) => res.json([]));\n\napp.listen(3000);\n\n// {\"nivel\":\"info\",\"quando\":\"2026-09-23T10:40:12.003Z\",\"pedido\":\"9f2c1a7b\",\n//  \"metodo\":\"GET\",\"caminho\":\"/tarefas\",\"status\":200,\"ms\":3}\n//\n// log em JSON é chato de ler no olho e ótimo pra filtrar depois.",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O que registrar, e o que nunca",
+        "linhas": [
+          "Registre: método, caminho, status, tempo, id do pedido e, quando houver, o id de quem está logado. Com isso você reconstrói quase qualquer investigação.",
+          "Nunca registre: senha, token, número de cartão, corpo inteiro de requisição sensível. Cuidado com o registro automático de corpo, que é por onde senha vaza pro log sem ninguém perceber.",
+          "Em produção, a saída padrão é o lugar certo: o provedor recolhe e guarda. Escrever arquivo de log dentro do contêiner é perder tudo quando ele reiniciar."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Para que serve um id de pedido no log e no cabeçalho da resposta?",
+          "opcoes": [
+            "Para o cliente saber quantos pedidos fez",
+            "Para ligar a reclamação de alguém à linha exata do log daquele pedido",
+            "Para substituir o status HTTP"
+          ],
+          "correta": 1,
+          "porque": "A pessoa manda o código que apareceu na tela e você acha em segundos, mesmo com milhões de linhas."
+        },
+        {
+          "pergunta": "Qual destes nunca deve ir para o log?",
+          "opcoes": [
+            "O tempo que a requisição levou",
+            "O status da resposta",
+            "A senha que veio no corpo da requisição"
+          ],
+          "correta": 2,
+          "porque": "Log é lido por muita gente e guardado por muito tempo. Segredo no log é vazamento com data marcada."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Acrescente à sua API um registro de toda requisição com método, caminho, status, tempo e um id de pedido que também volta no cabeçalho. Force um erro e confirme que o rastro aparece no log e não na resposta. Anote no Caderno o que você decidiu não registrar.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "import logging, time, uuid\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\n\nlogging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s %(message)s')\nlog = logging.getLogger(\"api\")\n\napp = FastAPI()\n\n@app.middleware(\"http\")\nasync def registrar(req: Request, seguir):\n    inicio = time.perf_counter()\n    pedido_id = uuid.uuid4().hex[:8]\n    resposta = await seguir(req)\n    ms = round((time.perf_counter() - inicio) * 1000)\n    log.info(\"%s %s %s %s %sms\", pedido_id, req.method, req.url.path, resposta.status_code, ms)\n    resposta.headers[\"X-Pedido-Id\"] = pedido_id\n    return resposta\n\n@app.exception_handler(Exception)\nasync def inesperado(req: Request, exc: Exception):\n    log.exception(\"falha em %s %s\", req.method, req.url.path)   # rastro completo aqui\n    return JSONResponse(status_code=500, content={\"erro\": \"erro interno\"})\n\n@app.get(\"/quebra\")\ndef quebra():\n    return 1 / 0\n\n# GET /quebra\n#   resposta: {\"erro\": \"erro interno\"}  [500]\n#   log:      ERROR api falha em GET /quebra\n#             Traceback (most recent call last): ... ZeroDivisionError\n#\n# o que eu decidi NÃO registrar:\n#   corpo das requisições de login e cadastro (tem senha)\n#   cabeçalho Authorization (tem o token, que vale como senha)\n#   e-mail inteiro: registro só o id do usuário",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "import logging, time, uuid\nfrom flask import Flask, g, jsonify, request\n\nlogging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s %(message)s')\nlog = logging.getLogger(\"api\")\n\napp = Flask(__name__)\n\n@app.before_request\ndef comecar():\n    g.inicio = time.perf_counter()\n    g.pedido_id = uuid.uuid4().hex[:8]\n\n@app.after_request\ndef registrar(resposta):\n    ms = round((time.perf_counter() - g.inicio) * 1000)\n    log.info(\"%s %s %s %s %sms\", g.pedido_id, request.method, request.path, resposta.status_code, ms)\n    resposta.headers[\"X-Pedido-Id\"] = g.pedido_id\n    return resposta\n\n@app.errorhandler(Exception)\ndef inesperado(exc):\n    log.exception(\"falha em %s %s\", request.method, request.path)\n    return jsonify(erro=\"erro interno\"), 500\n\n@app.get(\"/quebra\")\ndef quebra():\n    return 1 / 0\n\n# GET /quebra\n#   resposta: {\"erro\": \"erro interno\"}  [500]\n#   log:      ERROR api falha em GET /quebra + rastro completo\n#\n# o que eu decidi NÃO registrar:\n#   corpo do login e do cadastro, cabeçalho Authorization, e-mail inteiro",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\nconst crypto = require(\"node:crypto\");\n\nconst app = express();\napp.use(express.json());\n\nconst registrar = (nivel, dados) =>\n  console.log(JSON.stringify({ nivel, quando: new Date().toISOString(), ...dados }));\n\napp.use((req, res, proximo) => {\n  const inicio = process.hrtime.bigint();\n  req.pedidoId = crypto.randomUUID().slice(0, 8);\n  res.setHeader(\"X-Pedido-Id\", req.pedidoId);\n\n  res.on(\"finish\", () => {\n    registrar(\"info\", {\n      pedido: req.pedidoId,\n      metodo: req.method,\n      caminho: req.path,\n      status: res.statusCode,\n      ms: Math.round(Number(process.hrtime.bigint() - inicio) / 1e6),\n    });\n  });\n\n  proximo();\n});\n\napp.get(\"/quebra\", () => {\n  throw new Error(\"quebrei de propósito\");\n});\n\napp.use((erro, req, res, proximo) => {\n  registrar(\"erro\", { pedido: req.pedidoId, caminho: req.path, mensagem: erro.message, rastro: erro.stack });\n  res.status(500).json({ erro: \"erro interno\", pedido: req.pedidoId });\n});\n\napp.listen(3000);\n\n// GET /quebra\n//   resposta: {\"erro\":\"erro interno\",\"pedido\":\"9f2c1a7b\"}  [500]\n//   log:      {\"nivel\":\"erro\",...,\"rastro\":\"Error: quebrei de propósito\\n    at ...\"}\n//\n// devolver o id do pedido na resposta de erro é cortesia com quem usa:\n// a pessoa manda o código e você acha a linha na hora.\n//\n// o que eu decidi NÃO registrar: corpo do login, Authorization, e-mail inteiro.",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend5a4",
       "titulo": "Publicar",
-      "minutos": 12
+      "minutos": 16,
+      "resumo": "Sair do 127.0.0.1. O que muda é menos do que parece, e o que muda importa muito.",
+      "ideia": [
+        "Em produção some o modo de recarga, a porta vem do provedor por variável de ambiente e quem atende é um servidor de verdade, com vários processos.",
+        "O provedor precisa de três coisas: como instalar, como subir e em qual porta escutar. O resto é configuração do seu ambiente."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "Uvicorn com vários processos, escutando na porta que o provedor mandar:",
+          "codigo": "# requirements.txt\n#   fastapi\n#   uvicorn[standard]\n\n# como subir em produção (Render, Railway, Fly e afins):\nuvicorn main:app --host 0.0.0.0 --port $PORT --workers 4\n\n# 0.0.0.0 aqui é obrigatório: dentro do contêiner, 127.0.0.1 não recebe\n# nada de fora. Quem controla a exposição é o provedor.\n\n# rota de saúde, que o provedor consulta pra saber se a API está viva:\n#   @app.get(\"/saude\")\n#   def saude():\n#       return {\"ok\": True}\n\n# o que NÃO vai pra produção:\n#   fastapi dev / --reload      (recarga automática)\n#   docs abertas, se a API for interna\n#   qualquer segredo escrito no código",
+          "linguagem": "bash"
+        },
+        "flask": {
+          "nota": "O servidor embutido do Flask é só pra desenvolver. Em produção, gunicorn ou waitress:",
+          "codigo": "# requirements.txt\n#   flask\n#   gunicorn        (no Windows, use waitress)\n\n# como subir em produção:\ngunicorn main:app --bind 0.0.0.0:$PORT --workers 4\n\n# no Windows:\nwaitress-serve --port=$PORT main:app\n\n# o aviso que aparece ao rodar flask run em produção é sério:\n# o servidor embutido atende uma coisa por vez e não foi feito pra internet.\n\n# rota de saúde:\n#   @app.get(\"/saude\")\n#   def saude():\n#       return {\"ok\": True}\n\n# o que NÃO vai pra produção:\n#   --debug ligado (ele mostra o rastro do erro e abre um console na tela)\n#   SECRET_KEY fixo no código",
+          "linguagem": "bash"
+        },
+        "express": {
+          "nota": "O Node já é o servidor. O que muda é a porta, o ambiente e quem reinicia se cair:",
+          "codigo": "# package.json\n#   \"scripts\": { \"start\": \"node main.js\" }\n#   \"engines\": { \"node\": \">=22\" }\n\n# como subir em produção:\nnpm ci --omit=dev\nnpm start\n\n# no código, a porta vem do ambiente:\n#   const PORTA = process.env.PORT ?? 3000;\n#   app.listen(PORTA, \"0.0.0.0\");\n\n# rota de saúde:\n#   app.get(\"/saude\", (req, res) => res.json({ ok: true }));\n\n# o que NÃO vai pra produção:\n#   node --watch\n#   npm install em vez de npm ci (o ci respeita o lock, e é o que garante\n#   que a versão do seu teste é a mesma que subiu)",
+          "linguagem": "bash"
+        }
+      },
+      "mais": {
+        "titulo": "A lista antes de apertar o botão",
+        "linhas": [
+          "Segredo no cofre do provedor, nunca no repositório. Banco separado do de desenvolvimento. Rota de saúde respondendo. Log indo pra saída padrão.",
+          "HTTPS quem resolve é o provedor, e ele costuma dar de graça. Aceite só https e mande o cabeçalho Strict-Transport-Security.",
+          "CORS: se um site de outro endereço for consumir a sua API, o navegador exige que você autorize aquele endereço. Libere os que você conhece, e não o asterisco."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que a API precisa escutar em 0.0.0.0 em produção, se em desenvolvimento 127.0.0.1 bastava?",
+          "opcoes": [
+            "Porque 0.0.0.0 é mais rápido",
+            "Porque dentro do contêiner o 127.0.0.1 só aceita a própria máquina virtual, e ninguém de fora chega",
+            "Porque o provedor não aceita outra porta"
+          ],
+          "correta": 1,
+          "porque": "Quem decide a exposição é o provedor, na frente. Dentro do contêiner, prender em 127.0.0.1 é ficar invisível."
+        },
+        {
+          "pergunta": "Por que o modo de desenvolvimento não pode ir pra produção?",
+          "opcoes": [
+            "Porque gasta mais memória, e só",
+            "Porque ele mostra rastro de erro e detalhe interno pra quem acessa, além de recarregar código em produção",
+            "Porque ele não aceita HTTPS"
+          ],
+          "correta": 1,
+          "porque": "O modo de depuração do Flask já expôs console interativo em produção mais de uma vez. É tela de erro virando porta de entrada."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Prepare a sua API pra publicar: porta vinda do ambiente, rota de saúde, dependências travadas e o comando de produção escrito no README. Publique num provedor gratuito e teste a API no ar com curl. Anote no Caderno o que quebrou na primeira tentativa.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "# 1. a porta vem do ambiente (o provedor escolhe)\n#    no código não muda nada: quem passa a porta é o comando.\n\n# 2. rota de saúde, em main.py:\n#    @app.get(\"/saude\")\n#    def saude():\n#        return {\"ok\": True}\n\n# 3. dependências travadas\npip freeze > requirements.txt\n\n# 4. comando de produção, no README:\nuvicorn main:app --host 0.0.0.0 --port $PORT --workers 4\n\n# 5. no provedor: variáveis de ambiente (APP_SEGREDO, BANCO_URL) no cofre dele\n\n# 6. teste no ar:\ncurl -s https://minha-api.onrender.com/saude\n# {\"ok\":true}\n\n# o que quebrou na primeira tentativa (anote o seu, mas estes são os campeões):\n#   - esqueci --host 0.0.0.0 e o provedor não conseguiu alcançar a API\n#   - faltou variável de ambiente e a API parou na subida (ainda bem)\n#   - o banco SQLite sumiu no primeiro reinício: disco de contêiner é\n#     descartável, e dado que precisa durar vai pra um banco gerenciado",
+            "linguagem": "bash"
+          },
+          "flask": {
+            "codigo": "# 1. rota de saúde, em main.py:\n#    @app.get(\"/saude\")\n#    def saude():\n#        return {\"ok\": True}\n\n# 2. dependências travadas\npip freeze > requirements.txt\n\n# 3. comando de produção, no README:\ngunicorn main:app --bind 0.0.0.0:$PORT --workers 4\n\n# 4. no provedor: APP_SEGREDO e BANCO_URL no cofre de variáveis\n\n# 5. teste no ar:\ncurl -s https://minha-api.onrender.com/saude\n# {\"ok\":true}\n\n# o que quebrou na primeira tentativa:\n#   - subi com flask run e o provedor reclamou do servidor de desenvolvimento\n#   - --debug tinha ficado ligado por engano (isso é sério: tire antes)\n#   - SQLite sumiu no reinício: disco de contêiner é descartável",
+            "linguagem": "bash"
+          },
+          "express": {
+            "codigo": "# 1. porta do ambiente, em main.js:\n#    const PORTA = process.env.PORT ?? 3000;\n#    app.listen(PORTA, \"0.0.0.0\");\n\n# 2. rota de saúde:\n#    app.get(\"/saude\", (req, res) => res.json({ ok: true }));\n\n# 3. dependências travadas: o package-lock.json entra no repositório\nnpm ci --omit=dev\n\n# 4. comando de produção, no package.json:\n#    \"scripts\": { \"start\": \"node main.js\" }\n\n# 5. teste no ar:\ncurl -s https://minha-api.onrender.com/saude\n# {\"ok\":true}\n\n# o que quebrou na primeira tentativa:\n#   - deixei a porta fixa em 3000 e o provedor não achou a API\n#   - o node:sqlite avisou que é experimental e o provedor tratou como erro\n#   - esqueci o package-lock.json e subiu uma versão diferente da que testei",
+            "linguagem": "bash"
+          }
+        }
+      }
+    },
+    {
+      "id": "backend5a5",
+      "titulo": "Projeto: API completa no ar",
+      "minutos": 25,
+      "resumo": "Juntar os cinco módulos numa API sua, publicada, com teste e README. É o que vai no portfólio.",
+      "ideia": [
+        "Escolha um assunto que você conhece: lista de tarefas serve, mas um controle de treinos, de leituras ou de gastos rende uma conversa melhor em entrevista.",
+        "O que conta não é o tamanho: é estar no ar, ter teste passando, ter as permissões certas e ter um README que explica as decisões."
+      ],
+      "exemplo": {
+        "nota": "A lista de pronto, item por item. Cada linha aponta a aula que ensinou:",
+        "codigo": "API\n  [ ] CRUD completo de um recurso seu            aulas 4.1 a 4.4\n  [ ] caminhos no plural, verbo certo, status certo   aula 3.3\n  [ ] validação de entrada com mensagem útil     aula 4.3\n  [ ] erros no mesmo formato em toda a API       aula 4.4\n  [ ] código em camadas: rotas, regra, dados     aula 4.5\n\nDados\n  [ ] banco de verdade, com chave e restrição    aula 5.1\n  [ ] toda consulta parametrizada                aula 5.4\n  [ ] listagem paginada, com total               aula 5.2\n\nAcesso\n  [ ] cadastro e login com senha em hash         aula 6.1\n  [ ] token assinado, com validade               aula 6.2\n  [ ] cada pessoa só alcança o que é dela        aula 6.3\n  [ ] segredo vindo do ambiente                  aula 6.4\n  [ ] a lista das seis falhas conferida          aula 6.5\n\nConfiança\n  [ ] testes das rotas principais                aula 7.1\n  [ ] um teste de ponta a ponta do login         aula 7.2\n  [ ] log de requisição com id do pedido         aula 7.3\n  [ ] publicada, com rota de saúde respondendo   aula 7.4\n\nREADME\n  [ ] o que a API faz, em uma frase\n  [ ] como rodar local, em três comandos\n  [ ] a tabela de rotas: método, caminho, o que faz\n  [ ] as decisões: por que essa stack, por que esse banco\n  [ ] o que ficou de fora, e por quê",
+        "linguagem": "texto"
+      },
+      "mais": {
+        "titulo": "O que faz esse projeto valer numa entrevista",
+        "linhas": [
+          "O link que abre e responde vale mais que dez repositórios que só rodam na sua máquina. Deixe o endereço da API no topo do README.",
+          "A seção de decisões é a que separa: dizer por que escolheu SQLite em vez de Postgres, e em que ponto trocaria, mostra critério. Ninguém espera a escolha perfeita, esperam o raciocínio.",
+          "Falar do que ficou de fora é sinal de maturidade, não de preguiça. Escopo fechado e escrito é o que faz projeto terminar."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual destes pesa mais no portfólio?",
+          "opcoes": [
+            "Uma API pequena no ar, com teste e README explicando decisões",
+            "Um projeto grande que só roda na sua máquina",
+            "Muitos repositórios sem README"
+          ],
+          "correta": 0,
+          "porque": "Quem avalia abre o link e lê o README. Se não abre e não explica, o tamanho do código não muda nada."
+        },
+        {
+          "pergunta": "Por que escrever no README o que ficou de fora?",
+          "opcoes": [
+            "Pra ocupar espaço",
+            "Porque mostra escopo consciente, e escopo escrito é o que faz projeto ser terminado",
+            "Porque é exigência do GitHub"
+          ],
+          "correta": 1,
+          "porque": "É a mesma ideia do escopo dos projetos da trilha: o que não faz é tão importante quanto o que faz."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Publique a sua API completa e confira a lista de pronto item por item, marcando só o que você realmente fez. Depois escreva no Caderno as três decisões técnicas que você tomou e o que faria diferente se o projeto dobrasse de tamanho.",
+        "solucao": "o que eu publiquei\n  endereço: https://[sua-api].onrender.com\n  repositório: https://github.com/[voce]/[projeto]\n\ndecisões que eu tomei\n\n1. stack\n   escolhi [FastAPI / Flask / Express] porque [o motivo real: já sabia a\n   linguagem, queria a validação automática, queria entender o básico sem mágica].\n   se o projeto dobrasse: [continuaria / trocaria por causa de...].\n\n2. banco\n   escolhi SQLite porque é um arquivo, não precisa de servidor e aguenta\n   bem um projeto deste tamanho.\n   se dobrasse: Postgres, por causa de escrita ao mesmo tempo e de vários\n   servidores lendo o mesmo dado.\n\n3. autenticação\n   token assinado com hmac, escrito à mão, pra entender o que o JWT faz.\n   se dobrasse: biblioteca pronta (PyJWT ou jsonwebtoken), token curto com\n   renovação, e segundo fator.\n\no que ficou de fora, de propósito\n  [recuperação de senha por e-mail, upload de arquivo, painel de administração]\n  ficou de fora porque [cada um desses é um projeto do tamanho deste].\n\no que eu aprendi que não esperava\n  [escreva o seu. quase sempre é uma coisa pequena: o commit que faltou,\n  o segredo que vazou, a rota que ficou aberta e o teste que pegou.]\n\nesse texto é o rascunho do seu post e da sua resposta na entrevista.\nguarde enquanto está fresco: daqui a um mês você não lembra do detalhe,\ne é o detalhe que convence.",
+        "linguagem": "texto"
+      }
     }
   ]
 }

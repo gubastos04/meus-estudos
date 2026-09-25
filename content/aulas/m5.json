@@ -28,10 +28,10 @@
           "pergunta": "Qual o problema de deixar o comentário TODO: trocar a senha do painel no HTML?",
           "opcoes": [
             "Nenhum: comentário não aparece na tela",
-            "Ele chega inteiro no navegador de qualquer visitante, que lê com Ctrl+U",
-            "Ele deixa a página mais lenta"
+            "Ele deixa a página mais lenta",
+            "Ele chega inteiro no navegador de qualquer visitante, que lê com Ctrl+U"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "Comentário some da tela, não do arquivo. Já vazou senha, endereço de servidor interno e nome de arquivo assim."
         },
         {
@@ -77,11 +77,11 @@
         {
           "pergunta": "Uma loja guarda o preço num campo com display: none. Isso protege o preço?",
           "opcoes": [
-            "Sim, ninguém vê o campo",
             "Não: o valor está no HTML e pode ser lido e alterado antes do envio",
+            "Sim, ninguém vê o campo",
             "Só protege no celular"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "CSS é desenho. Preço se busca no banco, no servidor, na hora de fechar o pedido."
         },
         {
@@ -188,10 +188,10 @@
           "pergunta": "Por que não mandar usuário e senha por GET?",
           "opcoes": [
             "Porque GET é mais lento",
-            "Porque a URL fica gravada no histórico, no log do servidor e em quem receber o Referer",
-            "Porque GET não aceita texto"
+            "Porque GET não aceita texto",
+            "Porque a URL fica gravada no histórico, no log do servidor e em quem receber o Referer"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "O corpo do POST não é gravado nesses lugares. Segurança de verdade na rede é o https da aula 4.4."
         }
       ],
@@ -227,11 +227,11 @@
         {
           "pergunta": "Você abre o código-fonte da página no navegador e não encontra nada de PHP. Por quê?",
           "opcoes": [
-            "O navegador esconde o PHP",
             "O PHP roda no servidor: pro navegador vai só a saída dele",
+            "O navegador esconde o PHP",
             "O arquivo estava vazio"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "É a diferença de lado. JavaScript da página é do cliente e todo mundo lê. PHP é do servidor e ninguém vê, a não ser que o servidor esteja mal configurado."
         },
         {

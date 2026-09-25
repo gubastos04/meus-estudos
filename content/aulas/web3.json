@@ -3,23 +3,254 @@
   "aulas": [
     {
       "id": "web3a1",
-      "titulo": "Variáveis e funções",
-      "minutos": 12
+      "titulo": "De Python pra JavaScript",
+      "minutos": 14,
+      "resumo": "A lógica que você já sabe continua valendo. O que muda é a escrita e três ou quatro armadilhas.",
+      "ideia": [
+        "Variável, condição, laço, função e lista existem nas duas. Em JavaScript muda o formato: chaves em vez de indentação, const e let em vez de nome solto.",
+        "Lista virou array e dicionário virou objeto. Os métodos têm outro nome, mas fazem o mesmo: map, filter e reduce são o for que você já escreveu."
+      ],
+      "exemplo": {
+        "nota": "Salve como comparar.js e rode com node comparar.js. É o mesmo programa que você faria em Python:",
+        "codigo": "// variável: const quando não muda, let quando muda. var não se usa mais.\nconst nome = \"Ana\";\nlet contador = 0;\n\n// texto com valor dentro: crase e ${}, o equivalente do f-string\nconsole.log(`Olá, ${nome}. Você tem ${contador} tarefas.`);\n\n// função\nfunction media(numeros) {\n  if (numeros.length === 0) return 0;\n  return numeros.reduce((soma, n) => soma + n, 0) / numeros.length;\n}\n\n// função curta (arrow), o jeito mais comum hoje\nconst dobro = (n) => n * 2;\n\nconsole.log(media([10, 8, 6]));        // 8\nconsole.log([1, 2, 3].map(dobro));     // [ 2, 4, 6 ]\n\n// array e objeto\nconst tarefas = [\n  { id: 1, titulo: \"Estudar\", feita: false },\n  { id: 2, titulo: \"Revisar\", feita: true },\n];\n\nconst pendentes = tarefas.filter((t) => !t.feita);\nconsole.log(pendentes.length);          // 1\n\nfor (const t of tarefas) {              // o for in do Python é o for of aqui\n  console.log(t.id, t.titulo);\n}\n\n// as armadilhas\nconsole.log(1 == \"1\");                  // true   compara convertendo\nconsole.log(1 === \"1\");                 // false  compara valor e tipo: use este\nconsole.log(typeof null);               // \"object\", um erro histórico da linguagem\nconsole.log(Boolean(\"\"), Boolean(0));   // false false",
+        "linguagem": "javascript"
+      },
+      "mais": {
+        "titulo": "As diferenças que mordem",
+        "linhas": [
+          "Use sempre === e !==. O == converte tipos antes de comparar e produz surpresas como 0 == \"\" ser verdadeiro.",
+          "null é \"vazio de propósito\" e undefined é \"nunca teve valor\". Os dois aparecem, e o operador ?? trata os dois de uma vez: nome ?? \"sem nome\".",
+          "Objeto e array são passados por referência, como em Python. Copiar de verdade é { ...objeto } ou [ ...lista ], e isso resolve um bug que confunde muita gente."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual a diferença entre == e === em JavaScript?",
+          "opcoes": [
+            "=== compara valor e tipo; == converte os tipos antes de comparar",
+            "São iguais, o === é só mais novo",
+            "== compara objetos e === compara números"
+          ],
+          "correta": 0,
+          "porque": "Com ==, \"1\" == 1 dá verdadeiro e 0 == \"\" também. Use === sempre, e você elimina uma classe inteira de bug."
+        },
+        {
+          "pergunta": "Qual o equivalente do for x in lista do Python?",
+          "opcoes": [
+            "for (const x in lista)",
+            "for (const x of lista)",
+            "lista.forEach"
+          ],
+          "correta": 1,
+          "porque": "O for of percorre os valores. O for in percorre as chaves, e num array isso te dá os índices como texto."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Traduza para JavaScript três funções que você já escreveu em Python: uma que calcula a média de uma lista, uma que conta quantas vezes cada item aparece e uma que filtra os itens que passam de um limite. Rode com node e confira as saídas.",
+        "solucao": "// 1. média, com o caso da lista vazia\nfunction media(numeros) {\n  if (numeros.length === 0) return 0;\n  return numeros.reduce((soma, n) => soma + n, 0) / numeros.length;\n}\n\n// 2. contar cada item: o dicionário virou objeto (ou Map)\nfunction contar(itens) {\n  const conta = {};\n  for (const item of itens) {\n    conta[item] = (conta[item] ?? 0) + 1;   // o get(chave, 0) do Python\n  }\n  return conta;\n}\n\n// 3. filtrar acima de um limite\nconst acimaDe = (numeros, limite) => numeros.filter((n) => n > limite);\n\nconsole.log(media([10, 8, 6]));                    // 8\nconsole.log(media([]));                            // 0\nconsole.log(contar([\"a\", \"b\", \"a\", \"c\", \"a\"]));    // { a: 3, b: 1, c: 1 }\nconsole.log(acimaDe([1, 5, 10, 20], 5));           // [ 10, 20 ]\n\n// o ?? 0 é o equivalente do dicionario.get(chave, 0):\n// ele só cai no 0 quando o valor é null ou undefined, e não quando é 0,\n// que é a diferença pro || e a causa de bug quando o valor legítimo é zero.",
+        "linguagem": "javascript"
+      }
     },
     {
       "id": "web3a2",
       "titulo": "Manipular o DOM",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "O JavaScript da página mexe na árvore que o navegador montou. Achar o elemento, mudar, criar.",
+      "ideia": [
+        "querySelector acha pelo mesmo seletor do CSS. Achou, você muda texto, classe e atributo, e a tela acompanha na hora.",
+        "Para criar, é createElement mais append. Para escrever texto de fora, é textContent, nunca innerHTML."
+      ],
+      "exemplo": {
+        "nota": "Um arquivo só, HTML e script juntos. Salve como dom.html e abra no navegador:",
+        "codigo": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>DOM</title>\n    <style>.feita { text-decoration: line-through; color: #6b7280; }</style>\n  </head>\n  <body>\n    <h1 id=\"titulo\">Carregando...</h1>\n    <ul id=\"lista\"></ul>\n    <p id=\"contagem\"></p>\n\n    <script>\n      const tarefas = [\n        { titulo: \"Estudar DOM\", feita: false },\n        { titulo: \"Fazer o desafio\", feita: true },\n      ];\n\n      // achar e mudar\n      document.querySelector(\"#titulo\").textContent = \"Minhas tarefas\";\n\n      // criar e pendurar na árvore\n      const lista = document.querySelector(\"#lista\");\n      for (const t of tarefas) {\n        const item = document.createElement(\"li\");\n        item.textContent = t.titulo;          // texto, sempre\n        if (t.feita) item.classList.add(\"feita\");\n        lista.append(item);\n      }\n\n      // ler o que existe na página\n      const quantos = document.querySelectorAll(\"#lista li\").length;\n      document.querySelector(\"#contagem\").textContent = `${quantos} tarefas`;\n    </script>\n  </body>\n</html>",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "Três detalhes que evitam bug",
+        "linhas": [
+          "O script precisa rodar depois de o elemento existir. Por isso ele fica no fim do body, ou com defer no head. querySelector devolvendo null quase sempre é isso.",
+          "textContent escreve texto; innerHTML interpreta tag. Escrever com innerHTML algo que veio de fora é abrir a porta pra script de terceiro rodar na sua página.",
+          "querySelectorAll devolve uma NodeList, que não é array: dá pra percorrer com for of e forEach, mas map e filter só depois de [...lista]."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Seu querySelector devolve null e o elemento existe no HTML. Qual a causa mais comum?",
+          "opcoes": [
+            "O seletor precisa começar com ponto",
+            "O script rodou antes de o elemento existir na página",
+            "Faltou recarregar o CSS"
+          ],
+          "correta": 1,
+          "porque": "Script no fim do body, ou com defer, resolve. A página é lida de cima pra baixo."
+        },
+        {
+          "pergunta": "Você vai colocar na tela um texto que a pessoa digitou. Usa o quê?",
+          "opcoes": [
+            "innerHTML, que é mais rápido",
+            "textContent, que escreve como texto e não interpreta tag",
+            "tanto faz, o navegador trata igual"
+          ],
+          "correta": 1,
+          "porque": "Com innerHTML, um texto com <script> ou com onerror vira código rodando na sua página. Com textContent, vira texto na tela."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte uma página que comece vazia e, por JavaScript, escreva o título, crie uma lista com cinco itens vindos de um array e mostre no fim quantos itens foram criados. Marque os concluídos com uma classe que risca o texto.",
+        "solucao": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>Minhas tarefas</title>\n    <style>\n      body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; }\n      .feita { text-decoration: line-through; color: #6b7280; }\n    </style>\n  </head>\n  <body>\n    <h1 id=\"titulo\"></h1>\n    <ul id=\"lista\"></ul>\n    <p id=\"resumo\"></p>\n\n    <script>\n      const TAREFAS = [\n        { titulo: \"Ler sobre o DOM\", feita: true },\n        { titulo: \"Criar elementos\", feita: true },\n        { titulo: \"Usar classList\", feita: false },\n        { titulo: \"Contar os itens\", feita: false },\n        { titulo: \"Fazer o desafio\", feita: false },\n      ];\n\n      document.querySelector(\"#titulo\").textContent = \"Minhas tarefas\";\n\n      const lista = document.querySelector(\"#lista\");\n      for (const t of TAREFAS) {\n        const item = document.createElement(\"li\");\n        item.textContent = t.titulo;\n        item.classList.toggle(\"feita\", t.feita);   // adiciona ou tira, conforme o valor\n        lista.append(item);\n      }\n\n      const feitas = TAREFAS.filter((t) => t.feita).length;\n      document.querySelector(\"#resumo\").textContent =\n        `${TAREFAS.length} tarefas, ${feitas} concluídas`;\n    </script>\n  </body>\n</html>\n\n<!--\n  o classList.toggle com segundo argumento é o atalho pro if:\n  toggle(\"feita\", true) adiciona, toggle(\"feita\", false) remove.\n\n  repare que o array é a fonte da verdade e a tela é o reflexo dele.\n  esse é o mesmo raciocínio que o React vai usar no próximo módulo.\n-->",
+        "linguagem": "html"
+      }
     },
     {
       "id": "web3a3",
       "titulo": "Eventos",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "A página reage: clique, digitação, envio de formulário. Você diz o que fazer quando acontece.",
+      "ideia": [
+        "addEventListener liga uma função a um acontecimento. A função recebe o evento, que traz quem foi clicado e o que fazer com ele.",
+        "Num formulário, preventDefault impede o recarregamento da página. Sem ele, o seu código roda e a página some no meio."
+      ],
+      "exemplo": {
+        "nota": "Contador, formulário e uma lista que responde ao clique. Salve como eventos.html:",
+        "codigo": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>Eventos</title>\n    <style>.feita { text-decoration: line-through; }</style>\n  </head>\n  <body>\n    <button id=\"contar\" type=\"button\">Cliquei 0 vezes</button>\n\n    <form id=\"form\">\n      <label for=\"texto\">Nova tarefa</label>\n      <input id=\"texto\" name=\"texto\" required>\n      <button>Adicionar</button>\n    </form>\n\n    <ul id=\"lista\"></ul>\n\n    <script>\n      // 1. clique simples\n      let cliques = 0;\n      const botao = document.querySelector(\"#contar\");\n      botao.addEventListener(\"click\", () => {\n        cliques += 1;\n        botao.textContent = `Cliquei ${cliques} vezes`;\n      });\n\n      // 2. formulário sem recarregar a página\n      const form = document.querySelector(\"#form\");\n      const campo = document.querySelector(\"#texto\");\n      const lista = document.querySelector(\"#lista\");\n\n      form.addEventListener(\"submit\", (evento) => {\n        evento.preventDefault();               // sem isto, a página recarrega\n        const item = document.createElement(\"li\");\n        item.textContent = campo.value.trim();\n        lista.append(item);\n        form.reset();\n        campo.focus();\n      });\n\n      // 3. delegação: um ouvinte no pai atende todos os filhos,\n      //    inclusive os que ainda nem existem\n      lista.addEventListener(\"click\", (evento) => {\n        if (evento.target.tagName === \"LI\") {\n          evento.target.classList.toggle(\"feita\");\n        }\n      });\n    </script>\n  </body>\n</html>",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "Delegação, o truque que economiza código",
+        "linhas": [
+          "Em vez de um ouvinte por item, coloque um no pai e descubra quem foi clicado pelo evento.target. Item criado depois já nasce funcionando, sem você ligar nada nele.",
+          "evento.target é quem recebeu o clique; evento.currentTarget é onde o ouvinte está pendurado. Confundir os dois é o bug clássico da delegação.",
+          "Botão dentro de formulário envia por padrão. Se ele for fazer outra coisa, escreva type=\"button\", ou a página vai recarregar bem na hora em que você não espera."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você escreveu o código do formulário e, ao enviar, a página pisca e volta ao estado inicial. O que faltou?",
+          "opcoes": [
+            "Um id no formulário",
+            "evento.preventDefault() no ouvinte do submit",
+            "Trocar o método pra post"
+          ],
+          "correta": 1,
+          "porque": "O comportamento padrão do formulário é enviar e recarregar. O preventDefault é o que diz \"eu cuido daqui\"."
+        },
+        {
+          "pergunta": "Para que serve a delegação de eventos?",
+          "opcoes": [
+            "Pra escutar num pai e atender todos os filhos, inclusive os criados depois",
+            "Pra o evento chegar mais rápido",
+            "Pra impedir que o clique se espalhe"
+          ],
+          "correta": 0,
+          "porque": "Sem ela, todo item novo precisa do próprio ouvinte, e alguém sempre esquece de ligar num item criado dinamicamente."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça uma lista em que o formulário acrescenta itens sem recarregar a página, clicar num item o marca como feito e um botão limpa os concluídos. Use um ouvinte só para a lista inteira e confira que itens novos já nascem funcionando.",
+        "solucao": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>Lista</title>\n    <style>\n      body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; }\n      .feita { text-decoration: line-through; color: #6b7280; }\n      li { cursor: pointer; }\n    </style>\n  </head>\n  <body>\n    <h1>Lista</h1>\n\n    <form id=\"form\">\n      <label for=\"texto\">Nova tarefa</label>\n      <input id=\"texto\" name=\"texto\" required minlength=\"2\">\n      <button>Adicionar</button>\n    </form>\n\n    <ul id=\"lista\"></ul>\n    <button id=\"limpar\" type=\"button\">Limpar concluídas</button>\n\n    <script>\n      const form = document.querySelector(\"#form\");\n      const campo = document.querySelector(\"#texto\");\n      const lista = document.querySelector(\"#lista\");\n\n      form.addEventListener(\"submit\", (evento) => {\n        evento.preventDefault();\n        const texto = campo.value.trim();\n        if (!texto) return;\n\n        const item = document.createElement(\"li\");\n        item.textContent = texto;\n        lista.append(item);\n\n        form.reset();\n        campo.focus();\n      });\n\n      // um ouvinte só, no pai: item criado depois já nasce funcionando\n      lista.addEventListener(\"click\", (evento) => {\n        if (evento.target.tagName === \"LI\") {\n          evento.target.classList.toggle(\"feita\");\n        }\n      });\n\n      document.querySelector(\"#limpar\").addEventListener(\"click\", () => {\n        for (const item of lista.querySelectorAll(\".feita\")) {\n          item.remove();\n        }\n      });\n    </script>\n  </body>\n</html>\n\n<!--\n  o teste de que a delegação funciona: adicione um item novo e clique nele.\n  se funcionar sem você ter ligado nada naquele item, está certo.\n\n  o cursor: pointer no li não é enfeite: ele avisa que aquilo é clicável.\n  numa versão com acessibilidade completa, o item seria um <button> dentro\n  do <li>, pra funcionar pelo teclado também.\n-->",
+        "linguagem": "html"
+      }
     },
     {
       "id": "web3a4",
       "titulo": "Fetch e APIs",
-      "minutos": 12
+      "minutos": 16,
+      "resumo": "A página busca dado no servidor sem recarregar. É assim que todo aplicativo web moderno funciona.",
+      "ideia": [
+        "fetch faz a requisição e devolve uma promessa. Com async e await, o código volta a ser lido de cima pra baixo.",
+        "Atenção: fetch só reclama quando a rede falha. Um 404 ou um 500 chegam como resposta normal, e quem confere é você, pelo r.ok."
+      ],
+      "exemplo": {
+        "nota": "Crie um tarefas.json ao lado e sirva a pasta (python -m http.server 8000), porque fetch não funciona com arquivo aberto direto:",
+        "codigo": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>Fetch</title></head>\n  <body>\n    <h1>Tarefas</h1>\n    <p id=\"estado\">Carregando...</p>\n    <ul id=\"lista\"></ul>\n\n    <script>\n      const estado = document.querySelector(\"#estado\");\n      const lista = document.querySelector(\"#lista\");\n\n      async function carregar() {\n        try {\n          const resposta = await fetch(\"tarefas.json\");\n\n          // fetch NÃO lança erro em 404 ou 500: quem confere é você\n          if (!resposta.ok) {\n            throw new Error(`o servidor respondeu ${resposta.status}`);\n          }\n\n          const tarefas = await resposta.json();\n\n          for (const t of tarefas) {\n            const item = document.createElement(\"li\");\n            item.textContent = t.titulo;\n            lista.append(item);\n          }\n          estado.textContent = `${tarefas.length} tarefas`;\n        } catch (erro) {\n          estado.textContent = \"Não consegui carregar. Tente de novo.\";\n          console.error(erro);              // detalhe no console, recado curto na tela\n        }\n      }\n\n      carregar();\n    </script>\n  </body>\n</html>\n\n<!-- tarefas.json, ao lado:\n[\n  { \"id\": 1, \"titulo\": \"Estudar fetch\" },\n  { \"id\": 2, \"titulo\": \"Tratar o erro\" }\n]\n-->",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "Os três tropeços do fetch",
+        "linhas": [
+          "Abrir o arquivo com dois cliques (file://) e o fetch falhar é o primeiro. Sirva a pasta com python -m http.server e acesse por http://127.0.0.1:8000.",
+          "CORS é o segundo: o navegador só deixa a sua página ler resposta de outro endereço se aquele servidor autorizar, por cabeçalho. Não dá pra resolver no seu JavaScript; quem resolve é o servidor do outro lado, ou um back-end seu no meio.",
+          "Estado de carregando e estado de erro não são luxo: sem eles a página fica em branco e quem está usando não sabe se travou. Três estados, sempre: carregando, deu certo, deu erro."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O servidor respondeu 404. O que o fetch faz?",
+          "opcoes": [
+            "Lança um erro que cai no catch",
+            "Devolve uma resposta normal, com ok igual a falso",
+            "Tenta de novo sozinho"
+          ],
+          "correta": 1,
+          "porque": "O catch só pega falha de rede. Por isso o if (!resposta.ok) é obrigatório em todo fetch que você escrever."
+        },
+        {
+          "pergunta": "Sua página abre com dois cliques e o fetch de um arquivo ao lado falha. Por quê?",
+          "opcoes": [
+            "Falta async na função",
+            "O arquivo JSON está mal formado",
+            "Ela foi aberta como file:// e o navegador bloqueia; é preciso servir por http"
+          ],
+          "correta": 2,
+          "porque": "Um servidor local resolve: python -m http.server na pasta e acesse por http://127.0.0.1:8000."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça uma página que busca um JSON e monta a lista na tela, com os três estados: carregando, carregado e erro. Depois troque o nome do arquivo por um que não existe e confirme que a mensagem de erro aparece em vez da tela em branco.",
+        "solucao": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>Tarefas</title>\n    <style>\n      body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; }\n      .erro { color: #b91c1c; }\n    </style>\n  </head>\n  <body>\n    <h1>Tarefas</h1>\n    <p id=\"estado\" aria-live=\"polite\">Carregando...</p>\n    <ul id=\"lista\"></ul>\n\n    <script>\n      const estado = document.querySelector(\"#estado\");\n      const lista = document.querySelector(\"#lista\");\n\n      async function carregar(url) {\n        estado.className = \"\";\n        estado.textContent = \"Carregando...\";\n        lista.replaceChildren();               // limpa antes de montar de novo\n\n        try {\n          const resposta = await fetch(url);\n          if (!resposta.ok) throw new Error(`status ${resposta.status}`);\n\n          const tarefas = await resposta.json();\n          if (tarefas.length === 0) {\n            estado.textContent = \"Nenhuma tarefa por aqui.\";\n            return;\n          }\n\n          for (const t of tarefas) {\n            const item = document.createElement(\"li\");\n            item.textContent = t.titulo;\n            lista.append(item);\n          }\n          estado.textContent = `${tarefas.length} tarefas`;\n        } catch (erro) {\n          estado.className = \"erro\";\n          estado.textContent = \"Não consegui carregar a lista. Tente de novo em instantes.\";\n          console.error(erro);\n        }\n      }\n\n      carregar(\"tarefas.json\");\n      // troque por carregar(\"nao-existe.json\") pra ver o terceiro estado\n    </script>\n  </body>\n</html>\n\n<!--\n  o aria-live=\"polite\" faz o leitor de tela anunciar a mudança de estado\n  sem interromper o que a pessoa estiver ouvindo. É uma linha, e é a\n  diferença entre a pessoa saber e não saber que a lista carregou.\n\n  a mensagem de erro na tela é curta e útil; o detalhe técnico vai pro\n  console. É a mesma regra do back-end: mensagem genérica fora, detalhe no log.\n-->",
+        "linguagem": "html"
+      }
+    },
+    {
+      "id": "web3a5",
+      "titulo": "Projeto: lista de tarefas que não some",
+      "minutos": 25,
+      "resumo": "Juntar DOM, eventos e armazenamento no navegador numa página que lembra do que você escreveu.",
+      "ideia": [
+        "localStorage guarda texto no navegador e sobrevive a fechar a aba. Com JSON.stringify e JSON.parse, ele guarda a sua lista inteira.",
+        "O desenho é o mesmo de qualquer app: um array é a fonte da verdade, uma função desenha a tela a partir dele, e toda ação muda o array e manda desenhar de novo."
+      ],
+      "exemplo": {
+        "nota": "O aplicativo inteiro num arquivo. Salve como tarefas.html e abra no navegador:",
+        "codigo": "<!doctype html>\n<html lang=\"pt-br\">\n  <head><meta charset=\"utf-8\"><title>Minhas tarefas</title>\n    <style>\n      body { font-family: system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 16px; }\n      li { display: flex; gap: 8px; align-items: center; padding: 4px 0; }\n      .feita span { text-decoration: line-through; color: #6b7280; }\n      form { display: flex; gap: 8px; margin: 16px 0; }\n      input { flex: 1; padding: 8px; }\n    </style>\n  </head>\n  <body>\n    <h1>Minhas tarefas</h1>\n\n    <form id=\"form\">\n      <label class=\"visually-hidden\" for=\"texto\">Nova tarefa</label>\n      <input id=\"texto\" placeholder=\"O que precisa ser feito?\" required>\n      <button>Adicionar</button>\n    </form>\n\n    <ul id=\"lista\"></ul>\n    <p id=\"resumo\"></p>\n\n    <script>\n      const CHAVE = \"minhas-tarefas\";\n      let tarefas = JSON.parse(localStorage.getItem(CHAVE) ?? \"[]\");\n\n      const lista = document.querySelector(\"#lista\");\n      const resumo = document.querySelector(\"#resumo\");\n\n      function salvar() {\n        localStorage.setItem(CHAVE, JSON.stringify(tarefas));\n      }\n\n      function desenhar() {\n        lista.replaceChildren();\n        for (const t of tarefas) {\n          const item = document.createElement(\"li\");\n          item.dataset.id = t.id;              // guarda o id no próprio elemento\n          item.classList.toggle(\"feita\", t.feita);\n          item.innerHTML = \"\";                 // nada de fora entra como HTML\n\n          const caixa = document.createElement(\"input\");\n          caixa.type = \"checkbox\";\n          caixa.checked = t.feita;\n\n          const texto = document.createElement(\"span\");\n          texto.textContent = t.titulo;        // texto, sempre\n\n          const apagar = document.createElement(\"button\");\n          apagar.type = \"button\";\n          apagar.textContent = \"apagar\";\n\n          item.append(caixa, texto, apagar);\n          lista.append(item);\n        }\n        const feitas = tarefas.filter((t) => t.feita).length;\n        resumo.textContent = `${tarefas.length} tarefas, ${feitas} concluídas`;\n        salvar();\n      }\n\n      document.querySelector(\"#form\").addEventListener(\"submit\", (e) => {\n        e.preventDefault();\n        const campo = document.querySelector(\"#texto\");\n        const titulo = campo.value.trim();\n        if (!titulo) return;\n\n        tarefas.push({ id: crypto.randomUUID(), titulo, feita: false });\n        campo.value = \"\";\n        desenhar();\n      });\n\n      lista.addEventListener(\"click\", (e) => {\n        const item = e.target.closest(\"li\");\n        if (!item) return;\n        const id = item.dataset.id;          // dataset é sempre texto\n\n        if (e.target.type === \"checkbox\") {\n          tarefas = tarefas.map((t) => (t.id === id ? { ...t, feita: e.target.checked } : t));\n          desenhar();\n        }\n        if (e.target.tagName === \"BUTTON\") {\n          tarefas = tarefas.filter((t) => t.id !== id);\n          desenhar();\n        }\n      });\n\n      desenhar();\n    </script>\n  </body>\n</html>",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "O que o localStorage é e o que ele não é",
+        "linhas": [
+          "Ele guarda texto, por navegador e por endereço do site. O que você salvar no Chrome não aparece no Firefox, nem em outro computador, e some quando a pessoa limpa os dados do site.",
+          "Não guarde nada sensível ali: qualquer script que rode na sua página lê tudo. Token de login em localStorage é o erro que o módulo de segurança conta em detalhe.",
+          "Em janela anônima ele existe e é apagado ao fechar. E pode estourar quando o espaço acaba, então em projeto sério o setItem vai dentro de try.",
+          "Não use Date.now() como id: duas tarefas criadas no mesmo milissegundo saem com o mesmo número, e marcar uma marca as duas. crypto.randomUUID() resolve, e funciona em https e em localhost."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que JSON.stringify antes de salvar no localStorage?",
+          "opcoes": [
+            "Porque ele guarda só texto, e o array precisa virar texto",
+            "Pra economizar espaço",
+            "Pra criptografar o conteúdo"
+          ],
+          "correta": 0,
+          "porque": "E na volta é JSON.parse. Sem isso, o array vira a string \"[object Object]\" e você perde tudo."
+        },
+        {
+          "pergunta": "Qual o desenho que esta página usa, e que o React vai repetir no próximo módulo?",
+          "opcoes": [
+            "Cada ação muda direto o elemento na tela",
+            "Um array é a fonte da verdade, e uma função redesenha a tela a partir dele",
+            "O navegador salva a tela e restaura ao abrir"
+          ],
+          "correta": 1,
+          "porque": "Estado numa ponta, tela na outra, e uma função só no meio. É o mesmo raciocínio do React, feito na mão."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Acrescente ao seu aplicativo três coisas: um filtro para mostrar todas, só as pendentes ou só as concluídas; um botão que limpa as concluídas; e uma mensagem amigável quando a lista está vazia. Feche o navegador, abra de novo e confirme que as tarefas continuam lá.",
+        "solucao": "<script>\n  const CHAVE = \"minhas-tarefas\";\n  let tarefas = JSON.parse(localStorage.getItem(CHAVE) ?? \"[]\");\n  let filtro = \"todas\";                       // todas | pendentes | feitas\n\n  const lista = document.querySelector(\"#lista\");\n  const resumo = document.querySelector(\"#resumo\");\n\n  const salvar = () => localStorage.setItem(CHAVE, JSON.stringify(tarefas));\n\n  const visiveis = () =>\n    filtro === \"pendentes\" ? tarefas.filter((t) => !t.feita)\n    : filtro === \"feitas\" ? tarefas.filter((t) => t.feita)\n    : tarefas;\n\n  function desenhar() {\n    lista.replaceChildren();\n\n    const itens = visiveis();\n    if (itens.length === 0) {\n      const vazio = document.createElement(\"li\");\n      vazio.textContent = tarefas.length === 0\n        ? \"Nada por aqui ainda. Escreva a primeira tarefa acima.\"\n        : \"Nenhuma tarefa neste filtro.\";\n      lista.append(vazio);\n    }\n\n    for (const t of itens) {\n      const item = document.createElement(\"li\");\n      item.dataset.id = t.id;\n      item.classList.toggle(\"feita\", t.feita);\n\n      const caixa = document.createElement(\"input\");\n      caixa.type = \"checkbox\";\n      caixa.checked = t.feita;\n\n      const texto = document.createElement(\"span\");\n      texto.textContent = t.titulo;\n\n      const apagar = document.createElement(\"button\");\n      apagar.type = \"button\";\n      apagar.textContent = \"apagar\";\n\n      item.append(caixa, texto, apagar);\n      lista.append(item);\n    }\n\n    const feitas = tarefas.filter((t) => t.feita).length;\n    resumo.textContent = `${tarefas.length} tarefas, ${feitas} concluídas`;\n    salvar();\n  }\n\n  // os botões de filtro: <button data-filtro=\"pendentes\">Pendentes</button>\n  document.querySelector(\"#filtros\").addEventListener(\"click\", (e) => {\n    if (!e.target.dataset.filtro) return;\n    filtro = e.target.dataset.filtro;\n    desenhar();\n  });\n\n  document.querySelector(\"#limpar\").addEventListener(\"click\", () => {\n    tarefas = tarefas.filter((t) => !t.feita);\n    desenhar();\n  });\n\n  desenhar();\n</script>\n\n<!--\n  o teste que fecha o projeto: adicione três tarefas, marque uma,\n  feche o navegador inteiro e abra de novo. Tudo continua lá.\n\n  repare que o filtro NÃO apaga nada: ele só muda o que a função desenhar\n  mostra. A lista completa continua no array e no localStorage, e é por isso\n  que trocar de filtro não perde dado.\n-->",
+        "linguagem": "html"
+      }
     }
   ]
 }

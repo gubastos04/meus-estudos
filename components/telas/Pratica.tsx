@@ -61,6 +61,12 @@ export function Pratica({ abaInicial, demandas, treinos, provas, questoes, semen
               </Link>
             );
           })}
+          {lista.length === 0 && (
+            <div className="vazio">
+              Ainda não há demandas escritas para este foco. Enquanto isso, o Treino e as Provas valem
+              pra qualquer trilha, e os desafios das aulas continuam sendo a melhor prática.
+            </div>
+          )}
           <GerarDemanda aulasFeitas={aulasFeitas} aoGerar={acoes.adicionarGerada} />
         </>
       )}

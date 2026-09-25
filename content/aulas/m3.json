@@ -76,11 +76,11 @@
         {
           "pergunta": "Você está em /var/log e digita cd nginx. Pra onde vai?",
           "opcoes": [
-            "/nginx",
             "/var/log/nginx",
+            "/nginx",
             "/home/nginx"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Sem barra no começo, o caminho parte da pasta atual."
         },
         {
@@ -183,10 +183,10 @@
           "pergunta": "Um arquivo com senhas do servidor está com permissão 777. Qual o problema?",
           "opcoes": [
             "Nenhum, é só um número",
-            "Qualquer usuário da máquina pode ler e alterar o arquivo",
-            "O arquivo fica mais lento"
+            "O arquivo fica mais lento",
+            "Qualquer usuário da máquina pode ler e alterar o arquivo"
           ],
-          "correta": 1,
+          "correta": 2,
           "porque": "777 dá leitura, escrita e execução pra todo mundo. Segredo com 777 é segredo público."
         }
       ],
@@ -269,11 +269,11 @@
         {
           "pergunta": "Por que o sort vem antes do uniq -c?",
           "opcoes": [
-            "Só pra ficar organizado",
             "Porque o uniq só junta linhas iguais que estão uma do lado da outra",
+            "Só pra ficar organizado",
             "Não precisa, a ordem tanto faz"
           ],
-          "correta": 1,
+          "correta": 0,
           "porque": "Sem ordenar, o mesmo IP aparece espalhado e é contado em pedaços."
         },
         {

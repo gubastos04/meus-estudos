@@ -3,23 +3,253 @@
   "aulas": [
     {
       "id": "web1a1",
-      "titulo": "Tags e semântica",
-      "minutos": 12
+      "titulo": "Como o navegador monta a página",
+      "minutos": 12,
+      "resumo": "HTML é texto. O navegador lê esse texto, monta uma árvore e desenha a partir dela.",
+      "ideia": [
+        "Você escreve marcas, o navegador transforma em árvore de elementos e pinta na tela. Essa árvore tem nome: DOM.",
+        "Cada um faz um papel: HTML é o conteúdo e a estrutura, CSS é a aparência, JavaScript muda a árvore depois de pronta."
+      ],
+      "exemplo": {
+        "nota": "Salve como index.html e abra clicando duas vezes. É uma página de verdade, sem instalar nada:",
+        "codigo": "<!doctype html>\n<html lang=\"pt-br\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Minha primeira página</title>\n  </head>\n  <body>\n    <h1>Olá</h1>\n    <p>Esta página tem <strong>três</strong> elementos no corpo.</p>\n    <ul>\n      <li>um item</li>\n      <li>outro item</li>\n    </ul>\n  </body>\n</html>\n\n<!--\n  a árvore que o navegador monta:\n\n  html\n  ├── head\n  │   ├── meta (charset)\n  │   ├── meta (viewport)\n  │   └── title\n  └── body\n      ├── h1\n      ├── p\n      │   └── strong\n      └── ul\n          ├── li\n          └── li\n-->",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "As três linhas que nunca faltam",
+        "linhas": [
+          "O doctype avisa que é HTML moderno. Sem ele, o navegador liga um modo antigo de compatibilidade e o seu CSS começa a se comportar de um jeito estranho.",
+          "O charset utf-8 é o que faz acento aparecer certo. Página com \"ol√°\" na tela é quase sempre isso.",
+          "A meta viewport é o que faz o celular mostrar a página no tamanho certo em vez de uma versão encolhida de desktop. Sem ela, não existe responsivo."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que o navegador faz com o arquivo .html?",
+          "opcoes": [
+            "Lê o texto, monta uma árvore de elementos e desenha a partir dela",
+            "Executa o arquivo como um programa, linha por linha",
+            "Manda o arquivo pro servidor processar"
+          ],
+          "correta": 0,
+          "porque": "Essa árvore é o DOM, e é nela que o JavaScript vai mexer nas próximas aulas."
+        },
+        {
+          "pergunta": "Sua página abre no computador e no celular aparece encolhida, como se fosse um site de desktop. O que provavelmente falta?",
+          "opcoes": [
+            "O doctype",
+            "A meta viewport",
+            "O charset utf-8"
+          ],
+          "correta": 1,
+          "porque": "Sem ela o celular finge ser uma tela larga e reduz tudo. É a primeira linha de qualquer layout responsivo."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie a sua primeira página com título, um parágrafo e uma lista de três itens. Abra no navegador, aperte F12 e encontre, na aba Elements, os mesmos elementos que você escreveu. Anote no Caderno o que o navegador acrescentou que você não digitou.",
+        "solucao": "<!doctype html>\n<html lang=\"pt-br\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>Sobre mim</title>\n  </head>\n  <body>\n    <h1>Sobre mim</h1>\n    <p>Estou aprendendo desenvolvimento web.</p>\n    <ul>\n      <li>HTML</li>\n      <li>CSS</li>\n      <li>JavaScript</li>\n    </ul>\n  </body>\n</html>\n\n<!--\n  o que o navegador acrescentou sozinho, e você vê no F12 > Elements:\n  - o elemento <head> e o <body> aparecem mesmo se você não escrever\n  - ele fecha tags que você esqueceu de fechar\n  - às vezes aparece um <tbody> dentro de tabela que você não escreveu\n\n  ou seja: o que está no Elements é o resultado, não o seu arquivo.\n  o seu arquivo cru você vê com Ctrl+U.\n-->",
+        "linguagem": "html"
+      }
     },
     {
       "id": "web1a2",
-      "titulo": "Formulários",
-      "minutos": 12
+      "titulo": "Tags e semântica",
+      "minutos": 12,
+      "resumo": "Cada tag tem um significado. Usar a certa faz a página funcionar pra gente, pro buscador e pro leitor de tela.",
+      "ideia": [
+        "header, nav, main, section, article e footer dizem o que cada pedaço é. div não diz nada: é caixa sem significado.",
+        "Os títulos formam um índice: um h1 por página, e h2 e h3 descendo sem pular degrau."
+      ],
+      "exemplo": {
+        "nota": "A mesma página, com as tags que contam o que cada parte é:",
+        "codigo": "<body>\n  <header>\n    <h1>Blog da Ana</h1>\n    <nav>\n      <a href=\"/\">Início</a>\n      <a href=\"/sobre.html\">Sobre</a>\n    </nav>\n  </header>\n\n  <main>\n    <article>\n      <h2>Como eu comecei a programar</h2>\n      <p>Publicado em <time datetime=\"2026-09-25\">25 de setembro</time>.</p>\n      <p>Texto do post...</p>\n    </article>\n\n    <section>\n      <h2>Outros posts</h2>\n      <ul>\n        <li><a href=\"/post-2.html\">O primeiro projeto</a></li>\n      </ul>\n    </section>\n  </main>\n\n  <footer>\n    <p>Feito por Ana.</p>\n  </footer>\n</body>\n\n<!-- a mesma coisa só com div funcionaria igual na tela,\n     e não contaria nada pra quem não está olhando -->",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "div não é pecado, é ausência",
+        "linhas": [
+          "div e span existem pra quando não há significado nenhum, só agrupamento pra estilizar. O problema é usar div onde existe tag com sentido: botão, lista, título, navegação.",
+          "Quem usa leitor de tela navega pelos títulos e pelas regiões, como você navega pelo sumário de um livro. Página só de div é um livro sem sumário.",
+          "strong e em têm significado (importante, enfatizado); b e i são só aparência. Na dúvida, use os dois primeiros, ou resolva no CSS."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual a diferença prática entre usar section e usar div?",
+          "opcoes": [
+            "section é mais rápido de renderizar",
+            "Nenhuma: são a mesma coisa com nomes diferentes",
+            "section diz que aquilo é uma seção com conteúdo próprio; div não diz nada a ninguém"
+          ],
+          "correta": 2,
+          "porque": "Na tela sai igual. A diferença aparece pra quem usa leitor de tela, pro buscador e pra quem for ler o seu código depois."
+        },
+        {
+          "pergunta": "Quantos h1 uma página deve ter?",
+          "opcoes": [
+            "Um, com o assunto principal da página",
+            "Um por seção, pra destacar cada bloco",
+            "Quantos você quiser: é só tamanho de letra"
+          ],
+          "correta": 0,
+          "porque": "Título não é tamanho, é hierarquia. Tamanho quem resolve é o CSS."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte a página inicial de um blog usando só tags semânticas: cabeçalho com título e menu, conteúdo principal com dois artigos e rodapé. Depois abra o F12, vá em Elements e confira se a hierarquia de títulos desce sem pular degrau.",
+        "solucao": "<body>\n  <header>\n    <h1>Notas de estudo</h1>\n    <nav aria-label=\"Principal\">\n      <a href=\"/\">Início</a>\n      <a href=\"/sobre.html\">Sobre</a>\n      <a href=\"/contato.html\">Contato</a>\n    </nav>\n  </header>\n\n  <main>\n    <article>\n      <h2>Primeira semana de HTML</h2>\n      <p>O que eu aprendi...</p>\n    </article>\n\n    <article>\n      <h2>Por que semântica importa</h2>\n      <h3>O caso do leitor de tela</h3>\n      <p>...</p>\n    </article>\n  </main>\n\n  <footer>\n    <p>Escrito por mim, em 2026.</p>\n  </footer>\n</body>\n\n<!--\n  a hierarquia ficou:\n    h1 Notas de estudo\n      h2 Primeira semana de HTML\n      h2 Por que semântica importa\n        h3 O caso do leitor de tela\n\n  o aria-label no nav serve pra quando existe mais de um menu na página:\n  o leitor de tela anuncia \"navegação Principal\" em vez de só \"navegação\".\n-->",
+        "linguagem": "html"
+      }
     },
     {
       "id": "web1a3",
-      "titulo": "Imagens e links",
-      "minutos": 12
+      "titulo": "Links, imagens e listas",
+      "minutos": 12,
+      "resumo": "O link é o que faz a web ser web. A imagem precisa de alt, e a lista precisa ser lista de verdade.",
+      "ideia": [
+        "href com barra no começo parte da raiz do site; sem barra, parte da pasta atual; com http, vai pra outro lugar.",
+        "alt é o texto que aparece quando a imagem não carrega e o que o leitor de tela lê. Imagem sem alt é imagem invisível pra muita gente."
+      ],
+      "exemplo": {
+        "nota": "Os três de uma vez, com os detalhes que fazem diferença:",
+        "codigo": "<!-- links -->\n<a href=\"/sobre.html\">Sobre</a>                    <!-- da raiz do site -->\n<a href=\"posts/primeiro.html\">Primeiro post</a>    <!-- da pasta atual -->\n<a href=\"#contato\">Ir pro contato</a>              <!-- pro id nesta página -->\n<a href=\"https://exemplo.com\" target=\"_blank\" rel=\"noopener\">\n  Site do exemplo\n</a>\n\n<!-- imagem -->\n<img src=\"foto.jpg\" alt=\"Ana sentada na mesa, escrevendo código\"\n     width=\"600\" height=\"400\" loading=\"lazy\">\n\n<!-- imagem decorativa: alt vazio, de propósito -->\n<img src=\"enfeite.svg\" alt=\"\">\n\n<!-- listas -->\n<ul>                      <!-- sem ordem -->\n  <li>HTML</li>\n  <li>CSS</li>\n</ul>\n\n<ol>                      <!-- com ordem: passo 1, 2, 3 -->\n  <li>Escrever o HTML</li>\n  <li>Abrir no navegador</li>\n</ol>",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "Os detalhes que quase todo mundo erra",
+        "linhas": [
+          "width e height na imagem não são só tamanho: eles reservam o espaço antes de a imagem carregar, e é isso que impede a página de pular na cara de quem está lendo.",
+          "target=\"_blank\" sem rel=\"noopener\" deixa a página aberta ter um controle sobre a sua. Hoje os navegadores já protegem sozinhos, mas escrever continua sendo o certo.",
+          "Menu é lista de links, não um monte de <a> soltos: o leitor de tela anuncia \"lista com 4 itens\" e a pessoa sabe onde está."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que escrever no alt de uma imagem puramente decorativa?",
+          "opcoes": [
+            "Uma descrição do enfeite",
+            "Nada: pode omitir o atributo",
+            "alt=\"\", vazio de propósito, pra o leitor de tela pular"
+          ],
+          "correta": 2,
+          "porque": "Sem o atributo, o leitor de tela pode ler o nome do arquivo. Com o alt vazio, ele entende que aquilo não é conteúdo."
+        },
+        {
+          "pergunta": "Para que servem width e height numa tag img?",
+          "opcoes": [
+            "Reservar o espaço antes de a imagem carregar, pra página não pular",
+            "Diminuir o peso do arquivo",
+            "Deixar a imagem responsiva sozinha"
+          ],
+          "correta": 0,
+          "porque": "É o que evita o salto de layout, aquele em que você vai clicar e o conteúdo se mexe. Peso do arquivo se resolve antes, na hora de exportar."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça uma página com um menu de três links (um interno, um pra outra página sua e um externo), duas imagens com alt descritivo e uma lista numerada de passos. Depois desligue as imagens no navegador, ou troque o src por um nome errado, e veja se a página continua fazendo sentido.",
+        "solucao": "<main>\n  <h1>Minha receita de café</h1>\n\n  <nav aria-label=\"Seções\">\n    <ul>\n      <li><a href=\"#ingredientes\">Ingredientes</a></li>\n      <li><a href=\"/sobre.html\">Sobre mim</a></li>\n      <li><a href=\"https://exemplo.com\" target=\"_blank\" rel=\"noopener\">Referência</a></li>\n    </ul>\n  </nav>\n\n  <h2 id=\"ingredientes\">Ingredientes</h2>\n  <img src=\"graos.jpg\" alt=\"Grãos de café moídos numa colher\"\n       width=\"600\" height=\"400\" loading=\"lazy\">\n\n  <h2>Passo a passo</h2>\n  <ol>\n    <li>Ferva a água e espere um minuto.</li>\n    <li>Molhe o filtro.</li>\n    <li>Despeje em círculos, devagar.</li>\n  </ol>\n\n  <img src=\"coado.jpg\" alt=\"Café coando no filtro de papel\"\n       width=\"600\" height=\"400\" loading=\"lazy\">\n</main>\n\n<!--\n  com as imagens quebradas, a página continua inteira: os alt contam o que\n  havia ali e a receita segue legível. É esse o teste.\n\n  se o alt fosse \"imagem1.jpg\" ou estivesse ausente, a página com imagem\n  quebrada viraria um texto com buracos.\n-->",
+        "linguagem": "html"
+      }
     },
     {
       "id": "web1a4",
+      "titulo": "Formulários",
+      "minutos": 14,
+      "resumo": "Formulário é como a página recebe dado de quem está do outro lado. E label não é enfeite.",
+      "ideia": [
+        "Cada campo com name vira um par nome e valor no envio. O label ligado pelo for faz o clique no texto focar o campo, e é o que o leitor de tela anuncia.",
+        "O tipo do input muda o teclado no celular, a validação e o teclado que aparece. type=\"email\" não é o mesmo que type=\"text\"."
+      ],
+      "exemplo": {
+        "nota": "Um cadastro completo, com validação que o navegador já faz sozinho:",
+        "codigo": "<form action=\"/cadastro\" method=\"post\">\n  <label for=\"nome\">Nome</label>\n  <input id=\"nome\" name=\"nome\" type=\"text\" required minlength=\"2\" autocomplete=\"name\">\n\n  <label for=\"email\">E-mail</label>\n  <input id=\"email\" name=\"email\" type=\"email\" required autocomplete=\"email\">\n\n  <label for=\"idade\">Idade</label>\n  <input id=\"idade\" name=\"idade\" type=\"number\" min=\"16\" max=\"120\">\n\n  <label for=\"plano\">Plano</label>\n  <select id=\"plano\" name=\"plano\">\n    <option value=\"free\">Gratuito</option>\n    <option value=\"pro\">Pago</option>\n  </select>\n\n  <label for=\"recado\">Recado</label>\n  <textarea id=\"recado\" name=\"recado\" rows=\"4\" maxlength=\"500\"></textarea>\n\n  <label>\n    <input name=\"termos\" type=\"checkbox\" required> Aceito os termos\n  </label>\n\n  <button type=\"submit\">Criar conta</button>\n</form>\n\n<!-- o id do input e o for do label precisam ser iguais. É esse par que\n     liga os dois, e é ele que faz o clique no texto focar o campo. -->",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "O que o navegador dá de graça",
+        "linhas": [
+          "required, minlength, min, max e type=\"email\" já barram envio errado e mostram a mensagem no idioma da pessoa. É conforto, não segurança: o servidor confere tudo de novo.",
+          "autocomplete com o nome certo (name, email, tel, current-password) faz o navegador e o gerenciador de senhas preencherem sozinhos. Ignorar isso é criar trabalho pra quem usa.",
+          "O botão dentro de um form envia por padrão. Se ele for fazer outra coisa, escreva type=\"button\", senão a página recarrega e você passa meia hora procurando o motivo."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Para que serve ligar o label ao input pelo for e pelo id?",
+          "opcoes": [
+            "Só pra deixar o código organizado",
+            "Pra o campo ficar alinhado com o texto",
+            "Pra clicar no texto focar o campo, e pro leitor de tela saber o nome daquele campo"
+          ],
+          "correta": 2,
+          "porque": "Campo sem label ligado é campo que o leitor de tela anuncia como \"caixa de texto\", sem dizer de quê."
+        },
+        {
+          "pergunta": "A validação com required e type=\"email\" substitui a validação no servidor?",
+          "opcoes": [
+            "Não: ela é conforto pra quem preenche, e o servidor confere tudo de novo",
+            "Sim, o navegador não deixa passar",
+            "Sim, desde que o formulário use method=\"post\""
+          ],
+          "correta": 0,
+          "porque": "Qualquer pessoa manda a requisição direto, sem passar pela sua página. A validação que vale é a que roda no servidor."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte um formulário de contato com nome, e-mail, assunto em lista e mensagem, todos com label ligado e os tipos certos. Depois tente enviar vazio e veja a mensagem do navegador, e abra no celular pra reparar como o teclado muda no campo de e-mail.",
+        "solucao": "<form action=\"/contato\" method=\"post\">\n  <h2>Fale comigo</h2>\n\n  <label for=\"nome\">Seu nome</label>\n  <input id=\"nome\" name=\"nome\" type=\"text\" required autocomplete=\"name\">\n\n  <label for=\"email\">Seu e-mail</label>\n  <input id=\"email\" name=\"email\" type=\"email\" required autocomplete=\"email\"\n         placeholder=\"voce@exemplo.com\">\n\n  <label for=\"assunto\">Assunto</label>\n  <select id=\"assunto\" name=\"assunto\" required>\n    <option value=\"\">Escolha um</option>\n    <option value=\"duvida\">Dúvida</option>\n    <option value=\"proposta\">Proposta de trabalho</option>\n  </select>\n\n  <label for=\"mensagem\">Mensagem</label>\n  <textarea id=\"mensagem\" name=\"mensagem\" rows=\"5\" required minlength=\"10\"></textarea>\n\n  <button type=\"submit\">Enviar</button>\n</form>\n\n<!--\n  o que dá pra reparar testando:\n  - enviar vazio: o navegador foca o primeiro campo com problema e mostra\n    a mensagem no idioma do sistema, sem você escrever nada\n  - no celular, type=\"email\" traz o teclado com @ e sem espaço\n  - a primeira option com value vazio, junto do required, obriga a escolher\n    de verdade em vez de aceitar o primeiro item por descuido\n  - o placeholder NÃO substitui o label: ele some quando a pessoa digita\n-->",
+        "linguagem": "html"
+      }
+    },
+    {
+      "id": "web1a5",
       "titulo": "Acessibilidade básica",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "A maior parte da acessibilidade é usar o HTML certo. O resto é teclado, contraste e um pouco de cuidado.",
+      "ideia": [
+        "Nem todo mundo usa mouse, enxerga bem ou consegue ouvir. HTML semântico já entrega teclado, leitor de tela e zoom funcionando de graça.",
+        "O teste mais rápido é o Tab: percorra a página inteira sem mouse e veja se dá pra fazer tudo, e se dá pra ver onde você está."
+      ],
+      "exemplo": {
+        "nota": "Os quatro erros mais comuns, com o conserto ao lado:",
+        "codigo": "<!-- 1. div clicável: não recebe foco, não responde ao Enter -->\n<div onclick=\"salvar()\">Salvar</div>\n<button type=\"button\" onclick=\"salvar()\">Salvar</button>\n\n<!-- 2. imagem sem alt: o leitor de tela lê o nome do arquivo -->\n<img src=\"grafico.png\">\n<img src=\"grafico.png\" alt=\"Vendas subindo de 10 para 40 entre janeiro e abril\">\n\n<!-- 3. campo sem label: anunciado como \"caixa de texto\", sem dizer de quê -->\n<input type=\"text\" placeholder=\"Seu nome\">\n<label for=\"nome\">Seu nome</label>\n<input id=\"nome\" type=\"text\">\n\n<!-- 4. link que não diz pra onde vai -->\n<a href=\"/relatorio.pdf\">Clique aqui</a>\n<a href=\"/relatorio.pdf\">Baixar o relatório de vendas (PDF)</a>\n\n<!-- e o que nunca se faz: -->\n<style>\n  :focus { outline: none; }   /* apaga a marca de onde o teclado está */\n</style>",
+        "linguagem": "html"
+      },
+      "mais": {
+        "titulo": "Teste em três minutos, sem instalar nada",
+        "linhas": [
+          "Tab: percorra a página do começo ao fim só com o teclado. Se algo clicável não recebe foco, ou se você não enxerga onde está, tem problema ali.",
+          "Zoom: aperte Ctrl e + até 200%. O texto precisa continuar legível e nada pode sumir ou virar uma coluna cortada.",
+          "No F12 do Chrome existe o Lighthouse: ele roda uma checagem de acessibilidade e lista o que encontrou. Não pega tudo, mas pega o óbvio, e o óbvio é a maior parte."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que trocar uma div clicável por um button?",
+          "opcoes": [
+            "Porque button é mais bonito por padrão",
+            "Porque o button recebe foco pelo teclado, responde ao Enter e é anunciado como botão",
+            "Porque div não aceita onclick"
+          ],
+          "correta": 1,
+          "porque": "A div aceita clique, sim. O que ela não dá é teclado, foco e significado, e refazer isso na mão dá bem mais trabalho que usar a tag certa."
+        },
+        {
+          "pergunta": "Qual o problema de outline: none no foco?",
+          "opcoes": [
+            "Deixa a página mais lenta",
+            "Nenhum, é só estética",
+            "Quem navega por teclado perde a marca de onde está na página"
+          ],
+          "correta": 2,
+          "porque": "Se o contorno padrão for feio, troque por outro visível. Apagar sem substituir é tirar o cursor de quem não usa mouse."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Pegue a página que você fez nas aulas anteriores e faça três testes: percorra tudo com Tab, aumente o zoom pra 200% e rode o Lighthouse na aba de acessibilidade. Anote no Caderno os três primeiros problemas que apareceram e conserte cada um.",
+        "solucao": "<!--\n  o que costuma aparecer, e o conserto\n\n  1. \"Background and foreground colors do not have a sufficient contrast ratio\"\n     texto cinza claro em fundo branco. Conserto: escurecer o texto até\n     o contraste passar de 4.5 para 1 em texto normal.\n\n  2. \"Form elements do not have associated labels\"\n     faltou o par for e id. Conserto:\n-->\n<label for=\"email\">E-mail</label>\n<input id=\"email\" name=\"email\" type=\"email\">\n\n<!--\n  3. \"Links do not have a discernible name\"\n     link só com ícone dentro. Conserto: texto visível, ou um rótulo\n     acessível quando o desenho precisa ficar só com o ícone:\n-->\n<a href=\"/config\" aria-label=\"Configurações\">\n  <svg width=\"24\" height=\"24\" aria-hidden=\"true\"><!-- ícone --></svg>\n</a>\n\n<!--\n  e o teste do Tab, que o Lighthouse não faz:\n  percorra a página inteira. Todo item clicável precisa receber foco,\n  na ordem em que aparece na tela, com uma marca visível.\n\n  regra que resolve a maior parte: use a tag certa antes de pensar em aria.\n  aria conserta o que o HTML não dá conta, e não substitui o HTML.\n-->",
+        "linguagem": "html"
+      }
     }
   ]
 }

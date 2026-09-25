@@ -3,23 +3,253 @@
   "aulas": [
     {
       "id": "web4a1",
-      "titulo": "Componentes",
-      "minutos": 12
+      "titulo": "Por que um framework (e o Vite)",
+      "minutos": 14,
+      "resumo": "No módulo passado você redesenhou a tela na mão. O React faz isso pra você, a partir do estado.",
+      "ideia": [
+        "A sua lista de tarefas já tinha a ideia certa: um array manda, uma função desenha. O React automatiza a segunda parte: você descreve a tela, ele decide o que mudar.",
+        "O Vite é a ferramenta que monta o projeto, atualiza a tela ao salvar e empacota pra publicar. Um comando e você está rodando."
+      ],
+      "exemplo": {
+        "nota": "Precisa do Node instalado. Três comandos e o projeto está no ar:",
+        "codigo": "npm create vite@latest meu-app -- --template react\ncd meu-app\nnpm install\nnpm run dev\n\n# abre em http://localhost:5173 e recarrega sozinho quando você salva\n\n# o que veio na pasta:\n#   index.html        a única página de verdade\n#   src/main.jsx      liga o React ao index.html\n#   src/App.jsx       o seu primeiro componente\n#   package.json      dependências e comandos\n\n# pra publicar:\nnpm run build         # gera a pasta dist/, que é só HTML, CSS e JS\nnpm run preview       # testa localmente o que foi gerado",
+        "linguagem": "bash"
+      },
+      "mais": {
+        "titulo": "O que muda de verdade",
+        "linhas": [
+          "Sem framework, você mexe no DOM em vinte lugares e alguma tela sempre fica desatualizada. Com React, você muda o estado e a tela acompanha. É menos código e menos bug.",
+          "O preço: existe um passo de build, o projeto tem uma pasta node_modules enorme e o JavaScript precisa carregar antes da página aparecer. Pra um site simples, HTML e CSS continuam sendo a melhor escolha.",
+          "Vite é o empacotador, React é a biblioteca. Você vai ver gente chamando tudo de \"React\", mas são coisas diferentes: dá pra usar React sem Vite e Vite sem React."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que o React resolve, comparado com mexer no DOM na mão?",
+          "opcoes": [
+            "Você descreve a tela a partir do estado, e ele cuida de atualizar o que mudou",
+            "Ele deixa a página mais rápida em qualquer caso",
+            "Ele substitui o HTML e o CSS"
+          ],
+          "correta": 0,
+          "porque": "É exatamente a função desenhar() que você escreveu na aula 5.5, só que automática e mexendo só no que mudou."
+        },
+        {
+          "pergunta": "Quando NÃO vale a pena usar React?",
+          "opcoes": [
+            "Quando o projeto tem formulário",
+            "Num site pequeno, com pouca interação: HTML e CSS entregam mais rápido e sem build",
+            "Nunca: React serve pra tudo"
+          ],
+          "correta": 1,
+          "porque": "Página institucional, portfólio e blog vivem melhor sem framework. React ganha quando há muito estado mudando na tela."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Crie um projeto com Vite, abra no navegador e mude o texto do App.jsx com o servidor rodando, pra ver a tela atualizar sozinha. Depois rode o build e olhe o que apareceu na pasta dist. Anote no Caderno quantos arquivos o build gerou.",
+        "solucao": "npm create vite@latest meu-app -- --template react\ncd meu-app\nnpm install\nnpm run dev\n\n# em src/App.jsx, troque o texto dentro do <h1> e salve.\n# a tela muda sem recarregar: isso se chama hot reload.\n\nnpm run build\n\n# a pasta dist fica mais ou menos assim:\n#   dist/index.html\n#   dist/assets/index-<hash>.js\n#   dist/assets/index-<hash>.css\n#\n# são três arquivos, e é só isso que vai pro servidor.\n# o hash no nome serve pra forçar o navegador a baixar de novo\n# quando você publica uma versão nova.\n\nnpm run preview     # confere o resultado antes de publicar\n\n# repare: o dist não tem React nem node_modules. O build já juntou\n# tudo que é necessário dentro daquele arquivo .js.",
+        "linguagem": "bash"
+      }
     },
     {
       "id": "web4a2",
-      "titulo": "Estado",
-      "minutos": 12
+      "titulo": "Componentes",
+      "minutos": 14,
+      "resumo": "Um componente é uma função que devolve tela. Você monta a página juntando componentes.",
+      "ideia": [
+        "Componente é função com nome em maiúscula que devolve JSX. JSX parece HTML dentro do JavaScript, e vira chamada de função no build.",
+        "O que muda do HTML: class virou className, os atributos são em camelCase e toda expressão entra entre chaves."
+      ],
+      "exemplo": {
+        "nota": "Em src/App.jsx. Repare que é JavaScript: dá pra criar variável e usar entre chaves.",
+        "codigo": "function Cabecalho() {\n  const hoje = new Date().toLocaleDateString(\"pt-BR\");\n\n  return (\n    <header>\n      <h1>Minhas tarefas</h1>\n      <p>Hoje é {hoje}</p>\n    </header>\n  );\n}\n\nfunction Rodape() {\n  return <footer><small>Feito por mim</small></footer>;\n}\n\nexport default function App() {\n  return (\n    <div className=\"app\">     {/* class virou className */}\n      <Cabecalho />\n      <main>\n        <p>Conteúdo aqui.</p>\n      </main>\n      <Rodape />\n    </div>\n  );\n}\n\n// as regras do JSX:\n// 1. um componente devolve UM elemento; se precisar de vários, envolva\n//    num <div> ou num <> </> (fragmento, que não vira tag nenhuma)\n// 2. tag sem filho se fecha sozinha: <Cabecalho /> e não <Cabecalho>\n// 3. { } é a porta pro JavaScript: {hoje}, {2 + 2}, {lista.length}",
+        "linguagem": "jsx"
+      },
+      "mais": {
+        "titulo": "As três confusões do começo",
+        "linhas": [
+          "Nome de componente começa com maiúscula, sempre. Com minúscula, o React acha que é tag de HTML e renderiza <cabecalho> literalmente, sem erro nenhum na tela.",
+          "className em vez de class, e htmlFor em vez de for. É porque class e for são palavras reservadas do JavaScript.",
+          "Comentário dentro do JSX vai entre chaves: {/* assim */}. O // solto no meio da tela vira texto na página."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que nome de componente começa com letra maiúscula?",
+          "opcoes": [
+            "É só convenção de estilo",
+            "Porque com minúscula o React entende como tag HTML e não chama a sua função",
+            "Porque o Vite exige"
+          ],
+          "correta": 1,
+          "porque": "E o pior é que não dá erro: aparece uma tag desconhecida na página e você fica procurando o motivo."
+        },
+        {
+          "pergunta": "Seu componente precisa devolver um título e um parágrafo, lado a lado. Como fazer?",
+          "opcoes": [
+            "Devolver os dois separados por vírgula",
+            "Criar dois componentes, obrigatoriamente",
+            "Envolver num elemento só, ou num fragmento <> </>"
+          ],
+          "correta": 2,
+          "porque": "O fragmento agrupa sem criar uma div a mais no HTML final, que é o que você quer quase sempre."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte a página do seu portfólio com quatro componentes: cabeçalho com o seu nome, uma seção sobre, uma lista de projetos e um rodapé. Use um fragmento em pelo menos um deles e mostre a data de hoje em algum lugar.",
+        "solucao": "function Cabecalho({ nome }) {\n  return (\n    <header>\n      <h1>{nome}</h1>\n      <p>Estudando desenvolvimento web</p>\n    </header>\n  );\n}\n\nfunction Sobre() {\n  return (\n    <>                                {/* fragmento: agrupa sem virar div */}\n      <h2>Sobre</h2>\n      <p>Vim de outra área e estou aprendendo a construir coisas na web.</p>\n    </>\n  );\n}\n\nfunction Projetos() {\n  const projetos = [\"Lista de tarefas\", \"Página de receita\", \"Portfólio\"];\n\n  return (\n    <section>\n      <h2>Projetos</h2>\n      <ul>\n        {projetos.map((p) => (\n          <li key={p}>{p}</li>\n        ))}\n      </ul>\n    </section>\n  );\n}\n\nfunction Rodape() {\n  const ano = new Date().getFullYear();\n  return <footer><small>Atualizado em {ano}</small></footer>;\n}\n\nexport default function App() {\n  return (\n    <div className=\"app\">\n      <Cabecalho nome=\"Ana Souza\" />\n      <main>\n        <Sobre />\n        <Projetos />\n      </main>\n      <Rodape />\n    </div>\n  );\n}\n\n// o key no map é obrigatório e a próxima aula explica por quê.\n// por enquanto: é o que permite o React saber qual item é qual.",
+        "linguagem": "jsx"
+      }
     },
     {
       "id": "web4a3",
       "titulo": "Props e listas",
-      "minutos": 12
+      "minutos": 14,
+      "resumo": "Props são os parâmetros do componente. Lista vira tela com map, e cada item precisa de uma chave.",
+      "ideia": [
+        "O componente recebe props como uma função recebe argumentos, e não pode mudá-las: quem manda o dado é quem está de fora.",
+        "Para desenhar uma lista, use map devolvendo JSX. O atributo key precisa ser um id estável, nunca a posição no array."
+      ],
+      "exemplo": {
+        "nota": "Um componente de item e uma lista que o usa:",
+        "codigo": "function Tarefa({ titulo, feita }) {          // props desmontadas direto\n  return (\n    <li className={feita ? \"feita\" : \"\"}>\n      {titulo} {feita && <span>(concluída)</span>}\n    </li>\n  );\n}\n\nfunction ListaDeTarefas({ tarefas, titulo = \"Tarefas\" }) {   // valor padrão\n  if (tarefas.length === 0) {\n    return <p>Nada por aqui ainda.</p>;\n  }\n\n  return (\n    <section>\n      <h2>{titulo} ({tarefas.length})</h2>\n      <ul>\n        {tarefas.map((t) => (\n          <Tarefa key={t.id} titulo={t.titulo} feita={t.feita} />\n        ))}\n      </ul>\n    </section>\n  );\n}\n\nexport default function App() {\n  const tarefas = [\n    { id: \"a1\", titulo: \"Estudar props\", feita: true },\n    { id: \"a2\", titulo: \"Entender o key\", feita: false },\n  ];\n\n  return <ListaDeTarefas tarefas={tarefas} titulo=\"Da semana\" />;\n}\n\n// {feita && <span>...</span>} mostra o span só quando feita for verdadeiro.\n// é o if do JSX, e funciona porque false não vira nada na tela.",
+        "linguagem": "jsx"
+      },
+      "mais": {
+        "titulo": "Por que o key não pode ser o índice",
+        "linhas": [
+          "O key diz ao React qual item é qual entre duas renderizações. Com o índice, apagar o primeiro item faz todos os outros mudarem de chave, e o React reaproveita a caixa errada: o texto digitado num campo pula pra outra linha.",
+          "Use o id do dado. Se o dado não tem id, gere um ao criar o item, com crypto.randomUUID(), como você fez na aula 5.5.",
+          "Props descem, eventos sobem: o componente de baixo não muda o dado do de cima, ele avisa por uma função que veio por prop. Essa regra é o que mantém o app previsível."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que não usar o índice do array como key?",
+          "opcoes": [
+            "Porque o React não aceita número",
+            "Porque ao inserir ou apagar item as chaves mudam de dono, e o React reaproveita o elemento errado",
+            "Porque índice deixa a lista mais lenta"
+          ],
+          "correta": 1,
+          "porque": "O sintoma clássico: você apaga a primeira tarefa e o que estava escrito no campo da segunda aparece na primeira."
+        },
+        {
+          "pergunta": "Um componente pode alterar a prop que recebeu?",
+          "opcoes": [
+            "Não: prop é leitura. Pra mudar, ele avisa quem mandou, por uma função recebida como prop",
+            "Pode, desde que seja objeto",
+            "Pode, é assim que o estado muda"
+          ],
+          "correta": 0,
+          "porque": "Props descem e eventos sobem. Quebrar isso é o caminho mais curto pra um app que ninguém entende."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte um componente Cartao que receba título, descrição e um marcador opcional, e uma Galeria que desenhe seis cartões a partir de um array, com chave estável e uma mensagem quando o array estiver vazio.",
+        "solucao": "function Cartao({ titulo, descricao, marcador }) {\n  return (\n    <article className=\"cartao\">\n      <h3>{titulo}</h3>\n      <p>{descricao}</p>\n      {marcador && <span className=\"marcador\">{marcador}</span>}\n    </article>\n  );\n}\n\nfunction Galeria({ itens }) {\n  if (itens.length === 0) {\n    return <p>Nenhum projeto por aqui ainda.</p>;\n  }\n\n  return (\n    <div className=\"galeria\">\n      {itens.map((item) => (\n        <Cartao\n          key={item.id}\n          titulo={item.titulo}\n          descricao={item.descricao}\n          marcador={item.novo ? \"novo\" : null}\n        />\n      ))}\n    </div>\n  );\n}\n\nexport default function App() {\n  const projetos = [\n    { id: \"p1\", titulo: \"Lista de tarefas\", descricao: \"HTML, CSS e JavaScript\", novo: false },\n    { id: \"p2\", titulo: \"Página de receita\", descricao: \"Semântica e acessibilidade\", novo: false },\n    { id: \"p3\", titulo: \"Galeria com grid\", descricao: \"CSS responsivo\", novo: true },\n  ];\n\n  return (\n    <main>\n      <h2>Projetos</h2>\n      <Galeria itens={projetos} />\n      <h2>Arquivados</h2>\n      <Galeria itens={[]} />\n    </main>\n  );\n}\n\n// o mesmo componente Galeria atende os dois casos: com itens e vazia.\n// é isso que se ganha separando \"como desenha\" de \"qual é o dado\".",
+        "linguagem": "jsx"
+      }
     },
     {
       "id": "web4a4",
-      "titulo": "Um app pequeno",
-      "minutos": 12
+      "titulo": "Estado",
+      "minutos": 16,
+      "resumo": "Estado é o que muda com o tempo. Mudou o estado, o React redesenha a tela sozinho.",
+      "ideia": [
+        "useState devolve o valor atual e a função que troca esse valor. Chamou a função, o componente roda de novo e a tela acompanha.",
+        "Nunca altere o estado no lugar: crie um valor novo. Com array, use filter, map ou espalhamento; com objeto, { ...antigo, campo: novo }."
+      ],
+      "exemplo": {
+        "nota": "A lista de tarefas da aula 5.5, agora em React. Repare no que sumiu: nenhum createElement, nenhum querySelector.",
+        "codigo": "import { useState } from \"react\";\n\nexport default function App() {\n  const [tarefas, setTarefas] = useState([]);\n  const [texto, setTexto] = useState(\"\");\n\n  function adicionar(evento) {\n    evento.preventDefault();\n    const titulo = texto.trim();\n    if (!titulo) return;\n\n    // array NOVO, e não push no antigo\n    setTarefas([...tarefas, { id: crypto.randomUUID(), titulo, feita: false }]);\n    setTexto(\"\");\n  }\n\n  function alternar(id) {\n    setTarefas(tarefas.map((t) => (t.id === id ? { ...t, feita: !t.feita } : t)));\n  }\n\n  function apagar(id) {\n    setTarefas(tarefas.filter((t) => t.id !== id));\n  }\n\n  const feitas = tarefas.filter((t) => t.feita).length;\n\n  return (\n    <main>\n      <h1>Minhas tarefas</h1>\n\n      <form onSubmit={adicionar}>\n        <label htmlFor=\"texto\">Nova tarefa</label>\n        <input id=\"texto\" value={texto} onChange={(e) => setTexto(e.target.value)} />\n        <button>Adicionar</button>\n      </form>\n\n      <ul>\n        {tarefas.map((t) => (\n          <li key={t.id} className={t.feita ? \"feita\" : \"\"}>\n            <input type=\"checkbox\" checked={t.feita} onChange={() => alternar(t.id)} />\n            <span>{t.titulo}</span>\n            <button type=\"button\" onClick={() => apagar(t.id)}>apagar</button>\n          </li>\n        ))}\n      </ul>\n\n      <p>{tarefas.length} tarefas, {feitas} concluídas</p>\n    </main>\n  );\n}",
+        "linguagem": "jsx"
+      },
+      "mais": {
+        "titulo": "As três regras do estado",
+        "linhas": [
+          "Não altere no lugar. tarefas.push(...) seguido de setTarefas(tarefas) não redesenha nada, porque o React compara se é o mesmo array, e é. Crie um novo.",
+          "O campo controlado tem value e onChange andando juntos. Só com value, o campo trava e ninguém consegue digitar: é o erro que todo mundo comete uma vez.",
+          "Estado que dá pra calcular não é estado. O número de concluídas sai de um filter na hora de desenhar; guardar isso num useState é criar duas fontes da verdade que vão se desencontrar."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Você faz tarefas.push(nova) e depois setTarefas(tarefas). A tela não muda. Por quê?",
+          "opcoes": [
+            "Faltou recarregar a página",
+            "Porque é o mesmo array de antes, e o React não vê mudança",
+            "Porque push não funciona em React"
+          ],
+          "correta": 1,
+          "porque": "A comparação é de identidade, não de conteúdo. setTarefas([...tarefas, nova]) cria um array novo e aí ele redesenha."
+        },
+        {
+          "pergunta": "Seu campo de texto não deixa digitar nada. O que costuma faltar?",
+          "opcoes": [
+            "O onChange que atualiza o estado do campo",
+            "O atributo name",
+            "Um id no formulário"
+          ],
+          "correta": 0,
+          "porque": "Com value fixo e sem onChange, o React redesenha o valor antigo a cada tecla. Os dois andam sempre juntos."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Acrescente à sua lista em React um filtro com três botões (todas, pendentes, concluídas) e um botão que limpa as concluídas. Garanta que o filtro não altera o array de tarefas, só o que aparece na tela.",
+        "solucao": "import { useState } from \"react\";\n\nexport default function App() {\n  const [tarefas, setTarefas] = useState([]);\n  const [texto, setTexto] = useState(\"\");\n  const [filtro, setFiltro] = useState(\"todas\");     // estado de tela, não de dado\n\n  function adicionar(evento) {\n    evento.preventDefault();\n    const titulo = texto.trim();\n    if (!titulo) return;\n    setTarefas([...tarefas, { id: crypto.randomUUID(), titulo, feita: false }]);\n    setTexto(\"\");\n  }\n\n  const alternar = (id) =>\n    setTarefas(tarefas.map((t) => (t.id === id ? { ...t, feita: !t.feita } : t)));\n\n  const limparFeitas = () => setTarefas(tarefas.filter((t) => !t.feita));\n\n  // calculado na hora de desenhar: o array continua inteiro\n  const visiveis =\n    filtro === \"pendentes\" ? tarefas.filter((t) => !t.feita)\n    : filtro === \"feitas\" ? tarefas.filter((t) => t.feita)\n    : tarefas;\n\n  return (\n    <main>\n      <h1>Minhas tarefas</h1>\n\n      <form onSubmit={adicionar}>\n        <label htmlFor=\"texto\">Nova tarefa</label>\n        <input id=\"texto\" value={texto} onChange={(e) => setTexto(e.target.value)} />\n        <button>Adicionar</button>\n      </form>\n\n      <div role=\"group\" aria-label=\"Filtro\">\n        {[\"todas\", \"pendentes\", \"feitas\"].map((f) => (\n          <button key={f} type=\"button\" aria-pressed={filtro === f} onClick={() => setFiltro(f)}>\n            {f}\n          </button>\n        ))}\n      </div>\n\n      <ul>\n        {visiveis.map((t) => (\n          <li key={t.id} className={t.feita ? \"feita\" : \"\"}>\n            <input type=\"checkbox\" checked={t.feita} onChange={() => alternar(t.id)} />\n            <span>{t.titulo}</span>\n          </li>\n        ))}\n      </ul>\n\n      {visiveis.length === 0 && <p>Nenhuma tarefa neste filtro.</p>}\n\n      <button type=\"button\" onClick={limparFeitas}>Limpar concluídas</button>\n    </main>\n  );\n}\n\n// o aria-pressed conta pro leitor de tela qual filtro está ativo.\n// e repare: visiveis é calculado, não guardado. Um estado a menos\n// é um jeito a menos de a tela discordar do dado.",
+        "linguagem": "jsx"
+      }
+    },
+    {
+      "id": "web4a5",
+      "titulo": "Projeto: um app pequeno",
+      "minutos": 25,
+      "resumo": "Um app React de verdade: busca dado numa API, mostra na tela e trata carregando e erro.",
+      "ideia": [
+        "useEffect serve pra falar com o mundo de fora: buscar dado, ouvir evento do navegador, salvar no localStorage. Ele roda depois que a tela aparece.",
+        "Todo app que busca dado tem três estados na tela: carregando, deu certo e deu erro. Escreva os três desde o começo."
+      ],
+      "exemplo": {
+        "nota": "Um app que busca a lista de uma API e mostra. Coloque um tarefas.json na pasta public/ do projeto Vite:",
+        "codigo": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [tarefas, setTarefas] = useState([]);\n  const [carregando, setCarregando] = useState(true);\n  const [erro, setErro] = useState(null);\n\n  useEffect(() => {\n    let vivo = true;                       // evita atualizar tela que já saiu\n\n    async function carregar() {\n      try {\n        const resposta = await fetch(\"/tarefas.json\");\n        if (!resposta.ok) throw new Error(`status ${resposta.status}`);\n\n        const dados = await resposta.json();\n        if (vivo) setTarefas(dados);\n      } catch (e) {\n        if (vivo) setErro(\"Não consegui carregar a lista.\");\n        console.error(e);\n      } finally {\n        if (vivo) setCarregando(false);\n      }\n    }\n\n    carregar();\n    return () => { vivo = false; };        // limpeza, quando o componente sai\n  }, []);                                  // [] = roda uma vez, ao montar\n\n  if (carregando) return <p>Carregando...</p>;\n  if (erro) return <p role=\"alert\">{erro}</p>;\n\n  return (\n    <main>\n      <h1>Tarefas ({tarefas.length})</h1>\n      <ul>\n        {tarefas.map((t) => (\n          <li key={t.id}>{t.titulo}</li>\n        ))}\n      </ul>\n    </main>\n  );\n}",
+        "linguagem": "jsx"
+      },
+      "mais": {
+        "titulo": "useEffect, com moderação",
+        "linhas": [
+          "O array de dependências no fim decide quando o efeito roda de novo: [] é só uma vez, [id] é sempre que o id mudar, e sem array nenhum é a cada desenho, que quase sempre vira laço infinito.",
+          "Em desenvolvimento, o React roda o efeito duas vezes de propósito, pra você notar efeito mal escrito. Não é bug: é por isso que existe a função de limpeza que o efeito devolve.",
+          "Boa parte do que se escreve em useEffect não precisa dele. Se dá pra calcular na hora de desenhar, calcule; efeito é pra conversar com o mundo de fora."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que o array vazio no fim do useEffect significa?",
+          "opcoes": [
+            "Que o efeito nunca roda",
+            "Que ele roda uma vez, quando o componente aparece",
+            "Que ele roda a cada desenho"
+          ],
+          "correta": 1,
+          "porque": "Sem o array, ele roda a cada desenho, e se o efeito muda estado, vira laço infinito."
+        },
+        {
+          "pergunta": "Você precisa mostrar o total de itens da lista. Guarda num useState?",
+          "opcoes": [
+            "Sim, pra não recalcular",
+            "Sim, e atualiza junto com a lista",
+            "Não: calcule na hora de desenhar, com lista.length"
+          ],
+          "correta": 2,
+          "porque": "Estado duplicado é estado que se desencontra. O que dá pra calcular, calcule."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Monte um app pequeno que busca uma lista numa API, mostra na tela com os três estados e tem um campo de busca que filtra o que está aparecendo. Depois quebre o endereço de propósito e confirme que a mensagem de erro aparece no lugar da tela em branco.",
+        "solucao": "import { useEffect, useState } from \"react\";\n\nexport default function App() {\n  const [itens, setItens] = useState([]);\n  const [carregando, setCarregando] = useState(true);\n  const [erro, setErro] = useState(null);\n  const [busca, setBusca] = useState(\"\");\n\n  useEffect(() => {\n    let vivo = true;\n\n    (async () => {\n      try {\n        const r = await fetch(\"/tarefas.json\");\n        if (!r.ok) throw new Error(`status ${r.status}`);\n        const dados = await r.json();\n        if (vivo) setItens(dados);\n      } catch (e) {\n        if (vivo) setErro(\"Não consegui carregar a lista. Tente de novo em instantes.\");\n        console.error(e);\n      } finally {\n        if (vivo) setCarregando(false);\n      }\n    })();\n\n    return () => { vivo = false; };\n  }, []);\n\n  // filtro calculado: os dados originais continuam intactos\n  const termo = busca.trim().toLowerCase();\n  const visiveis = termo\n    ? itens.filter((i) => i.titulo.toLowerCase().includes(termo))\n    : itens;\n\n  if (carregando) return <p>Carregando...</p>;\n  if (erro) return <p role=\"alert\">{erro}</p>;\n\n  return (\n    <main>\n      <h1>Tarefas</h1>\n\n      <label htmlFor=\"busca\">Buscar</label>\n      <input id=\"busca\" value={busca} onChange={(e) => setBusca(e.target.value)}\n             placeholder=\"filtrar pelo título\" />\n\n      <p>{visiveis.length} de {itens.length}</p>\n\n      <ul>\n        {visiveis.map((i) => (\n          <li key={i.id}>{i.titulo}</li>\n        ))}\n      </ul>\n\n      {visiveis.length === 0 && <p>Nada encontrado para \"{busca}\".</p>}\n    </main>\n  );\n}\n\n// pra testar o erro: troque o endereço por \"/nao-existe.json\".\n// a tela precisa mostrar a mensagem, e nunca ficar em branco.\n//\n// o role=\"alert\" faz o leitor de tela anunciar o erro assim que ele aparece.",
+        "linguagem": "jsx"
+      }
     }
   ]
 }

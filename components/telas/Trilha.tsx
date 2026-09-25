@@ -91,6 +91,12 @@ export function Trilha({ modulos, projetos, focoNome }: { modulos: ModuloItem[];
               </Link>
             );
           })}
+          {projetos.length === 0 && (
+            <div className="vazio">
+              Ainda não há projetos escritos para este foco. O projeto final do último módulo da trilha
+              já serve de portfólio: ele tem escopo, critérios de pronto e roteiro de README.
+            </div>
+          )}
         </>
       )}
     </>

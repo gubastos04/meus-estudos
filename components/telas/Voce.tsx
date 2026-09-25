@@ -19,10 +19,10 @@ const ABAS = [
 
 type ModuloIds = { id: string; aulas: string[] };
 
-export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificados, labs, email, temChave, focoNome }: {
+export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificados, labs, email, temChave, focoNome, focoId }: {
   abaInicial: Aba; modulos: ModuloIds[]; totalTreinos: number;
   perguntas: PerguntaEntrevista[]; certificados: Certificado[]; labs: Lab[];
-  email: string; temChave: boolean; focoNome: string;
+  email: string; temChave: boolean; focoNome: string; focoId?: string;
 }) {
   const [aba, setAba] = useState<Aba>(abaInicial);
   return (
@@ -30,7 +30,7 @@ export function Voce({ abaInicial, modulos, totalTreinos, perguntas, certificado
       <Abas itens={ABAS} ativa={aba} aoMudar={setAba} />
       {aba === "progresso" && <Progresso modulos={modulos} totalTreinos={totalTreinos} email={email} temChave={temChave} focoNome={focoNome} />}
       {aba === "entrevista" && <Entrevista perguntas={perguntas} />}
-      {aba === "certificados" && <Certificados certificados={certificados} labs={labs} />}
+      {aba === "certificados" && <Certificados certificados={certificados} labs={labs} focoId={focoId} />}
     </>
   );
 }
@@ -230,7 +230,7 @@ function Entrevista({ perguntas }: { perguntas: PerguntaEntrevista[] }) {
 
 /* ── Certificados e labs ──────────────────────────────────────── */
 
-function Certificados({ certificados, labs }: { certificados: Certificado[]; labs: Lab[] }) {
+function Certificados({ certificados, labs, focoId }: { certificados: Certificado[]; labs: Lab[]; focoId?: string }) {
   const ordenados = certificados.slice().sort((a, b) => a.ordem - b.ordem);
   if (ordenados.length === 0 && labs.length === 0) {
     return (
@@ -278,11 +278,14 @@ function Certificados({ certificados, labs }: { certificados: Certificado[]; lab
         </div>
       ))}
 
-      <div className="aviso" style={{ marginTop: 24 }}>
-        Regra que vale mais que qualquer certificado: só teste em sistema seu ou em alvo que autoriza
-        explicitamente. Escanear ou invadir máquina de terceiro sem autorização é crime no Brasil,
-        mesmo sem causar dano e mesmo que você reporte depois.
-      </div>
+      {/* o aviso é sobre teste ofensivo: só aparece pra quem estuda segurança */}
+      {focoId === "seguranca" && (
+        <div className="aviso" style={{ marginTop: 24 }}>
+          Regra que vale mais que qualquer certificado: só teste em sistema seu ou em alvo que autoriza
+          explicitamente. Escanear ou invadir máquina de terceiro sem autorização é crime no Brasil,
+          mesmo sem causar dano e mesmo que você reporte depois.
+        </div>
+      )}
     </>
   );
 }

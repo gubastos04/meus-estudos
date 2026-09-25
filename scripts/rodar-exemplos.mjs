@@ -33,6 +33,30 @@ const LIMITE_MS = 20_000;
 const SERVIDOR = /(app\.listen\(|serve_forever\(|uvicorn\.run\(|app\.run\()/;
 const LIMITE_SERVIDOR_MS = 5_000;
 
+// Compila o JSX com esbuild e desenha com react-dom/server: prova que o
+// componente compila e renderiza. Precisa de react, react-dom e esbuild na
+// pasta apontada por RODAR_NODE_MODULES.
+const RODA_JSX = `
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const esbuild = require("esbuild");
+const React = require("react");
+const { renderToStaticMarkup } = require("react-dom/server");
+
+const { outputFiles } = await esbuild.build({
+  entryPoints: ["app.jsx"], bundle: true, write: false, format: "cjs",
+  jsx: "automatic", platform: "node", logLevel: "silent",
+  external: ["react", "react-dom", "react/jsx-runtime"],
+});
+
+const mod = { exports: {} };
+new Function("module", "exports", "require", outputFiles[0].text)(mod, mod.exports, require);
+
+const App = mod.exports.default;
+if (typeof App === "function") console.log(renderToStaticMarkup(React.createElement(App)).slice(0, 200));
+else console.log("compilou (sem export default pra desenhar)");
+`;
+
 // executa um .sql comando por comando e imprime o resultado de cada SELECT
 const RODA_SQL = [
   "import sqlite3, sys",
@@ -59,6 +83,11 @@ function rodar(linguagem, codigo) {
       const arq = /^\s*import\s/m.test(codigo) ? "main.mjs" : "main.js";
       writeFileSync(join(dir, arq), codigo);
       [cmd, args] = [process.execPath, [arq]];
+    } else if (linguagem === "jsx") {
+      if (!process.env.RODAR_NODE_MODULES) return null;   // sem react instalado, fica manual
+      writeFileSync(join(dir, "app.jsx"), codigo);
+      writeFileSync(join(dir, "roda-jsx.mjs"), RODA_JSX);
+      [cmd, args] = [process.execPath, ["roda-jsx.mjs"]];
     } else if (linguagem === "sql") {
       writeFileSync(join(dir, "q.sql"), codigo);
       writeFileSync(join(dir, "roda.py"), RODA_SQL);
@@ -71,13 +100,21 @@ function rodar(linguagem, codigo) {
       cwd: dir, input: ENTRADA, timeout: servidor ? LIMITE_SERVIDOR_MS : LIMITE_MS, encoding: "utf8",
       env: {
         ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1", MPLBACKEND: "Agg",
+        // ambiente mínimo que o conteúdo espera configurado (aula 6.4 ensina a exigir isto)
+        APP_SEGREDO: process.env.APP_SEGREDO || "segredo-so-para-rodar-o-conteudo",
         // pacote do Node (express) fica numa pasta à parte, apontada por RODAR_NODE_MODULES
         ...(process.env.RODAR_NODE_MODULES && { NODE_PATH: process.env.RODAR_NODE_MODULES }),
       },
     });
-    // servidor que aguentou o tempo todo sem reclamar passou no teste dele
+    // servidor que aguentou o tempo todo sem reclamar passou no teste dele.
+    // Aviso do Node (experimental, deprecation) não é reclamação.
     const porTempo = Boolean(r.error && r.error.code === "ETIMEDOUT");
-    if (servidor && porTempo && !r.stderr?.trim()) return { ok: true, servidor: true, saida: "" };
+    const reclamou = (r.stderr || "")
+      .split("\n")
+      .filter((l) => l.trim() && !/^\(node:\d+\)/.test(l) && !/Warning:|--trace-warnings/.test(l))
+      .join("\n")
+      .trim();
+    if (servidor && porTempo && !reclamou) return { ok: true, servidor: true, saida: "" };
 
     const falha = r.error ? r.error.message : r.stderr;
     return { ok: !r.error && r.status === 0, saida: (falha || "").trim() };

@@ -19,6 +19,6 @@ export default async function PaginaVoce({ searchParams }: PageProps<"/voce">) {
     <Voce abaInicial={inicial} modulos={mods} totalTreinos={treinos(foco).length}
       perguntas={entrevista(foco)} certificados={certificados(foco)} labs={labs(foco)}
       email={u.email} temChave={await temChaveIA(u.id)}
-      focoNome={buscarFoco(u.foco ?? "")?.nome ?? "programação"} />
+      focoNome={buscarFoco(u.foco ?? "")?.nome ?? "programação"} focoId={foco} />
   );
 }

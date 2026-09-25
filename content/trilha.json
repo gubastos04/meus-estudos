@@ -101,105 +101,120 @@
       "ordem": 3,
       "nome": "HTML: a estrutura da página",
       "foco": "web",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "A estrutura da página, e por que a tag certa importa.",
+      "faculdade": "Desenv. Web em HTML5, CSS, JavaScript e PHP"
     },
     {
       "id": "web2",
       "ordem": 4,
       "nome": "CSS: layout sem sofrer",
       "foco": "web",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Deixar bonito e funcionar em qualquer tela.",
+      "faculdade": "Desenv. Web em HTML5, CSS, JavaScript e PHP"
     },
     {
       "id": "web3",
       "ordem": 5,
       "nome": "JavaScript no navegador",
       "foco": "web",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "A página que responde: DOM, eventos e fetch.",
+      "faculdade": "Desenv. Web em HTML5, CSS, JavaScript e PHP"
     },
     {
       "id": "web4",
       "ordem": 6,
       "nome": "Front-end com React",
       "foco": "web",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "O mesmo app, agora com React e Vite.",
+      "faculdade": "Desenvolvimento de Interfaces"
     },
     {
       "id": "web5",
       "ordem": 7,
       "nome": "Back-end e banco",
       "foco": "web",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "O servidor que serve a sua página e guarda o dado.",
+      "faculdade": "Comunicação Entre Aplicações"
     },
     {
       "id": "dados1",
       "ordem": 3,
       "nome": "Python para dados: Pandas",
       "foco": "dados",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita.",
+      "faculdade": "Desenvolvimento Rápido de Aplicações em Python"
     },
     {
       "id": "dados2",
       "ordem": 4,
       "nome": "Limpar e preparar dados",
       "foco": "dados",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita.",
+      "faculdade": "Banco de Dados"
     },
     {
       "id": "dados3",
       "ordem": 5,
       "nome": "Visualização",
       "foco": "dados",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita.",
+      "faculdade": "Visualização de Dados"
     },
     {
       "id": "dados4",
       "ordem": 6,
       "nome": "Estatística que importa",
       "foco": "dados",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita.",
+      "faculdade": "Estatística Aplicada"
     },
     {
       "id": "dados5",
       "ordem": 7,
       "nome": "Introdução a machine learning",
       "foco": "dados",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita.",
+      "faculdade": "Inteligência Artificial"
     },
     {
       "id": "backend1",
       "ordem": 3,
       "nome": "Como uma API funciona",
       "foco": "backend",
-      "descricao": "Cliente, servidor e HTTP. O vocabulário que todo o resto usa."
+      "descricao": "Cliente, servidor e HTTP. O vocabulário que todo o resto usa.",
+      "faculdade": "Comunicação Entre Aplicações"
     },
     {
       "id": "backend2",
       "ordem": 4,
       "nome": "Construindo uma API REST",
       "foco": "backend",
-      "descricao": "Rotas, validação e erros, com o código nas três stacks."
+      "descricao": "Rotas, validação e erros, com o código nas três stacks.",
+      "faculdade": "Engenharia de Software"
     },
     {
       "id": "backend3",
       "ordem": 5,
       "nome": "Banco de dados e SQL",
       "foco": "backend",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Do banco à API: tabelas, consultas e parâmetro no lugar certo.",
+      "faculdade": "Banco de Dados"
     },
     {
       "id": "backend4",
       "ordem": 6,
       "nome": "Autenticação e sessão",
       "foco": "backend",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Login, token e a checagem que a maioria das APIs esquece.",
+      "faculdade": "Desenvolvimento de Software Seguro"
     },
     {
       "id": "backend5",
       "ordem": 7,
       "nome": "Testes e deploy",
       "foco": "backend",
-      "descricao": "Conteúdo em breve. Esta trilha está sendo escrita."
+      "descricao": "Teste que roda em segundos, log que ajuda e a API no ar.",
+      "faculdade": "Qualidade de Software / Computação em Nuvem"
     }
   ],
   "micro": [

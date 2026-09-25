@@ -376,5 +376,189 @@
     "solucao": "from collections import deque\n\nclass Limitador:\n    def __init__(self, maximo=5, janela=60):\n        self.maximo, self.janela = maximo, janela\n        self.marcas = {}\n\n    def permitido(self, chave, agora):\n        fila = self.marcas.setdefault(chave, deque())\n        while fila and agora - fila[0] > self.janela:\n            fila.popleft()                 # saiu da janela, não conta mais\n        if len(fila) >= self.maximo:\n            return False\n        fila.append(agora)\n        return True\n\nlim = Limitador(maximo=5, janela=60)\nprint([lim.permitido(\"10.0.0.9\", t) for t in range(6)])\n# [True, True, True, True, True, False]\nprint(lim.permitido(\"10.0.0.9\", 61))   # True, a janela andou\nprint(lim.permitido(\"outro-ip\", 5))    # True, cada chave tem a sua conta",
     "custo": "O(1) amortizado por chamada: cada horário entra e sai uma vez. É a defesa da aula 7.4 isolada num objeto, que dá pra testar sem subir servidor nenhum.",
     "foco": "seguranca"
+  },
+  {
+    "id": "t19",
+    "titulo": "Montar a resposta paginada",
+    "nivel": "Fácil",
+    "tempo": 15,
+    "enunciado": "Escreva paginar(itens, pagina, por_pagina) que devolva um dicionário com os itens daquela página, o total, a página atual e quantas páginas existem. Página além do fim devolve lista vazia, sem erro.",
+    "exemplos": [
+      {
+        "entra": "[1,2,3,4,5,6,7], pagina 1, por_pagina 3",
+        "sai": "{'itens': [1, 2, 3], 'total': 7, 'pagina': 1, 'paginas': 3}"
+      },
+      {
+        "entra": "os mesmos, pagina 9",
+        "sai": "{'itens': [], 'total': 7, 'pagina': 9, 'paginas': 3}"
+      },
+      {
+        "entra": "[], pagina 1",
+        "sai": "{'itens': [], 'total': 0, 'pagina': 1, 'paginas': 1}"
+      }
+    ],
+    "dica": "A fatia de lista em Python não estoura: pedir além do fim devolve vazio. O número de páginas é a divisão arredondada pra cima.",
+    "solucao": "def paginar(itens, pagina=1, por_pagina=20):\n    if pagina < 1 or por_pagina < 1:\n        raise ValueError(\"pagina e por_pagina começam em 1\")\n\n    inicio = (pagina - 1) * por_pagina\n    total = len(itens)\n    return {\n        \"itens\": itens[inicio:inicio + por_pagina],\n        \"total\": total,\n        \"pagina\": pagina,\n        \"paginas\": max(1, -(-total // por_pagina)),   # divisão arredondada pra cima\n    }\n\nprint(paginar(list(range(1, 8)), 1, 3))\n# {'itens': [1, 2, 3], 'total': 7, 'pagina': 1, 'paginas': 3}\nprint(paginar(list(range(1, 8)), 9, 3))\n# {'itens': [], 'total': 7, 'pagina': 9, 'paginas': 3}\nprint(paginar([], 1, 3))\n# {'itens': [], 'total': 0, 'pagina': 1, 'paginas': 1}",
+    "custo": "O(por_pagina) pra fatiar. O total é o que permite ao cliente desenhar a paginação; sem ele, ninguém sabe se existe página seguinte.",
+    "foco": "backend"
+  },
+  {
+    "id": "t20",
+    "titulo": "O status certo pra cada operação",
+    "nivel": "Fácil",
+    "tempo": 15,
+    "enunciado": "Escreva status_de(operacao, achou=True) que devolva o status HTTP de sucesso de cada operação de um CRUD, 404 quando o recurso não foi achado e 400 quando a operação não existe.",
+    "exemplos": [
+      {
+        "entra": "\"criar\"",
+        "sai": "201"
+      },
+      {
+        "entra": "\"apagar\"",
+        "sai": "204"
+      },
+      {
+        "entra": "\"ver\", achou=False",
+        "sai": "404"
+      },
+      {
+        "entra": "\"inventada\"",
+        "sai": "400"
+      }
+    ],
+    "dica": "Um dicionário resolve o mapa. O achou é checado antes de tudo: não existe criar o que não foi encontrado.",
+    "solucao": "def status_de(operacao, achou=True):\n    if not achou:\n        return 404\n    return {\n        \"listar\": 200,\n        \"ver\": 200,\n        \"criar\": 201,     # criou: o certo é responder 201 com o Location\n        \"alterar\": 200,\n        \"apagar\": 204,    # deu certo e não tem corpo pra devolver\n    }.get(operacao, 400)\n\nprint([status_de(o) for o in (\"listar\", \"ver\", \"criar\", \"alterar\", \"apagar\")])\n# [200, 200, 201, 200, 204]\nprint(status_de(\"ver\", achou=False))   # 404\nprint(status_de(\"inventada\"))          # 400",
+    "custo": "O(1). Parece bobo e não é: escolher status na hora, rota por rota, é como API vira inconsistente. Um mapa num lugar só mantém a casa arrumada.",
+    "foco": "backend"
+  },
+  {
+    "id": "t21",
+    "titulo": "Validar o corpo por regras",
+    "nivel": "Médio",
+    "tempo": 20,
+    "enunciado": "Escreva validar(corpo, regras) que devolva a lista de erros do corpo recebido. Cada regra diz o tipo, se é obrigatório e, pra texto, o tamanho mínimo e máximo. Corpo que não é objeto vira um erro só.",
+    "exemplos": [
+      {
+        "entra": "{\"titulo\": \"Estudar API\"}",
+        "sai": "[]"
+      },
+      {
+        "entra": "{\"titulo\": \"ab\"}",
+        "sai": "['titulo: entre 3 e 120 caracteres']"
+      },
+      {
+        "entra": "{}",
+        "sai": "['titulo: obrigatório']"
+      },
+      {
+        "entra": "{\"titulo\": \"Estudar\", \"feita\": \"sim\"}",
+        "sai": "['feita: esperava bool']"
+      }
+    ],
+    "dica": "Use type(valor) is o tipo, e não isinstance: em Python, True também é um int, e isinstance deixaria um booleano passar por número.",
+    "solucao": "def validar(corpo, regras):\n    if not isinstance(corpo, dict):\n        return [\"corpo: esperava um objeto\"]\n\n    erros = []\n    for campo, regra in regras.items():\n        if campo not in corpo:\n            if regra.get(\"obrigatorio\"):\n                erros.append(f\"{campo}: obrigatório\")\n            continue\n\n        valor = corpo[campo]\n        if type(valor) is not regra[\"tipo\"]:      # tipo exato: True não passa por int\n            erros.append(f\"{campo}: esperava {regra['tipo'].__name__}\")\n            continue\n\n        if regra[\"tipo\"] is str:\n            tamanho = len(valor.strip())\n            if not regra.get(\"min\", 0) <= tamanho <= regra.get(\"max\", 10**9):\n                erros.append(f\"{campo}: entre {regra.get('min', 0)} e {regra.get('max')} caracteres\")\n\n    return erros\n\nREGRAS = {\n    \"titulo\": {\"tipo\": str, \"obrigatorio\": True, \"min\": 3, \"max\": 120},\n    \"feita\": {\"tipo\": bool, \"obrigatorio\": False},\n}\n\nprint(validar({\"titulo\": \"Estudar API\"}, REGRAS))            # []\nprint(validar({\"titulo\": \"ab\"}, REGRAS))                     # ['titulo: entre 3 e 120 caracteres']\nprint(validar({}, REGRAS))                                   # ['titulo: obrigatório']\nprint(validar({\"titulo\": \"Estudar\", \"feita\": \"sim\"}, REGRAS))  # ['feita: esperava bool']\nprint(validar(\"nao sou objeto\", REGRAS))                     # ['corpo: esperava um objeto']",
+    "custo": "O(número de regras). Devolver todos os erros de uma vez, e não o primeiro, poupa quem consome de descobrir os problemas um por requisição.",
+    "foco": "backend"
+  },
+  {
+    "id": "t22",
+    "titulo": "Da linha do banco pro JSON",
+    "nivel": "Fácil",
+    "tempo": 15,
+    "enunciado": "Escreva em_tarefa(linha) que receba a linha do banco e devolva o objeto que a API responde: o 0 e o 1 viram booleano, e os campos internos, como hash de senha, ficam de fora.",
+    "exemplos": [
+      {
+        "entra": "{\"id\": 1, \"titulo\": \"Ler\", \"feita\": 0, \"criada_em\": \"2026-09-23T10:00:00\", \"senha_hash\": \"scrypt$...\"}",
+        "sai": "{'id': 1, 'titulo': 'Ler', 'feita': False, 'criada_em': '2026-09-23T10:00:00'}"
+      }
+    ],
+    "dica": "Monte o dicionário campo a campo, escolhendo o que sai. Nunca devolva a linha inteira: o que você não escolheu hoje vaza amanhã, quando alguém acrescentar uma coluna.",
+    "solucao": "def em_tarefa(linha):\n    return {\n        \"id\": linha[\"id\"],\n        \"titulo\": linha[\"titulo\"],\n        \"feita\": bool(linha[\"feita\"]),     # o banco guarda 0 ou 1; o JSON quer true ou false\n        \"criada_em\": linha[\"criada_em\"],\n    }\n\nlinha = {\n    \"id\": 1, \"titulo\": \"Ler\", \"feita\": 0,\n    \"criada_em\": \"2026-09-23T10:00:00\",\n    \"senha_hash\": \"scrypt$...\",          # existe na tabela e não sai na resposta\n}\n\nprint(em_tarefa(linha))\n# {'id': 1, 'titulo': 'Ler', 'feita': False, 'criada_em': '2026-09-23T10:00:00'}",
+    "custo": "O(1). Essa função de uma linha é a diferença entre uma API que devolve o que decidiu e uma que devolve o que o banco tem. A segunda vaza mais cedo ou mais tarde.",
+    "foco": "backend"
+  },
+  {
+    "id": "t23",
+    "titulo": "Ordenação que vem da URL",
+    "nivel": "Médio",
+    "tempo": 20,
+    "enunciado": "Escreva consulta_listagem(ordem, termo, pagina, por_pagina) que devolva a consulta SQL e a tupla de parâmetros. O termo e a paginação vão por parâmetro; a ordem sai de uma lista de permitidos, com padrão pra qualquer valor estranho.",
+    "exemplos": [
+      {
+        "entra": "ordem \"recentes\", termo \"api\"",
+        "sai": "ORDER BY id DESC, com ('%api%', 20, 0)"
+      },
+      {
+        "entra": "ordem \"'; DROP TABLE tarefas\"",
+        "sai": "ORDER BY titulo (o padrão), sem nada estranho na consulta"
+      }
+    ],
+    "dica": "Nome de coluna não entra por parâmetro, porque o banco precisa da estrutura antes dos valores. Por isso ele sai de um dicionário escrito por você.",
+    "solucao": "ORDENS = {\"titulo\": \"titulo\", \"recentes\": \"id DESC\", \"antigas\": \"id ASC\"}\n\ndef consulta_listagem(ordem, termo, pagina=1, por_pagina=20):\n    coluna = ORDENS.get(ordem, \"titulo\")      # veio algo estranho? cai no padrão\n    sql = (\n        \"SELECT id, titulo FROM tarefas \"\n        \"WHERE titulo LIKE ? \"\n        f\"ORDER BY {coluna} \"\n        \"LIMIT ? OFFSET ?\"\n    )\n    return sql, (f\"%{termo}%\", por_pagina, (pagina - 1) * por_pagina)\n\nprint(consulta_listagem(\"recentes\", \"api\"))\n# ('SELECT ... ORDER BY id DESC LIMIT ? OFFSET ?', ('%api%', 20, 0))\n\nprint(consulta_listagem(\"'; DROP TABLE tarefas\", \"api\"))\n# ('SELECT ... ORDER BY titulo LIMIT ? OFFSET ?', ('%api%', 20, 0))\n\n# devolver (sql, parâmetros) em vez de executar deixa a função testável\n# sem banco nenhum, que é exatamente o que este treino faz.",
+    "custo": "O(1). O f-string aqui é seguro porque o pedaço interpolado nunca é o texto da URL: é um valor do seu dicionário. Essa é a única exceção à regra, e ela exige essa disciplina.",
+    "foco": "backend"
+  },
+  {
+    "id": "t24",
+    "titulo": "Clicou duas vezes, cobrou uma",
+    "nivel": "Difícil",
+    "tempo": 20,
+    "enunciado": "Escreva um registrador de idempotência: dada uma chave e uma função, ele executa na primeira vez e, nas seguintes com a mesma chave, devolve o resultado guardado sem executar de novo. Diga também se foi repetição.",
+    "exemplos": [
+      {
+        "entra": "aplicar(\"abc-123\", cobrar) na primeira vez",
+        "sai": "({'pedido': 1}, False)"
+      },
+      {
+        "entra": "aplicar(\"abc-123\", cobrar) de novo",
+        "sai": "({'pedido': 1}, True) e a função não roda"
+      },
+      {
+        "entra": "aplicar(\"outro\", cobrar)",
+        "sai": "({'pedido': 2}, False)"
+      }
+    ],
+    "dica": "Guarde o resultado num dicionário com a chave. A função só é chamada quando a chave é nova.",
+    "solucao": "def criar_registrador():\n    feitos = {}\n\n    def aplicar(chave, funcao):\n        if chave in feitos:\n            return feitos[chave], True        # repetido: devolve o mesmo de antes\n        resultado = funcao()\n        feitos[chave] = resultado\n        return resultado, False\n\n    return aplicar\n\naplicar = criar_registrador()\n\ncontador = {\"n\": 0}\ndef cobrar():\n    contador[\"n\"] += 1\n    return {\"pedido\": contador[\"n\"]}\n\nprint(aplicar(\"abc-123\", cobrar))   # ({'pedido': 1}, False)\nprint(aplicar(\"abc-123\", cobrar))   # ({'pedido': 1}, True)\nprint(aplicar(\"outro\", cobrar))     # ({'pedido': 2}, False)\nprint(\"cobrou\", contador[\"n\"], \"vez(es)\")   # cobrou 2 vez(es)",
+    "custo": "O(1) por chamada. Na API de verdade, a chave vem do cliente num cabeçalho (Idempotency-Key) e o registro vai pro banco com prazo de validade. A ideia é esta: POST não é idempotente sozinho, então a gente faz virar.",
+    "foco": "backend"
+  },
+  {
+    "id": "t25",
+    "titulo": "Paginar sem OFFSET",
+    "nivel": "Difícil",
+    "tempo": 20,
+    "enunciado": "Escreva por_cursor(itens, depois_de, tamanho) que devolva a próxima página a partir do último id visto, junto do cursor da página seguinte. Quando acabar, o cursor é nulo.",
+    "exemplos": [
+      {
+        "entra": "ids 1 a 5, sem cursor, tamanho 3",
+        "sai": "{'itens': [1, 2, 3], 'proximo': 3}"
+      },
+      {
+        "entra": "os mesmos, depois_de 3",
+        "sai": "{'itens': [4, 5], 'proximo': None}"
+      }
+    ],
+    "dica": "Filtre por id maior que o cursor e corte no tamanho. O cursor da próxima página é o id do último item, e só existe se ainda sobrou coisa.",
+    "solucao": "def por_cursor(itens, depois_de=None, tamanho=3):\n    ordenados = sorted(itens, key=lambda i: i[\"id\"])\n    if depois_de is not None:\n        ordenados = [i for i in ordenados if i[\"id\"] > depois_de]\n\n    pagina = ordenados[:tamanho]\n    return {\n        \"itens\": pagina,\n        \"proximo\": pagina[-1][\"id\"] if len(ordenados) > tamanho else None,\n    }\n\ndados = [{\"id\": n} for n in (1, 2, 3, 4, 5)]\n\nprimeira = por_cursor(dados)\nprint(primeira)                          # {'itens': [{'id': 1}, {'id': 2}, {'id': 3}], 'proximo': 3}\nprint(por_cursor(dados, primeira[\"proximo\"]))\n# {'itens': [{'id': 4}, {'id': 5}], 'proximo': None}\n\n# no banco isso vira: WHERE id > ? ORDER BY id LIMIT ?\n# sem OFFSET, o banco pula direto pelo índice em vez de contar tudo que ficou pra trás.",
+    "custo": "O(n log n) aqui por causa do sorted; no banco, com índice no id, cada página é O(log n + tamanho). É por isso que aplicativo de rolagem infinita usa cursor, e não número de página.",
+    "foco": "backend"
+  },
+  {
+    "id": "t26",
+    "titulo": "Agrupar o resultado do JOIN",
+    "nivel": "Médio",
+    "tempo": 15,
+    "enunciado": "O JOIN devolve uma linha por tarefa, com o usuário repetido. Escreva agrupar(linhas) que devolva um dicionário do usuário para a lista das tarefas dele, pronto pra virar JSON.",
+    "exemplos": [
+      {
+        "entra": "3 linhas, duas da ana e uma do bruno",
+        "sai": "{'ana': [{'id': 1, ...}, {'id': 2, ...}], 'bruno': [{'id': 3, ...}]}"
+      }
+    ],
+    "dica": "defaultdict(list) evita o if de \"essa chave já existe?\" em toda volta do laço.",
+    "solucao": "from collections import defaultdict\n\ndef agrupar(linhas):\n    saida = defaultdict(list)\n    for l in linhas:\n        saida[l[\"usuario\"]].append({\"id\": l[\"tarefa_id\"], \"titulo\": l[\"titulo\"]})\n    return dict(saida)\n\nlinhas = [\n    {\"usuario\": \"ana\", \"tarefa_id\": 1, \"titulo\": \"Estudar\"},\n    {\"usuario\": \"ana\", \"tarefa_id\": 2, \"titulo\": \"Testar\"},\n    {\"usuario\": \"bruno\", \"tarefa_id\": 3, \"titulo\": \"Revisar\"},\n]\n\nprint(agrupar(linhas))\n# {'ana': [{'id': 1, 'titulo': 'Estudar'}, {'id': 2, 'titulo': 'Testar'}],\n#  'bruno': [{'id': 3, 'titulo': 'Revisar'}]}\n\n# o dict() no fim não é firula: defaultdict cria chave sozinho quando alguém\n# consulta uma que não existe, e isso esconde bug na hora de montar a resposta.",
+    "custo": "O(n), uma passada. É a alternativa ao problema N+1: um JOIN só, e o agrupamento feito na memória da aplicação.",
+    "foco": "backend"
   }
 ]

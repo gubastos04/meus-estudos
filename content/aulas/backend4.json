@@ -4,22 +4,348 @@
     {
       "id": "backend4a1",
       "titulo": "Login e senha com hash",
-      "minutos": 12
+      "minutos": 16,
+      "resumo": "Sistema sério não guarda a senha de ninguém. Guarda a marca dela, feita de um jeito que não tem volta.",
+      "ideia": [
+        "Hash é caminho só de ida. No login, o servidor calcula o hash da tentativa e compara com o que está guardado.",
+        "Cada senha ganha um sal aleatório, e o algoritmo é lento de propósito: é isso que atrapalha quem testa senha aos milhões."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "scrypt e compare_digest já vêm com o Python, sem instalar nada.",
+          "codigo": "import hashlib, hmac, secrets\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, EmailStr, Field\n\napp = FastAPI()\nUSUARIOS = {}          # e-mail -> hash da senha\n\ndef criar_hash(senha: str) -> str:\n    sal = secrets.token_bytes(16)\n    bruto = hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1)\n    return f\"scrypt${sal.hex()}${bruto.hex()}\"\n\ndef conferir_senha(senha: str, guardado: str) -> bool:\n    _, sal_hex, esperado = guardado.split(\"$\")\n    bruto = hashlib.scrypt(senha.encode(), salt=bytes.fromhex(sal_hex), n=16384, r=8, p=1)\n    return hmac.compare_digest(bruto.hex(), esperado)   # comparação sem vazar tempo\n\nclass Credenciais(BaseModel):\n    email: EmailStr\n    senha: str = Field(min_length=8, max_length=200)\n\n@app.post(\"/cadastro\", status_code=201)\ndef cadastrar(dados: Credenciais):\n    if dados.email in USUARIOS:\n        raise HTTPException(status_code=409, detail=\"e-mail já cadastrado\")\n    USUARIOS[dados.email] = criar_hash(dados.senha)\n    return {\"email\": dados.email}\n\n@app.post(\"/login\")\ndef entrar(dados: Credenciais):\n    guardado = USUARIOS.get(dados.email)\n    if guardado is None or not conferir_senha(dados.senha, guardado):\n        raise HTTPException(status_code=401, detail=\"e-mail ou senha inválidos\")\n    return {\"ok\": True}\n\n# o banco guarda scrypt$<sal>$<hash>. A senha, nunca.",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "As mesmas funções do Python. O que muda é a rota em volta.",
+          "codigo": "import hashlib, hmac, secrets\nfrom flask import Flask, request\n\napp = Flask(__name__)\nUSUARIOS = {}          # e-mail -> hash da senha\n\ndef criar_hash(senha):\n    sal = secrets.token_bytes(16)\n    bruto = hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1)\n    return f\"scrypt${sal.hex()}${bruto.hex()}\"\n\ndef conferir_senha(senha, guardado):\n    _, sal_hex, esperado = guardado.split(\"$\")\n    bruto = hashlib.scrypt(senha.encode(), salt=bytes.fromhex(sal_hex), n=16384, r=8, p=1)\n    return hmac.compare_digest(bruto.hex(), esperado)   # comparação sem vazar tempo\n\ndef credenciais():\n    dado = request.get_json(silent=True) or {}\n    email, senha = dado.get(\"email\", \"\"), dado.get(\"senha\", \"\")\n    if not isinstance(email, str) or \"@\" not in email or not isinstance(senha, str) or len(senha) < 8:\n        return None, ({\"erro\": \"dados inválidos\", \"campos\": [\"email\", \"senha\"]}, 400)\n    return (email.strip().lower(), senha), None\n\n@app.post(\"/cadastro\")\ndef cadastrar():\n    dados, erro = credenciais()\n    if erro:\n        return erro\n    email, senha = dados\n    if email in USUARIOS:\n        return {\"erro\": \"e-mail já cadastrado\"}, 409\n    USUARIOS[email] = criar_hash(senha)\n    return {\"email\": email}, 201\n\n@app.post(\"/login\")\ndef entrar():\n    dados, erro = credenciais()\n    if erro:\n        return erro\n    email, senha = dados\n    guardado = USUARIOS.get(email)\n    if guardado is None or not conferir_senha(senha, guardado):\n        return {\"erro\": \"e-mail ou senha inválidos\"}, 401\n    return {\"ok\": True}",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "node:crypto tem scrypt e a comparação em tempo constante. Nada a instalar.",
+          "codigo": "const express = require(\"express\");\nconst crypto = require(\"node:crypto\");\n\nconst app = express();\napp.use(express.json());\n\nconst USUARIOS = new Map();          // e-mail -> hash da senha\n\nfunction criarHash(senha) {\n  const sal = crypto.randomBytes(16);\n  const bruto = crypto.scryptSync(senha, sal, 64);\n  return `scrypt$${sal.toString(\"hex\")}$${bruto.toString(\"hex\")}`;\n}\n\nfunction conferirSenha(senha, guardado) {\n  const [, salHex, esperado] = guardado.split(\"$\");\n  const bruto = crypto.scryptSync(senha, Buffer.from(salHex, \"hex\"), 64);\n  return crypto.timingSafeEqual(bruto, Buffer.from(esperado, \"hex\"));\n}\n\nfunction credenciais(corpo) {\n  const email = corpo?.email;\n  const senha = corpo?.senha;\n  if (typeof email !== \"string\" || !email.includes(\"@\") || typeof senha !== \"string\" || senha.length < 8) {\n    return null;\n  }\n  return { email: email.trim().toLowerCase(), senha };\n}\n\napp.post(\"/cadastro\", (req, res) => {\n  const dados = credenciais(req.body);\n  if (!dados) return res.status(400).json({ erro: \"dados inválidos\", campos: [\"email\", \"senha\"] });\n  if (USUARIOS.has(dados.email)) return res.status(409).json({ erro: \"e-mail já cadastrado\" });\n\n  USUARIOS.set(dados.email, criarHash(dados.senha));\n  res.status(201).json({ email: dados.email });\n});\n\napp.post(\"/login\", (req, res) => {\n  const dados = credenciais(req.body);\n  if (!dados) return res.status(400).json({ erro: \"dados inválidos\", campos: [\"email\", \"senha\"] });\n\n  const guardado = USUARIOS.get(dados.email);\n  if (!guardado || !conferirSenha(dados.senha, guardado)) {\n    return res.status(401).json({ erro: \"e-mail ou senha inválidos\" });\n  }\n  res.json({ ok: true });\n});\n\napp.listen(3000);",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "As regras que valem em qualquer linguagem",
+        "linhas": [
+          "O algoritmo tem que ser lento: scrypt, bcrypt ou Argon2. SHA-256 puro é rápido demais, e uma placa de vídeo testa bilhões por segundo.",
+          "A resposta de login errado é sempre a mesma, para senha errada e para e-mail que não existe. Mensagem diferente entrega a lista de quem tem conta.",
+          "Senha nunca vai pro log, nem em caso de erro. Cuidado com o registro automático do corpo da requisição: é por ali que senha vaza pro log sem ninguém perceber."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que usar um algoritmo lento de propósito para senha?",
+          "opcoes": [
+            "Para o servidor não sobrecarregar",
+            "Porque lentidão atrapalha quem testa milhões de senhas e não incomoda quem faz um login",
+            "Porque algoritmo lento gera hash maior"
+          ],
+          "correta": 1,
+          "porque": "Um login leva alguns milésimos a mais. Um ataque de força bruta leva séculos a mais."
+        },
+        {
+          "pergunta": "Por que comparar com compare_digest ou timingSafeEqual, e não com o sinal de igual?",
+          "opcoes": [
+            "Porque o igual não funciona com texto longo",
+            "Porque a comparação comum para no primeiro caractere diferente, e o tempo de resposta entrega quanto o atacante acertou",
+            "Porque é mais rápido"
+          ],
+          "correta": 1,
+          "porque": "É um ataque real, chamado de canal lateral por tempo. A função segura compara tudo sempre, no mesmo tempo."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça as rotas de cadastro e login da sua API, guardando só o hash com sal. Teste quatro casos: cadastro novo, cadastro repetido, login certo e login com senha errada, e confirme que a resposta de login errado é igual para senha errada e para e-mail inexistente.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "import hashlib, hmac, secrets\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, EmailStr, Field\n\napp = FastAPI()\nUSUARIOS = {}\n\ndef criar_hash(senha: str) -> str:\n    sal = secrets.token_bytes(16)\n    return f\"scrypt${sal.hex()}${hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1).hex()}\"\n\ndef conferir_senha(senha: str, guardado: str) -> bool:\n    _, sal_hex, esperado = guardado.split(\"$\")\n    bruto = hashlib.scrypt(senha.encode(), salt=bytes.fromhex(sal_hex), n=16384, r=8, p=1)\n    return hmac.compare_digest(bruto.hex(), esperado)\n\nclass Credenciais(BaseModel):\n    email: EmailStr\n    senha: str = Field(min_length=8, max_length=200)\n\n@app.post(\"/cadastro\", status_code=201)\ndef cadastrar(dados: Credenciais):\n    email = dados.email.lower()\n    if email in USUARIOS:\n        raise HTTPException(status_code=409, detail=\"e-mail já cadastrado\")\n    USUARIOS[email] = criar_hash(dados.senha)\n    return {\"email\": email}\n\n@app.post(\"/login\")\ndef entrar(dados: Credenciais):\n    guardado = USUARIOS.get(dados.email.lower())\n    # a mesma resposta nos dois casos, de propósito\n    if guardado is None or not conferir_senha(dados.senha, guardado):\n        raise HTTPException(status_code=401, detail=\"e-mail ou senha inválidos\")\n    return {\"ok\": True}\n\n# os quatro testes, com curl:\n# cadastro novo      -d '{\"email\":\"ana@exemplo.com\",\"senha\":\"senha-boa-123\"}'   201\n# cadastro repetido  o mesmo comando                                            409\n# login certo        mesma senha                                                200 {\"ok\":true}\n# login errado       senha diferente                                            401\n# login de e-mail inexistente                                                   401, a MESMA frase",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "import hashlib, hmac, secrets\nfrom flask import Flask, request\n\napp = Flask(__name__)\nUSUARIOS = {}\n\ndef criar_hash(senha):\n    sal = secrets.token_bytes(16)\n    return f\"scrypt${sal.hex()}${hashlib.scrypt(senha.encode(), salt=sal, n=16384, r=8, p=1).hex()}\"\n\ndef conferir_senha(senha, guardado):\n    _, sal_hex, esperado = guardado.split(\"$\")\n    bruto = hashlib.scrypt(senha.encode(), salt=bytes.fromhex(sal_hex), n=16384, r=8, p=1)\n    return hmac.compare_digest(bruto.hex(), esperado)\n\ndef credenciais():\n    dado = request.get_json(silent=True) or {}\n    email, senha = dado.get(\"email\", \"\"), dado.get(\"senha\", \"\")\n    if not isinstance(email, str) or \"@\" not in email or not isinstance(senha, str) or len(senha) < 8:\n        return None\n    return email.strip().lower(), senha\n\n@app.post(\"/cadastro\")\ndef cadastrar():\n    dados = credenciais()\n    if dados is None:\n        return {\"erro\": \"dados inválidos\", \"campos\": [\"email\", \"senha\"]}, 400\n    email, senha = dados\n    if email in USUARIOS:\n        return {\"erro\": \"e-mail já cadastrado\"}, 409\n    USUARIOS[email] = criar_hash(senha)\n    return {\"email\": email}, 201\n\n@app.post(\"/login\")\ndef entrar():\n    dados = credenciais()\n    if dados is None:\n        return {\"erro\": \"dados inválidos\", \"campos\": [\"email\", \"senha\"]}, 400\n    email, senha = dados\n    guardado = USUARIOS.get(email)\n    if guardado is None or not conferir_senha(senha, guardado):\n        return {\"erro\": \"e-mail ou senha inválidos\"}, 401    # a mesma frase nos dois casos\n    return {\"ok\": True}\n\n# os quatro testes dão 201, 409, 200 e 401.\n# e o login de um e-mail que nunca existiu devolve o mesmo 401 com a mesma frase.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\nconst crypto = require(\"node:crypto\");\n\nconst app = express();\napp.use(express.json());\n\nconst USUARIOS = new Map();\n\nconst criarHash = (senha) => {\n  const sal = crypto.randomBytes(16);\n  return `scrypt$${sal.toString(\"hex\")}$${crypto.scryptSync(senha, sal, 64).toString(\"hex\")}`;\n};\n\nfunction conferirSenha(senha, guardado) {\n  const [, salHex, esperado] = guardado.split(\"$\");\n  const bruto = crypto.scryptSync(senha, Buffer.from(salHex, \"hex\"), 64);\n  return crypto.timingSafeEqual(bruto, Buffer.from(esperado, \"hex\"));\n}\n\nfunction credenciais(corpo) {\n  const { email, senha } = corpo ?? {};\n  if (typeof email !== \"string\" || !email.includes(\"@\") || typeof senha !== \"string\" || senha.length < 8) return null;\n  return { email: email.trim().toLowerCase(), senha };\n}\n\napp.post(\"/cadastro\", (req, res) => {\n  const dados = credenciais(req.body);\n  if (!dados) return res.status(400).json({ erro: \"dados inválidos\", campos: [\"email\", \"senha\"] });\n  if (USUARIOS.has(dados.email)) return res.status(409).json({ erro: \"e-mail já cadastrado\" });\n  USUARIOS.set(dados.email, criarHash(dados.senha));\n  res.status(201).json({ email: dados.email });\n});\n\napp.post(\"/login\", (req, res) => {\n  const dados = credenciais(req.body);\n  if (!dados) return res.status(400).json({ erro: \"dados inválidos\", campos: [\"email\", \"senha\"] });\n\n  const guardado = USUARIOS.get(dados.email);\n  // a mesma resposta pra senha errada e pra e-mail que não existe\n  if (!guardado || !conferirSenha(dados.senha, guardado)) {\n    return res.status(401).json({ erro: \"e-mail ou senha inválidos\" });\n  }\n  res.json({ ok: true });\n});\n\napp.listen(3000);\n\n// os quatro testes dão 201, 409, 200 e 401.",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend4a2",
-      "titulo": "Sessão e cookie",
-      "minutos": 12
+      "titulo": "Sessão, cookie e token",
+      "minutos": 16,
+      "resumo": "Depois do login, o servidor entrega um crachá assinado. O cliente mostra esse crachá em toda requisição.",
+      "ideia": [
+        "O HTTP não lembra de nada (aula 3.2), então quem carrega a identidade é o cliente: um token assinado, ou um cookie com o número da sessão.",
+        "A assinatura é o que impede forjar. Qualquer letra alterada no token muda a assinatura, e o servidor recusa."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "Um token assinado com hmac, em duas funções. É o mesmo desenho do JWT, escrito à mão pra você ver o que tem dentro.",
+          "codigo": "import base64, hashlib, hmac, json, os, time\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\nSEGREDO = os.environ[\"APP_SEGREDO\"].encode()\n\ndef _b64(dados: bytes) -> str:\n    return base64.urlsafe_b64encode(dados).decode().rstrip(\"=\")\n\ndef _de_b64(texto: str) -> bytes:\n    return base64.urlsafe_b64decode(texto + \"=\" * (-len(texto) % 4))\n\ndef criar_token(usuario_id: int, horas: int = 12) -> str:\n    corpo = _b64(json.dumps({\"sub\": usuario_id, \"exp\": int(time.time()) + horas * 3600}).encode())\n    return f\"{corpo}.{_b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())}\"\n\ndef ler_token(token: str):\n    try:\n        corpo, assinatura = token.split(\".\")\n    except ValueError:\n        return None\n    esperada = _b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())\n    if not hmac.compare_digest(assinatura, esperada):\n        return None                      # assinatura não bate: alguém mexeu\n    dados = json.loads(_de_b64(corpo))\n    return None if dados[\"exp\"] < time.time() else dados[\"sub\"]\n\n@app.post(\"/login\")\ndef entrar():\n    # depois de conferir a senha, como na aula anterior:\n    return {\"token\": criar_token(usuario_id=7)}",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "As mesmas duas funções. No Flask dá pra devolver o token no corpo ou guardar num cookie.",
+          "codigo": "import base64, hashlib, hmac, json, os, time\nfrom flask import Flask, jsonify\n\napp = Flask(__name__)\nSEGREDO = os.environ[\"APP_SEGREDO\"].encode()\n\ndef _b64(dados):\n    return base64.urlsafe_b64encode(dados).decode().rstrip(\"=\")\n\ndef _de_b64(texto):\n    return base64.urlsafe_b64decode(texto + \"=\" * (-len(texto) % 4))\n\ndef criar_token(usuario_id, horas=12):\n    corpo = _b64(json.dumps({\"sub\": usuario_id, \"exp\": int(time.time()) + horas * 3600}).encode())\n    return f\"{corpo}.{_b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())}\"\n\ndef ler_token(token):\n    try:\n        corpo, assinatura = token.split(\".\")\n    except ValueError:\n        return None\n    esperada = _b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())\n    if not hmac.compare_digest(assinatura, esperada):\n        return None\n    dados = json.loads(_de_b64(corpo))\n    return None if dados[\"exp\"] < time.time() else dados[\"sub\"]\n\n@app.post(\"/login\")\ndef entrar():\n    token = criar_token(7)\n\n    # no corpo, pro aplicativo guardar:\n    resposta = jsonify(token=token)\n\n    # ou num cookie, pro navegador mandar sozinho:\n    resposta.set_cookie(\"sessao\", token, httponly=True, secure=True, samesite=\"Lax\")\n    return resposta",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "O node:crypto faz o mesmo, e o base64url já vem pronto no Buffer.",
+          "codigo": "const express = require(\"express\");\nconst crypto = require(\"node:crypto\");\n\nconst app = express();\napp.use(express.json());\n\nconst SEGREDO = process.env.APP_SEGREDO;\nif (!SEGREDO) throw new Error(\"falta APP_SEGREDO no ambiente\");\n\nconst assinar = (corpo) => crypto.createHmac(\"sha256\", SEGREDO).update(corpo).digest(\"base64url\");\n\nfunction criarToken(usuarioId, horas = 12) {\n  const dados = { sub: usuarioId, exp: Math.floor(Date.now() / 1000) + horas * 3600 };\n  const corpo = Buffer.from(JSON.stringify(dados)).toString(\"base64url\");\n  return `${corpo}.${assinar(corpo)}`;\n}\n\nfunction lerToken(token) {\n  const [corpo, assinatura] = String(token).split(\".\");\n  if (!corpo || !assinatura) return null;\n\n  const esperada = Buffer.from(assinar(corpo));\n  const recebida = Buffer.from(assinatura);\n  if (recebida.length !== esperada.length || !crypto.timingSafeEqual(recebida, esperada)) return null;\n\n  const dados = JSON.parse(Buffer.from(corpo, \"base64url\").toString());\n  return dados.exp < Math.floor(Date.now() / 1000) ? null : dados.sub;\n}\n\napp.post(\"/login\", (req, res) => {\n  // depois de conferir a senha:\n  const token = criarToken(7);\n\n  res.cookie(\"sessao\", token, { httpOnly: true, secure: true, sameSite: \"lax\" });\n  res.json({ token });\n});\n\napp.listen(3000);",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O que tem dentro do token, e onde guardá-lo",
+        "linhas": [
+          "O corpo do token é base64, não é criptografia: qualquer um lê o que está lá dentro. Nele vai o id e a validade, nunca senha, documento ou dado sensível. O que a assinatura garante é que ninguém alterou, não que ninguém leu.",
+          "Esse formato é o JWT escrito à mão. Em projeto de verdade se usa biblioteca (PyJWT, jsonwebtoken), que trata os detalhes chatos, inclusive o ataque de trocar o algoritmo por nenhum.",
+          "Aplicativo de celular guarda o token e manda no cabeçalho Authorization. Site no navegador vai melhor com cookie HttpOnly, que o JavaScript não lê, com Secure e SameSite. Token no localStorage é presente pra quem conseguir rodar script na sua página."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "O que impede alguém de criar um token dizendo que é o usuário 1?",
+          "opcoes": [
+            "O token ser embaralhado e ilegível",
+            "A assinatura: sem o segredo do servidor, ela não fecha e o token é recusado",
+            "O token ser muito longo"
+          ],
+          "correta": 1,
+          "porque": "O conteúdo é legível de propósito. A garantia é de integridade, e ela vem da assinatura."
+        },
+        {
+          "pergunta": "Pode guardar o CPF do usuário dentro do token pra economizar consulta?",
+          "opcoes": [
+            "Pode, o token é criptografado",
+            "Pode, desde que o token seja curto",
+            "Não: o corpo é legível por qualquer um que tenha o token"
+          ],
+          "correta": 2,
+          "porque": "Cole um token num decodificador base64 e você lê tudo. No token vai o mínimo: quem é e até quando vale."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Faça o login devolver um token assinado com validade de 12 horas e escreva a função que lê o token de volta. Prove três coisas: o token válido devolve o id do usuário, trocar um caractere invalida, e um token com validade vencida também é recusado.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "import base64, hashlib, hmac, json, os, time\n\nSEGREDO = os.environ.get(\"APP_SEGREDO\", \"so-para-desenvolver\").encode()\n\ndef _b64(dados: bytes) -> str:\n    return base64.urlsafe_b64encode(dados).decode().rstrip(\"=\")\n\ndef _de_b64(texto: str) -> bytes:\n    return base64.urlsafe_b64decode(texto + \"=\" * (-len(texto) % 4))\n\ndef criar_token(usuario_id: int, horas: int = 12) -> str:\n    corpo = _b64(json.dumps({\"sub\": usuario_id, \"exp\": int(time.time()) + horas * 3600}).encode())\n    return f\"{corpo}.{_b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())}\"\n\ndef ler_token(token: str):\n    try:\n        corpo, assinatura = token.split(\".\")\n    except ValueError:\n        return None\n    esperada = _b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())\n    if not hmac.compare_digest(assinatura, esperada):\n        return None\n    dados = json.loads(_de_b64(corpo))\n    return None if dados[\"exp\"] < time.time() else dados[\"sub\"]\n\ntoken = criar_token(7)\nprint(\"válido:     \", ler_token(token))            # 7\nprint(\"adulterado: \", ler_token(token[:-2] + \"xx\"))  # None\nprint(\"sem ponto:  \", ler_token(\"lixo\"))           # None\nprint(\"vencido:    \", ler_token(criar_token(7, horas=-1)))  # None\n\n# o segredo com valor padrão é só pra rodar este exemplo.\n# na API de verdade ele vem do ambiente e o programa para se faltar (aula 6.4).",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "import base64, hashlib, hmac, json, os, time\n\nSEGREDO = os.environ.get(\"APP_SEGREDO\", \"so-para-desenvolver\").encode()\n\ndef _b64(dados):\n    return base64.urlsafe_b64encode(dados).decode().rstrip(\"=\")\n\ndef _de_b64(texto):\n    return base64.urlsafe_b64decode(texto + \"=\" * (-len(texto) % 4))\n\ndef criar_token(usuario_id, horas=12):\n    corpo = _b64(json.dumps({\"sub\": usuario_id, \"exp\": int(time.time()) + horas * 3600}).encode())\n    return f\"{corpo}.{_b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())}\"\n\ndef ler_token(token):\n    try:\n        corpo, assinatura = token.split(\".\")\n    except ValueError:\n        return None\n    esperada = _b64(hmac.new(SEGREDO, corpo.encode(), hashlib.sha256).digest())\n    if not hmac.compare_digest(assinatura, esperada):\n        return None\n    dados = json.loads(_de_b64(corpo))\n    return None if dados[\"exp\"] < time.time() else dados[\"sub\"]\n\ntoken = criar_token(7)\nprint(\"válido:     \", ler_token(token))                     # 7\nprint(\"adulterado: \", ler_token(token[:-2] + \"xx\"))         # None\nprint(\"vencido:    \", ler_token(criar_token(7, horas=-1)))  # None\n\n# repare que o teste roda sem subir servidor nenhum:\n# token é função pura, e função pura se testa direto.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const crypto = require(\"node:crypto\");\n\nconst SEGREDO = process.env.APP_SEGREDO ?? \"so-para-desenvolver\";\nconst assinar = (corpo) => crypto.createHmac(\"sha256\", SEGREDO).update(corpo).digest(\"base64url\");\n\nfunction criarToken(usuarioId, horas = 12) {\n  const dados = { sub: usuarioId, exp: Math.floor(Date.now() / 1000) + horas * 3600 };\n  const corpo = Buffer.from(JSON.stringify(dados)).toString(\"base64url\");\n  return `${corpo}.${assinar(corpo)}`;\n}\n\nfunction lerToken(token) {\n  const [corpo, assinatura] = String(token).split(\".\");\n  if (!corpo || !assinatura) return null;\n\n  const esperada = Buffer.from(assinar(corpo));\n  const recebida = Buffer.from(assinatura);\n  if (recebida.length !== esperada.length || !crypto.timingSafeEqual(recebida, esperada)) return null;\n\n  const dados = JSON.parse(Buffer.from(corpo, \"base64url\").toString());\n  return dados.exp < Math.floor(Date.now() / 1000) ? null : dados.sub;\n}\n\nconst token = criarToken(7);\nconsole.log(\"válido:     \", lerToken(token));                 // 7\nconsole.log(\"adulterado: \", lerToken(token.slice(0, -2) + \"xx\")); // null\nconsole.log(\"sem ponto:  \", lerToken(\"lixo\"));                // null\nconsole.log(\"vencido:    \", lerToken(criarToken(7, -1)));     // null\n\n// a checagem de tamanho antes do timingSafeEqual não é frescura:\n// a função lança exceção quando os dois lados têm tamanhos diferentes.",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend4a3",
-      "titulo": "Autorização",
-      "minutos": 12
+      "titulo": "Autorização: quem pode o quê",
+      "minutos": 16,
+      "resumo": "Saber quem é a pessoa é uma coisa. Decidir o que ela pode fazer é outra, e é onde as APIs mais vazam.",
+      "ideia": [
+        "Autenticação responde quem é você e dá 401 quando não sabe. Autorização responde você pode e dá 403 quando não pode.",
+        "A checagem acontece em toda rota que lê ou altera dado, no servidor, usando o dono que veio do token, nunca o que veio do corpo ou da URL."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "Depends transforma a checagem numa peça que qualquer rota reaproveita.",
+          "codigo": "from fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\n\nTAREFAS = [\n    {\"id\": 1, \"usuario_id\": 7, \"titulo\": \"Minha tarefa\"},\n    {\"id\": 2, \"usuario_id\": 9, \"titulo\": \"Tarefa de outra pessoa\"},\n]\n\ndef usuario_atual(authorization: str = Header(default=\"\")) -> int:\n    if not authorization.startswith(\"Bearer \"):\n        raise HTTPException(status_code=401, detail=\"faça login\")\n    usuario_id = ler_token(authorization.removeprefix(\"Bearer \"))   # da aula anterior\n    if usuario_id is None:\n        raise HTTPException(status_code=401, detail=\"sessão inválida ou vencida\")\n    return usuario_id\n\n@app.get(\"/minhas-tarefas\")\ndef minhas(usuario_id: int = Depends(usuario_atual)):\n    return [t for t in TAREFAS if t[\"usuario_id\"] == usuario_id]\n\n@app.get(\"/tarefas/{id}\")\ndef uma(id: int, usuario_id: int = Depends(usuario_atual)):\n    tarefa = next((t for t in TAREFAS if t[\"id\"] == id), None)\n    if tarefa is None:\n        raise HTTPException(status_code=404, detail=\"tarefa não encontrada\")\n    if tarefa[\"usuario_id\"] != usuario_id:          # a linha que falta na maioria das APIs\n        raise HTTPException(status_code=403, detail=\"sem permissão\")\n    return tarefa",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "Um decorador faz o mesmo papel: envolve a rota e para antes dela quando não pode.",
+          "codigo": "from functools import wraps\nfrom flask import Flask, g, request\n\napp = Flask(__name__)\n\nTAREFAS = [\n    {\"id\": 1, \"usuario_id\": 7, \"titulo\": \"Minha tarefa\"},\n    {\"id\": 2, \"usuario_id\": 9, \"titulo\": \"Tarefa de outra pessoa\"},\n]\n\ndef exige_login(rota):\n    @wraps(rota)\n    def dentro(*args, **kwargs):\n        cabecalho = request.headers.get(\"Authorization\", \"\")\n        if not cabecalho.startswith(\"Bearer \"):\n            return {\"erro\": \"faça login\"}, 401\n        usuario_id = ler_token(cabecalho.removeprefix(\"Bearer \"))   # da aula anterior\n        if usuario_id is None:\n            return {\"erro\": \"sessão inválida ou vencida\"}, 401\n        g.usuario_id = usuario_id\n        return rota(*args, **kwargs)\n    return dentro\n\n@app.get(\"/minhas-tarefas\")\n@exige_login\ndef minhas():\n    return [t for t in TAREFAS if t[\"usuario_id\"] == g.usuario_id]\n\n@app.get(\"/tarefas/<int:id>\")\n@exige_login\ndef uma(id):\n    tarefa = next((t for t in TAREFAS if t[\"id\"] == id), None)\n    if tarefa is None:\n        return {\"erro\": \"tarefa não encontrada\"}, 404\n    if tarefa[\"usuario_id\"] != g.usuario_id:        # a linha que falta na maioria das APIs\n        return {\"erro\": \"sem permissão\"}, 403\n    return tarefa",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "Middleware: uma função que roda antes da rota e decide se a requisição segue.",
+          "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nconst TAREFAS = [\n  { id: 1, usuario_id: 7, titulo: \"Minha tarefa\" },\n  { id: 2, usuario_id: 9, titulo: \"Tarefa de outra pessoa\" },\n];\n\nfunction exigeLogin(req, res, proximo) {\n  const cabecalho = req.headers.authorization ?? \"\";\n  if (!cabecalho.startsWith(\"Bearer \")) return res.status(401).json({ erro: \"faça login\" });\n\n  const usuarioId = lerToken(cabecalho.slice(\"Bearer \".length));   // da aula anterior\n  if (usuarioId === null) return res.status(401).json({ erro: \"sessão inválida ou vencida\" });\n\n  req.usuarioId = usuarioId;\n  proximo();\n}\n\napp.get(\"/minhas-tarefas\", exigeLogin, (req, res) => {\n  res.json(TAREFAS.filter((t) => t.usuario_id === req.usuarioId));\n});\n\napp.get(\"/tarefas/:id\", exigeLogin, (req, res) => {\n  const tarefa = TAREFAS.find((t) => t.id === Number(req.params.id));\n  if (!tarefa) return res.status(404).json({ erro: \"tarefa não encontrada\" });\n  if (tarefa.usuario_id !== req.usuarioId) {        // a linha que falta na maioria das APIs\n    return res.status(403).json({ erro: \"sem permissão\" });\n  }\n  res.json(tarefa);\n});\n\napp.listen(3000);",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O erro número um em API",
+        "linhas": [
+          "Trocar o id na URL e receber o dado de outra pessoa é a falha mais encontrada em API no mundo inteiro. O nome dela é IDOR, ou controle de acesso quebrado, e a correção é uma linha: comparar o dono com quem está logado.",
+          "Melhor ainda é a consulta já filtrar: WHERE id = ? AND usuario_id = ?. Assim não existe o caminho em que alguém esqueceu o if.",
+          "O dono vem do token, nunca do corpo da requisição. Aceitar usuario_id vindo do cliente é o mesmo que deixar a pessoa escolher de quem ela quer ser."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Logado, o usuário 7 pede /tarefas/2, que é do usuário 9. O que a API responde?",
+          "opcoes": [
+            "403: sei quem você é e você não pode ver isso",
+            "401: você precisa fazer login",
+            "200 com a tarefa, já que ele está logado"
+          ],
+          "correta": 0,
+          "porque": "401 é falta de identidade, e ele tem identidade. O que falta é permissão, e isso é 403."
+        },
+        {
+          "pergunta": "De onde deve sair o id do dono na hora de salvar uma tarefa?",
+          "opcoes": [
+            "Do corpo da requisição, que o cliente preenche",
+            "Do token verificado, no servidor",
+            "Da URL, pra ficar explícito"
+          ],
+          "correta": 1,
+          "porque": "Do corpo ou da URL, quem escolhe é o cliente. Do token, quem escolheu foi o seu login."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Proteja a sua API: nenhuma rota de tarefa responde sem token válido, a listagem devolve só as tarefas de quem está logado, e pedir a tarefa de outra pessoa dá 403. Teste os quatro casos com curl, inclusive sem cabeçalho nenhum.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "from fastapi import Depends, FastAPI, Header, HTTPException\n\napp = FastAPI()\n\nTAREFAS = [\n    {\"id\": 1, \"usuario_id\": 7, \"titulo\": \"Minha tarefa\"},\n    {\"id\": 2, \"usuario_id\": 9, \"titulo\": \"Tarefa de outra pessoa\"},\n]\n\ndef usuario_atual(authorization: str = Header(default=\"\")) -> int:\n    if not authorization.startswith(\"Bearer \"):\n        raise HTTPException(status_code=401, detail=\"faça login\")\n    usuario_id = ler_token(authorization.removeprefix(\"Bearer \"))\n    if usuario_id is None:\n        raise HTTPException(status_code=401, detail=\"sessão inválida ou vencida\")\n    return usuario_id\n\n@app.get(\"/tarefas\")\ndef listar(usuario_id: int = Depends(usuario_atual)):\n    return [t for t in TAREFAS if t[\"usuario_id\"] == usuario_id]\n\n@app.get(\"/tarefas/{id}\")\ndef uma(id: int, usuario_id: int = Depends(usuario_atual)):\n    tarefa = next((t for t in TAREFAS if t[\"id\"] == id), None)\n    if tarefa is None:\n        raise HTTPException(status_code=404, detail=\"tarefa não encontrada\")\n    if tarefa[\"usuario_id\"] != usuario_id:\n        raise HTTPException(status_code=403, detail=\"sem permissão\")\n    return tarefa\n\n@app.post(\"/tarefas\", status_code=201)\ndef criar(titulo: str, usuario_id: int = Depends(usuario_atual)):\n    tarefa = {\"id\": len(TAREFAS) + 1, \"usuario_id\": usuario_id, \"titulo\": titulo}\n    TAREFAS.append(tarefa)          # o dono vem do token, e não do corpo\n    return tarefa\n\n# os quatro testes, com o token do usuário 7:\n# sem cabeçalho                                  401\n# -H \"Authorization: Bearer inventado\"           401\n# GET /tarefas                                   200, só a tarefa 1\n# GET /tarefas/2 (que é do usuário 9)            403",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "from functools import wraps\nfrom flask import Flask, g, request\n\napp = Flask(__name__)\n\nTAREFAS = [\n    {\"id\": 1, \"usuario_id\": 7, \"titulo\": \"Minha tarefa\"},\n    {\"id\": 2, \"usuario_id\": 9, \"titulo\": \"Tarefa de outra pessoa\"},\n]\n\ndef exige_login(rota):\n    @wraps(rota)\n    def dentro(*args, **kwargs):\n        cabecalho = request.headers.get(\"Authorization\", \"\")\n        if not cabecalho.startswith(\"Bearer \"):\n            return {\"erro\": \"faça login\"}, 401\n        usuario_id = ler_token(cabecalho.removeprefix(\"Bearer \"))\n        if usuario_id is None:\n            return {\"erro\": \"sessão inválida ou vencida\"}, 401\n        g.usuario_id = usuario_id\n        return rota(*args, **kwargs)\n    return dentro\n\n@app.get(\"/tarefas\")\n@exige_login\ndef listar():\n    return [t for t in TAREFAS if t[\"usuario_id\"] == g.usuario_id]\n\n@app.get(\"/tarefas/<int:id>\")\n@exige_login\ndef uma(id):\n    tarefa = next((t for t in TAREFAS if t[\"id\"] == id), None)\n    if tarefa is None:\n        return {\"erro\": \"tarefa não encontrada\"}, 404\n    if tarefa[\"usuario_id\"] != g.usuario_id:\n        return {\"erro\": \"sem permissão\"}, 403\n    return tarefa\n\n# os quatro testes dão 401, 401, 200 (só as minhas) e 403.\n# o @wraps não é enfeite: sem ele, todas as rotas decoradas passam a se\n# chamar \"dentro\" e o Flask recusa a segunda com erro de nome repetido.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "const express = require(\"express\");\n\nconst app = express();\napp.use(express.json());\n\nconst TAREFAS = [\n  { id: 1, usuario_id: 7, titulo: \"Minha tarefa\" },\n  { id: 2, usuario_id: 9, titulo: \"Tarefa de outra pessoa\" },\n];\n\nfunction exigeLogin(req, res, proximo) {\n  const cabecalho = req.headers.authorization ?? \"\";\n  if (!cabecalho.startsWith(\"Bearer \")) return res.status(401).json({ erro: \"faça login\" });\n\n  const usuarioId = lerToken(cabecalho.slice(\"Bearer \".length));\n  if (usuarioId === null) return res.status(401).json({ erro: \"sessão inválida ou vencida\" });\n\n  req.usuarioId = usuarioId;\n  proximo();\n}\n\n// aplicado no grupo inteiro: rota nova já nasce protegida\napp.use(\"/tarefas\", exigeLogin);\n\napp.get(\"/tarefas\", (req, res) => {\n  res.json(TAREFAS.filter((t) => t.usuario_id === req.usuarioId));\n});\n\napp.get(\"/tarefas/:id\", (req, res) => {\n  const tarefa = TAREFAS.find((t) => t.id === Number(req.params.id));\n  if (!tarefa) return res.status(404).json({ erro: \"tarefa não encontrada\" });\n  if (tarefa.usuario_id !== req.usuarioId) return res.status(403).json({ erro: \"sem permissão\" });\n  res.json(tarefa);\n});\n\napp.post(\"/tarefas\", (req, res) => {\n  const tarefa = { id: TAREFAS.length + 1, usuario_id: req.usuarioId, titulo: req.body.titulo };\n  TAREFAS.push(tarefa);            // o dono vem do token\n  res.status(201).json(tarefa);\n});\n\napp.listen(3000);\n\n// os quatro testes dão 401, 401, 200 (só as minhas) e 403.\n// proteger o grupo com app.use é melhor que lembrar em cada rota:\n// o que se esquece uma vez, se esquece sempre.",
+            "linguagem": "javascript"
+          }
+        }
+      }
     },
     {
       "id": "backend4a4",
-      "titulo": "Segredos",
-      "minutos": 12
+      "titulo": "Segredos fora do código",
+      "minutos": 12,
+      "resumo": "Chave, senha de banco e segredo de token vêm do ambiente. Se faltar, a API não sobe.",
+      "ideia": [
+        "Segredo escrito no código vai pro repositório, e do repositório não sai mais. Ele entra por variável de ambiente, lida uma vez, na subida.",
+        "Falhar na hora de subir é melhor que falhar no meio de um pedido: o erro aparece pra você, e não pra quem está usando."
+      ],
+      "exemplos": {
+        "fastapi": {
+          "nota": "Ler uma vez, no topo do arquivo, e parar se faltar:",
+          "codigo": "import os\nfrom fastapi import FastAPI\n\ndef obrigatoria(nome: str) -> str:\n    valor = os.environ.get(nome)\n    if not valor:\n        raise RuntimeError(f\"falta a variável {nome} no ambiente\")\n    return valor\n\nSEGREDO = obrigatoria(\"APP_SEGREDO\")\nBANCO = os.environ.get(\"BANCO_URL\", \"tarefas.db\")    # esta tem padrão razoável\n\napp = FastAPI()\n\n@app.get(\"/saude\")\ndef saude():\n    # nunca devolva o valor do segredo, só o fato de existir\n    return {\"ok\": True, \"segredo_configurado\": bool(SEGREDO)}\n\n# no terminal, antes de subir:\n#   export APP_SEGREDO=\"$(python -c 'import secrets; print(secrets.token_urlsafe(32))')\"\n# no PowerShell:\n#   $env:APP_SEGREDO = \"cole-aqui-um-valor-longo-e-aleatorio\"",
+          "linguagem": "python"
+        },
+        "flask": {
+          "nota": "Mesma ideia, e o Flask ainda tem um lugar próprio pra configuração.",
+          "codigo": "import os\nfrom flask import Flask\n\ndef obrigatoria(nome):\n    valor = os.environ.get(nome)\n    if not valor:\n        raise RuntimeError(f\"falta a variável {nome} no ambiente\")\n    return valor\n\napp = Flask(__name__)\napp.config[\"SECRET_KEY\"] = obrigatoria(\"APP_SEGREDO\")\napp.config[\"BANCO\"] = os.environ.get(\"BANCO_URL\", \"tarefas.db\")\n\n@app.get(\"/saude\")\ndef saude():\n    return {\"ok\": True, \"segredo_configurado\": bool(app.config[\"SECRET_KEY\"])}\n\n# o SECRET_KEY do Flask assina o cookie de sessão.\n# em desenvolvimento muita gente deixa \"dev\" fixo, e aí o cookie de qualquer\n# pessoa que rode o mesmo código é aceito pelo seu servidor.",
+          "linguagem": "python"
+        },
+        "express": {
+          "nota": "process.env, e um erro alto e claro quando faltar:",
+          "codigo": "const express = require(\"express\");\n\nfunction obrigatoria(nome) {\n  const valor = process.env[nome];\n  if (!valor) throw new Error(`falta a variável ${nome} no ambiente`);\n  return valor;\n}\n\nconst SEGREDO = obrigatoria(\"APP_SEGREDO\");\nconst BANCO = process.env.BANCO_URL ?? \"tarefas.db\";\n\nconst app = express();\n\napp.get(\"/saude\", (req, res) => {\n  res.json({ ok: true, segredo_configurado: Boolean(SEGREDO) });\n});\n\napp.listen(3000);\n\n// o Node 20 ou mais novo lê o .env sozinho:\n//   node --env-file=.env main.js\n// e o .env fica no .gitignore desde o primeiro commit.",
+          "linguagem": "javascript"
+        }
+      },
+      "mais": {
+        "titulo": "O combinado do .env",
+        "linhas": [
+          ".env fica no .gitignore. Um .env.exemplo entra no repositório, com os nomes das variáveis e valores falsos, pra quem clonar saber o que precisa preencher.",
+          "Cada ambiente tem o seu segredo: o de desenvolvimento nunca é o de produção. Em produção ele vive no cofre do provedor, não num arquivo.",
+          "Se um segredo vazar, a ordem é: gerar um novo, trocar em produção, revogar o antigo, olhar o log de uso e só então limpar o histórico. Apagar o commit não desvaza nada."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Por que fazer a API recusar subir quando falta uma variável obrigatória?",
+          "opcoes": [
+            "Pra economizar memória",
+            "Porque o erro aparece na hora de publicar, pra você, em vez de aparecer no meio de um pedido, pro usuário",
+            "Porque o framework exige"
+          ],
+          "correta": 1,
+          "porque": "Configuração faltando é erro de implantação. Quanto mais cedo ele grita, mais barato é."
+        },
+        {
+          "pergunta": "Uma chave de API foi commitada semana passada e você já removeu do arquivo. Resolvido?",
+          "opcoes": [
+            "Sim, o arquivo está limpo",
+            "Não: ela continua no histórico e possivelmente em cópias. O primeiro passo é trocar a chave",
+            "Sim, se o repositório for privado"
+          ],
+          "correta": 1,
+          "porque": "Tratar como vazada é a única postura segura. Repositório privado já virou público por engano vezes demais."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Tire todos os segredos do código da sua API e faça ela recusar subir sem eles. Crie o .env.exemplo com os nomes das variáveis, confirme que o .env está no .gitignore e prove que a API não sobe quando falta uma variável.",
+        "solucoes": {
+          "fastapi": {
+            "codigo": "import os\n\ndef obrigatoria(nome: str) -> str:\n    valor = os.environ.get(nome)\n    if not valor:\n        raise RuntimeError(f\"falta a variável {nome} no ambiente\")\n    return valor\n\n# demonstração, com o ambiente montado aqui só pra rodar o exemplo\nos.environ[\"APP_SEGREDO\"] = \"valor-de-mentira-so-pra-demonstrar\"\nprint(\"carregou:\", obrigatoria(\"APP_SEGREDO\")[:8] + \"...\")\n\ntry:\n    obrigatoria(\"BANCO_SENHA\")\nexcept RuntimeError as erro:\n    print(\"parou cedo:\", erro)\n# parou cedo: falta a variável BANCO_SENHA no ambiente\n\n# .env.exemplo, que VAI pro repositório:\n#   APP_SEGREDO=gere-um-valor-longo-e-aleatorio\n#   BANCO_URL=tarefas.db\n#\n# .gitignore:\n#   .env\n#\n# a prova: rode a API sem exportar APP_SEGREDO.\n# ela para na subida, com a mensagem dizendo exatamente o que falta,\n# e nenhuma requisição chega a ser atendida com configuração pela metade.",
+            "linguagem": "python"
+          },
+          "flask": {
+            "codigo": "import os\n\ndef obrigatoria(nome):\n    valor = os.environ.get(nome)\n    if not valor:\n        raise RuntimeError(f\"falta a variável {nome} no ambiente\")\n    return valor\n\nos.environ[\"APP_SEGREDO\"] = \"valor-de-mentira-so-pra-demonstrar\"\nprint(\"carregou:\", obrigatoria(\"APP_SEGREDO\")[:8] + \"...\")\n\ntry:\n    obrigatoria(\"BANCO_SENHA\")\nexcept RuntimeError as erro:\n    print(\"parou cedo:\", erro)\n\n# no app: app.config[\"SECRET_KEY\"] = obrigatoria(\"APP_SEGREDO\")\n#\n# .env.exemplo, que VAI pro repositório:\n#   APP_SEGREDO=gere-um-valor-longo-e-aleatorio\n#   BANCO_URL=tarefas.db\n#\n# a prova: sem a variável, o flask run nem chega a escutar a porta.",
+            "linguagem": "python"
+          },
+          "express": {
+            "codigo": "function obrigatoria(nome) {\n  const valor = process.env[nome];\n  if (!valor) throw new Error(`falta a variável ${nome} no ambiente`);\n  return valor;\n}\n\nprocess.env.APP_SEGREDO = \"valor-de-mentira-so-pra-demonstrar\";\nconsole.log(\"carregou:\", obrigatoria(\"APP_SEGREDO\").slice(0, 8) + \"...\");\n\ntry {\n  obrigatoria(\"BANCO_SENHA\");\n} catch (erro) {\n  console.log(\"parou cedo:\", erro.message);\n}\n// parou cedo: falta a variável BANCO_SENHA no ambiente\n\n// .env.exemplo, que VAI pro repositório:\n//   APP_SEGREDO=gere-um-valor-longo-e-aleatorio\n//   BANCO_URL=tarefas.db\n//\n// rodando com o arquivo: node --env-file=.env main.js\n// a prova: sem o .env e sem a variável exportada, o processo morre na subida.",
+            "linguagem": "javascript"
+          }
+        }
+      }
+    },
+    {
+      "id": "backend4a5",
+      "titulo": "As falhas mais comuns de API",
+      "minutos": 14,
+      "resumo": "Seis furos respondem pela maioria dos incidentes em API. Todos dão pra conferir numa tarde.",
+      "ideia": [
+        "Não são ataques exóticos: são checagens que faltaram. A lista abaixo é a mesma que qualquer pessoa de segurança vai passar na sua API.",
+        "Confira cada item contra o seu código de hoje. O que faltar vira tarefa, não vergonha."
+      ],
+      "exemplo": {
+        "nota": "A lista, com a correção ao lado de cada uma:",
+        "codigo": "1. Dado de outra pessoa pelo id (IDOR)\n   sintoma:   trocar /tarefas/1 por /tarefas/2 devolve o que não é seu\n   correção:  comparar o dono com quem está logado, de preferência na consulta:\n              WHERE id = ? AND usuario_id = ?\n\n2. Rota sem autenticação por esquecimento\n   sintoma:   uma rota nova nasceu sem o middleware\n   correção:  proteger o grupo inteiro, não rota por rota, e testar o 401\n\n3. Resposta com mais dado do que precisa\n   sintoma:   a API devolve a linha inteira do banco, com hash de senha junto\n   correção:  escrever as colunas na consulta e montar a resposta campo a campo\n\n4. Aceitar campo que o cliente não deveria escolher\n   sintoma:   mandar {\"usuario_id\": 9} ou {\"perfil\": \"admin\"} e o servidor obedecer\n   correção:  lista de permitidos na entrada; o resto o servidor decide\n\n5. Nenhum limite de tentativa\n   sintoma:   dá pra tentar senha a noite inteira, ou baixar a base inteira\n   correção:  limite por IP e por conta nas rotas sensíveis, e registro do excesso\n\n6. Erro que conta demais\n   sintoma:   500 com rastro, consulta SQL ou caminho de arquivo na resposta\n   correção:  mensagem genérica pra fora, detalhe no log",
+        "linguagem": "texto"
+      },
+      "mais": {
+        "titulo": "Por que é sempre a mesma lista",
+        "linhas": [
+          "Controle de acesso quebrado lidera as listas de falhas web e de API há anos seguidos. Não é difícil de corrigir: é fácil de esquecer, porque cada rota precisa lembrar sozinha.",
+          "Ferramenta automática quase não acha esses furos, porque pra ela a resposta é 200 e está tudo bem. Quem acha é gente lendo o código e testando com duas contas diferentes.",
+          "Duas contas de teste no seu ambiente resolvem metade dessa lista: faça tudo com a conta A e depois tente alcançar o dado dela com a conta B."
+        ]
+      },
+      "quiz": [
+        {
+          "pergunta": "Qual falha aparece em primeiro lugar nas listas de risco de API?",
+          "opcoes": [
+            "Controle de acesso quebrado: dado de outra pessoa alcançado pelo id",
+            "Criptografia fraca",
+            "Falta de HTTPS"
+          ],
+          "correta": 0,
+          "porque": "É a mais comum e a mais barata de explorar: basta trocar um número na URL."
+        },
+        {
+          "pergunta": "Sua API devolve a linha inteira do banco na resposta. Qual o risco?",
+          "opcoes": [
+            "Nenhum, o front mostra só o que quer",
+            "Vai junto o que ninguém deveria ver, como hash de senha e documento, e isso é vazamento",
+            "A resposta fica mais lenta, e só"
+          ],
+          "correta": 1,
+          "porque": "O front esconder não adianta: quem olha a aba Network vê a resposta inteira, como ela saiu do servidor."
+        }
+      ],
+      "desafio": {
+        "pergunta": "Audite a sua própria API contra os seis itens da lista, com duas contas de teste. Anote no Caderno o resultado de cada item, com a rota exata que você testou, e transforme o que falhou em uma lista de correções ordenada por risco.",
+        "solucao": "auditoria da minha API, feita com duas contas (ana e bruno)\n\n1. dado de outra pessoa pelo id\n   testei: logada como ana, GET /tarefas/<id de uma tarefa do bruno>\n   resultado: [200 e vazou / 403 e passou]\n   correção: mover a checagem pra consulta, com WHERE id = ? AND usuario_id = ?\n\n2. rota sem autenticação\n   testei: todas as rotas sem o cabeçalho Authorization\n   resultado: [lista das que responderam sem 401]\n   correção: proteger o grupo com um middleware só\n\n3. resposta com dado demais\n   testei: olhei o corpo de cada resposta procurando campo que não uso\n   resultado: [o que apareceu]\n   correção: montar a resposta campo a campo, nunca devolver a linha do banco\n\n4. campo que o cliente escolheu\n   testei: POST /tarefas com {\"usuario_id\": 9} no corpo\n   resultado: [criou pro 9? então falhou]\n   correção: dono vem do token; lista de permitidos na entrada\n\n5. limite de tentativa\n   testei: 20 logins errados seguidos\n   resultado: [continuou aceitando?]\n   correção: limite por IP e por conta, com 429\n\n6. erro que conta demais\n   testei: forcei um 500 e li a resposta\n   resultado: [veio rastro?]\n   correção: tratador central com mensagem genérica, detalhe no log\n\nordem de correção, por risco:\n  1. o que vaza dado de outra pessoa (itens 1 e 4)\n  2. o que deixa entrar (itens 2 e 5)\n  3. o que entrega informação (itens 3 e 6)\n\nessa ordem não é gosto pessoal: vazamento de dado de cliente é o que dá\nprejuízo e obrigação legal. O resto é grave, mas vem depois.",
+        "linguagem": "texto"
+      }
     }
   ]
 }

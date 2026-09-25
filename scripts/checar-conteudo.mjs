@@ -100,6 +100,9 @@ for (const m of modulos) {
       if (l.length > 240) avisos.push(`${onde}: linha ${j + 1} da ideia com ${l.length} caracteres`);
     });
     if (a.exemplo && !a.exemplo.codigo?.trim()) erros.push(`${onde}: exemplo sem código`);
+    // sem linguagem o verificador pula o trecho em silêncio: "texto" é o rótulo de quem não roda
+    if (a.exemplo && !a.exemplo.linguagem) erros.push(`${onde}: exemplo sem linguagem`);
+    if (a.desafio?.solucao && !(a.desafio.linguagem ?? a.exemplo?.linguagem)) erros.push(`${onde}: solução sem linguagem`);
 
     // aula com código por stack: uma por stack existente, e todas presentes
     const porStack = { exemplos: a.exemplos, solucoes: a.desafio?.solucoes };

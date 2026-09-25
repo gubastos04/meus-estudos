@@ -18,7 +18,7 @@ Documento vivo: as decisões sobre o conteúdo das aulas e o andamento da escrit
 - `mais` (opcional): o detalhe, a armadilha, o porquê.
 - `quiz`: 1 ou 2 perguntas, cada uma com `porque`. Elas alimentam o Revisar.
 - `desafio`: pergunta e solução completa. `desafio.linguagem` só quando difere da do exemplo.
-- `minutos`: 10 a 14; aula de projeto, 25.
+- `minutos`: 10 a 14 na aula normal. Aula de mão na massa (montar laboratório, ferramenta nova, código nas três stacks) vai até 22, e projeto até 30. Acima de 20, a aula precisa ser do tipo em que dá pra parar no meio e voltar, porque bloco longo é o que o usuário não termina. O verificador recusa acima de 30.
 - Voz: pt-BR direto, frases curtas, exemplo antes da teoria. Sem emoji, sem "Parabéns", sem travessão.
 - Continuidade: a aula cita o que já foi visto ("o validador da aula 2.7"). O primeiro passo de todo projeto reaproveita código que a pessoa já escreveu.
 - `desafio.pergunta` é um parágrafo só (a tela não quebra linha). Dado com várias linhas vai no exemplo ou na solução.
@@ -72,7 +72,7 @@ A trilha cresceu de 2 para 12 módulos e a aba Prática tinha ficado parada no m
 Buracos conhecidos, que ficaram para um módulo 13 se e quando fizer sentido: SSH na prática, hardening, detecção e resposta a incidente, como escrever e comunicar um achado, LGPD aplicada, segurança de API e JWT, e o mundo Windows e Active Directory (a trilha inteira é Linux). A aba Entrevista pergunta sobre as primeiras 24 horas depois de um vazamento, e nenhuma aula ensina isso ainda.
 
 Pontos que ficaram registrados em código:
-- `scripts/rodar-exemplos.mjs` agora roda também a solução de treino, demanda e prova prática. São 91 trechos executados a cada rodada.
+- `scripts/rodar-exemplos.mjs` agora roda também a solução de treino, demanda e prova prática. São 188 trechos executados a cada rodada.
 - `scripts/rodar-exemplos.ignorar.json`: trecho de navegador (m5a3), os dois de `requests` (m11a1) e as três tarefas da `pp4` (bash e PHP), cada um com o motivo.
 - Aula 11.1 pede `pip install requests`: pra rodar o verificador, aponte `RODAR_PYTHON` pra um venv com essa biblioteca.
 - Docker não estava instalado na máquina: o Dockerfile da aula 12.2 foi revisado, não executado.
@@ -92,13 +92,47 @@ RODAR_PYTHON=/caminho/venv/Scripts/python.exe RODAR_NODE_MODULES=/caminho/node_m
 
 O venv tem `fastapi[standard]` e `flask`; a pasta do Node tem `express`. Código que sobe servidor (Express, sempre) é verificado de outro jeito: o runner deixa rodando por 5 segundos e só aceita se ele ficar de pé sem reclamar. As três APIs da aula 4.3 também foram testadas de ponta a ponta com curl (201, 400, 422, cabeçalho Location).
 
+25 de 25 aulas escritas (23/09/2026).
+
 | Módulo | Aulas | Status |
 |---|---|---|
 | 3 · Como uma API funciona | 5 | escrito (código compartilhado: curl, JSON, HTTP) |
-| 4 · Construindo uma API REST | 5 | escrito (código nas 3 stacks) |
-| 5 · Banco de dados e SQL | 4 | pendente |
-| 6 · Autenticação e sessão | 4 | pendente |
-| 7 · Testes e deploy | 4 | pendente |
+| 4 · Construindo uma API REST | 5 | escrito (3 stacks; as três APIs testadas com curl) |
+| 5 · Banco de dados e SQL | 5 | escrito (SQL compartilhado, integração nas 3 stacks) |
+| 6 · Autenticação e sessão | 5 | escrito (3 stacks; fluxo de login e 403 testado ponta a ponta) |
+| 7 · Testes e deploy | 5 | escrito (pytest e node:test rodando de verdade) |
+
+#### Conteúdo de apoio do back-end (23/09/2026)
+
+Fechado junto com a revisão geral. Antes, quem escolhesse back-end via 25 aulas e três telas vazias.
+
+| O que | Antes | Agora |
+|---|---|---|
+| Treinos | 0 | 8, de paginação a idempotência e cursor |
+| Demandas | 0 | 6, do /saude ao CSV que o Excel abre |
+| Projetos | 0 | 3: API no ar, integração com API pública, fila de trabalho |
+| Provas | 0 | 2 (`pa4` alternativas 3 a 5, `pp5` prática 6 e 7) |
+| Glossário | 21 (só da base) | 81, com os termos de rede, web e banco religados por multi-foco |
+| Entrevista | 3 | 15 |
+| Certificados e labs | 0 e 0 | 4 e 5 (freeCodeCamp, AWS, pgexercises, SQLBolt, public-apis, Odin, Exercism) |
+
+O religamento foi por multi-foco, não por cópia: 60 termos e 11 perguntas que só valiam pra segurança passaram a valer também pra back-end e, quando fazia sentido, pra web. O foco web já herda 42 termos e 7 perguntas sem ter nenhuma aula escrita.
+
+#### O que a revisão de 23/09/2026 encontrou e corrigiu
+
+- **Telas vazias:** Prática > Demandas e Trilha > Projetos não tinham estado vazio. Agora têm.
+- **`/foco` sem saída:** quem escolhia back-end caía na pergunta da stack sem como sair. Agora tem "Decidir depois", e a aula abre na primeira stack quando ninguém escolheu.
+- **12 trechos pulados em silêncio:** as aulas do módulo 1 não tinham `linguagem`, e o runner os ignorava sem contar como manual. Foram marcados como `texto` e o checador passou a exigir o campo.
+- **Quiz viciado:** a resposta certa estava na posição do meio em 53% das perguntas. Um rebalanceamento cuidadoso (só onde a ordem das opções não carrega sentido) deixou a distribuição em 37/33/30.
+- **`faculdade` faltando** nos 15 módulos de web, dados e back-end. Preenchida com nomes comuns de grade de ADS; ajuste se a sua grade usar outro nome.
+- **Fato desatualizado:** o `node:sqlite` entrou no Node 22.5 (não no 22) e deixa de ser experimental no 25.7. As aulas 5.4 e 5.5 foram corrigidas.
+- **Código morto:** `stackDaAula` em `lib/conteudo.ts`, que a tela acabou não usando.
+
+Decisões técnicas do foco, pra não reabrir depois:
+- Banco: SQLite pelos dois lados, com `sqlite3` no Python e `node:sqlite` no Node (built-in desde o Node 22, ainda experimental: o aviso aparece e a aula explica). Postgres entra como "quando trocar", não como conteúdo.
+- Senha e token sem biblioteca: `hashlib.scrypt` e `hmac` no Python, `node:crypto` no Node. O token é um JWT escrito à mão, pra pessoa ver o que tem dentro; as bibliotecas (PyJWT, jsonwebtoken) aparecem no "mais".
+- Testes: `pytest` com TestClient e test_client; `node:test` com fetch num servidor de porta sorteada. Nenhuma dependência além do pytest.
+- Os arquivos de teste terminam com `if __name__ == "__main__": pytest.main(...)`, então o runner executa os testes de verdade e não só o import.
 
 - **3 · Como uma API funciona:** Cliente e servidor · HTTP por dentro · Verbos e status · JSON · Testar uma API na mão
 - **4 · Construindo uma API REST:** Primeira API · Rotas e parâmetros · Receber e validar dados · Respostas e erros · Organizar o projeto
@@ -107,6 +141,21 @@ O venv tem `fastapi[standard]` e `flask`; a pasta do Node tem `express`. Código
 - **7 · Testes e deploy:** Escrever um teste · Testar a API de ponta a ponta · Tratar erro e registrar log · Publicar · Projeto: API completa no ar
 
 ### Web: 25 aulas (HTML, CSS, JavaScript, React com Vite, Node com Express, SQLite)
+
+25 de 25 aulas escritas (25/09/2026). Falta o conteúdo de apoio (demandas, treinos, projetos, provas); o glossário e a entrevista já vieram por multi-foco (42 termos, 7 perguntas).
+
+| Módulo | Aulas | Status | Como foi conferido |
+|---|---|---|---|
+| 3 · HTML | 5 | escrito | páginas servidas e abertas no navegador; validação nativa e imagens checadas por script |
+| 4 · CSS | 5 | escrito | estilos aplicados e medidos: box model deu 350 e 300px, grid deu 3, 2 e 1 colunas |
+| 5 · JavaScript no navegador | 5 | escrito | DOM, fetch e localStorage testados no navegador, com interação de verdade |
+| 6 · React com Vite | 5 | escrito | 8 trechos JSX compilados com esbuild e renderizados com React 19 |
+| 7 · Back-end e banco | 5 | escrito | Express e node:sqlite de pé; página criando e marcando no banco pelo navegador |
+
+Verificação do foco web, além do runner:
+- HTML e CSS são servidos numa pasta e medidos no navegador (`getComputedStyle`, `getBoundingClientRect`). Número que a aula afirma é número que apareceu na tela.
+- JSX agora roda no próprio `conteudo:rodar`: esbuild transforma e `react-dom/server` desenha. Precisa de `react`, `react-dom` e `esbuild` na pasta apontada por `RODAR_NODE_MODULES`; sem ela, o trecho volta a contar como manual.
+- Dois erros reais apareceram assim e foram corrigidos: `Date.now()` como id gerava tarefas com o mesmo id (marcar uma marcava as duas; agora é `crypto.randomUUID()`), e o SQLite não criava a pasta `dados/` sozinho.
 
 - **3 · HTML:** Como o navegador monta a página · Tags e semântica · Links, imagens e listas · Formulários · Acessibilidade básica
 - **4 · CSS:** Seletores e cascata · Box model · Flexbox · Grid · Responsivo
